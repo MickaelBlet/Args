@@ -4,7 +4,7 @@
 #include "optparsor.hpp"
 
 GTEST_TEST(argparsor, test1) {
-    const char *argv[] = {
+    const char* argv[] = {
         "binName",
         "extraStart1",
         "-t", "retest=2",
@@ -16,8 +16,8 @@ GTEST_TEST(argparsor, test1) {
     mblet::Optparsor argparsor;
     argparsor.extraUsage("[ARG1]");
     // argparsor.addArgument("h", "help", 0, "", false);
-    argparsor.addOption("t", "test", "help test", false, 3, {"TEST", "TUTU", "TATA"});
-    argparsor.addOption("T", "", "help arg test", true, 1, {"TEST"});
+    argparsor.addOption("t", "test", "help test", false, "", 3, "TEST", "TUTU", "TATA");
+    argparsor.addOption("T", "", "help arg test", true, "", 1, "TEST");
     try {
         argparsor.parseArguments(argc, const_cast<char**>(argv));
     }

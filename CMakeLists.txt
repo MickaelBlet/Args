@@ -9,6 +9,7 @@ file(GLOB SOURCES "${PROJECT_SOURCE_DIR}/src/*.cpp")
 
 add_library("${PROJECT_NAME}" ${SOURCES})
 target_compile_options("${PROJECT_NAME}" PRIVATE -Wall -Wextra -Werror -ggdb)
+target_compile_definitions("${PROJECT_NAME}" PUBLIC DEBUG_LOG)
 
 set_target_properties("${PROJECT_NAME}"
     PROPERTIES

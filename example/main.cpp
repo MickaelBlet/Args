@@ -4,23 +4,19 @@
 
 int main(int argc, char* argv[]) {
     mblet::Optparsor optparsor;
+    optparsor.addOption("-t", "--test", "test options", false, "TITI TOTO TUTU", 3, "TESTS", "TUTU", "TATA");
+    optparsor.addOption("-s", "", "little s options", false, "TESTS", 1, "TUTU");
+    optparsor.addArgument("PLOUF", "plouf arg", true);
     try {
-        #if __cplusplus >= 201103L
-            optparsor.addOption("-t", "--test", "TEST", false, 3, {"TEST", "TUTU", "TATA"}, {"TEST", "TUTU", "TATA"});
-        #else
-            optparsor.addOption("-t", "--test", "test options", false, 3, MBLET_OPT_VECTOR("TESTS", "TUTU", "TATA"), MBLET_OPT_VECTOR("TUTU", "TATA", "TESTS"));
-            optparsor.addOption("-s", "", "little s options", false, 1, MBLET_OPT_VECTOR("TESTS"), MBLET_OPT_VECTOR("TUTU"));
-            optparsor.addArgument("PLOUF", "plouf arg", true);
-        #endif
         optparsor.parseArguments(argc, argv);
         for (std::size_t i = 0 ; i < optparsor["-t"].size() ; ++i) {
-            std::cout << optparsor["-t"][i] << std::endl;
+            std::cout << "-t" << '[' << i << ']' << ": " << optparsor["-t"][i].get<double>() << std::endl;
         }
         for (std::size_t i = 0 ; i < optparsor["-s"].size() ; ++i) {
-            std::cout << optparsor["-s"][i] << std::endl;
+            std::cout << "-s" << '[' << i << ']' << ": " << optparsor["-s"][i] << std::endl;
         }
         if (optparsor["PLOUF"]) {
-            std::cout << optparsor["PLOUF"] << std::endl;
+            std::cout << "PLOUF" << ": " << optparsor["PLOUF"] << std::endl;
         }
     }
     catch (const mblet::Optparsor::ParseArgumentRequiredException& e) {

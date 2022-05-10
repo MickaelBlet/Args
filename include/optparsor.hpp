@@ -8,20 +8,7 @@
 #include <sstream>
 #include <iostream>
 #include <cstdarg>
-
-#if __cplusplus < 201103L
-
-// max 19 args
-#define MBLET_NARGS_SEQ(_1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11, _12, _13, _14, _15, _16, _17, _18, _19, _0, N, ...) N
-#define MBLET_NARGS(...) MBLET_NARGS_SEQ(__VA_ARGS__, 0, 19, 18, 17, 16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1)
-#define MBLET_PRE_NARGS(...) MBLET_NARGS(__VA_ARGS__)
-#define MBLET_NOARGS() 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19
-#define MBLET_NARG(...) MBLET_PRE_NARGS(MBLET_NOARGS __VA_ARGS__ ())
-
-// create a temporary vector in c++98
-#define MBLET_OPT_VECTOR(...) ::mblet::Optparsor::make_vector(MBLET_NARG(__VA_ARGS__), "" __VA_ARGS__ "")
-
-#endif
+#include <cstdlib>
 
 namespace mblet {
 
@@ -32,39 +19,13 @@ class Optparsor {
 
   public:
 
-#if __cplusplus < 201103L
-    /**
-     * @brief Custom class from create a vector from va_list
-     */
-    class make_vector : public std::vector<const char *> {
-      public:
-        /**
-         * @brief Construct a new vector object from va_list
-         *
-         * @param nbArg
-         * @param ...
-         */
-        make_vector(std::size_t nbArg, ...) : std::vector<const char *>() {
-            va_list pa;
-            va_start(pa, nbArg);
-            for (std::size_t i = 0 ; i < nbArg ; ++i) {
-                this->push_back(va_arg(pa, const char *));
-            }
-            va_end(pa);
-        }
-
-        /**
-         * @brief Destroy the make vector object
-         */
-        virtual ~make_vector() {}
-    };
-#endif
-
     class Exception : public std::exception {
       public:
         Exception(const char* str) : _str(str) {}
         virtual ~Exception() throw() {}
-        const char* what() const throw() { return _str.c_str(); }
+        const char* what() const throw() {
+            return _str.c_str();
+        }
       protected:
         std::string _str;
     };
@@ -73,7 +34,9 @@ class Optparsor {
       public:
         ArgumentException(const char* argument, const char* message) : Exception(message), _argument(argument) {}
         virtual ~ArgumentException() throw() {}
-        const char* argument() const throw() { return _argument.c_str(); }
+        const char* argument() const throw() {
+            return _argument.c_str();
+        }
       private:
         std::string _argument;
     };
@@ -96,6 +59,56 @@ class Optparsor {
             ARGUMENT
         };
 
+        struct Argument : public std::string {
+            Argument() : std::string() {}
+            Argument(const Argument& rhs) : std::string(rhs) {}
+            Argument(const std::string& rhs) : std::string(rhs) {}
+            Argument(const char* const& rhs) : std::string(rhs) {}
+            virtual ~Argument() {}
+            template<typename T>
+            T get() const {
+                T retValue;
+                std::stringstream stringStream("");
+                valueToStream(stringStream);
+                stringStream >> retValue;
+                return retValue;
+            }
+
+            void valueToStream(std::ostream& stringStream) const {
+                std::size_t index = 0;
+
+                if (c_str()[index] == '-' || c_str()[index] == '+') {
+                    ++index;
+                }
+                // is hex
+                if (c_str()[index] == '0' && c_str()[index + 1] == 'x') {
+                    stringStream << strtoll(c_str(), NULL, 16);
+                }
+                // is binary
+                else if (c_str()[index] == '0' && c_str()[index + 1] == 'b') {
+                    stringStream << strtoull(c_str() + index + 2, NULL, 2);
+                }
+                // is octal
+                else if (c_str()[index] == '0' && find('.') == std::string::npos) {
+                    stringStream << strtoll(c_str(), NULL, 8);
+                }
+                // is bool
+                else if (*this == "TRUE" || *this == "True" || *this == "true" ||
+                        *this == "ON"   || *this == "On"   || *this == "on"   ||
+                        *this == "YES"  || *this == "Yes"  || *this == "yes") {
+                    stringStream << true;
+                }
+                else if (*this == "FALSE" || *this == "False" || *this == "false" ||
+                        *this == "OFF"   || *this == "Off"   || *this == "off"   ||
+                        *this == "NO"    || *this == "No"    || *this == "no") {
+                    stringStream << false;
+                }
+                else {
+                    stringStream << *this;
+                }
+            }
+        };
+
         bool isExist;
         bool isRequired;
         enum Type type;
@@ -103,15 +116,15 @@ class Optparsor {
         std::string longName;
         std::string help;
         std::size_t nbArgs;
-        std::vector<std::string> usageNames;
+        std::string usageName;
         std::vector<std::string> defaultValues;
-        std::vector<std::string> arguments;
+        std::vector<Argument> arguments;
 
         inline operator bool() const {
             return isExist;
         }
 
-        inline const std::string& operator[](std::size_t index) const {
+        inline const Argument& operator[](std::size_t index) const {
             return arguments[index];
         }
 
@@ -180,14 +193,14 @@ class Optparsor {
      * @param longName
      * @param help
      * @param isRequired
+     * @param usageName
      * @param nbArgs
-     * @param usageNames
-     * @param defaultValues
+     * @param ...
      */
     void addOption(const char* shortName, const char* longName, const char* help, bool isRequired = false,
-        std::size_t nbArgs = 0,
-        const std::vector<const char *>& usageNames = std::vector<const char *>(),
-        const std::vector<const char *>& defaultValues = std::vector<const char *>());
+                   const char* usageName = NULL,
+                   std::size_t nbArgs = 0,
+                   ...);
 
     /**
      * @brief
@@ -198,7 +211,8 @@ class Optparsor {
      * @param argName
      * @param defaultValue
      */
-    void addArgument(const char* name, const char* help, bool isRequired = false, const char* usageName = NULL, const char* defaultValue = NULL);
+    void addArgument(const char* name, const char* help, bool isRequired = false, const char* usageName = NULL,
+                     const char* defaultValue = NULL);
 
     void extraUsage(const char* extraUsageMessage);
 

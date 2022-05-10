@@ -5,11 +5,11 @@
 #include "optparsor.hpp"
 
 #ifdef DEBUG_LOG
-#include <cstdio>
-#define __FILENAME__ (strrchr(__FILE__, '/') ? strrchr(__FILE__, '/') + 1 : __FILE__)
-#define LOG_DEBUG(format, ...) printf("%s:%d: " format "\n", __FILENAME__, __LINE__, ##__VA_ARGS__)
+    #include <cstdio>
+    #define __FILENAME__ (strrchr(__FILE__, '/') ? strrchr(__FILE__, '/') + 1 : __FILE__)
+    #define LOG_DEBUG(format, ...) printf("%s:%d: " format "\n", __FILENAME__, __LINE__, ##__VA_ARGS__)
 #else
-#define LOG_DEBUG(format, ...) /* nothing */
+    #define LOG_DEBUG(format, ...) /* nothing */
 #endif // DEBUG_LOG
 
 namespace mblet {
@@ -94,7 +94,7 @@ static inline int endOptionIndex(int argc, char** argv) {
  * @return false
  */
 static inline bool takeArg(const char* arg, std::string* retOptionName, std::string* retArgument) {
-    char *equal = ::strchr(const_cast<char*>(arg), '=');
+    char* equal = ::strchr(const_cast<char*>(arg), '=');
     if (equal) {
         std::string firstPart(arg, 0, equal - arg);
         *retOptionName = firstPart;
@@ -126,10 +126,7 @@ std::ostream& Optparsor::getUsage(std::ostream& oss) const {
         std::string optionName;
         if (!it->shortName.empty()) {
             if (it->nbArgs > 0) {
-                oss << it->shortName;
-                for (std::size_t i = 0 ; i < it->nbArgs ; ++i) {
-                    oss << ' ' << it->usageNames[i];
-                }
+                oss << it->shortName << ' ' << it->usageName;
             }
             else {
                 oss << it->shortName;
@@ -137,10 +134,7 @@ std::ostream& Optparsor::getUsage(std::ostream& oss) const {
         }
         else {
             if (it->nbArgs > 0) {
-                oss << it->longName;
-                for (std::size_t i = 0 ; i < it->nbArgs ; ++i) {
-                    oss << ' ' << it->usageNames[i];
-                }
+                oss << it->longName << ' ' << it->usageName;
             }
             else {
                 oss << it->longName;
@@ -173,8 +167,8 @@ std::ostream& Optparsor::getUsage(std::ostream& oss) const {
             else if (!it->longName.empty()) {
                 optionStr += it->longName;
             }
-            for (std::size_t i = 0 ; i < it->usageNames.size() ; ++i) {
-                optionStr += " " + it->usageNames[i];
+            if (!it->usageName.empty()) {
+                optionStr += " " + it->usageName;
             }
             helpStr += "  " + it->help;
             if (it->isRequired) {
@@ -213,12 +207,12 @@ void Optparsor::extraUsage(const char* extraUsageMessage) {
 }
 
 void Optparsor::parseArguments(int argc, char* argv[]) {
-    #ifdef DEBUG_LOG
+#ifdef DEBUG_LOG
     LOG_DEBUG("argc: %d", argc);
     for (int i = 0 ; i < argc ; ++i) {
         LOG_DEBUG("argv[%d]: \"%s\"", i, argv[i]);
     }
-    #endif
+#endif
 
     // save index of "--" if exist
     int endIndex = endOptionIndex(argc, argv);
@@ -259,19 +253,19 @@ void Optparsor::parseArguments(int argc, char* argv[]) {
     for (it = _options.begin() ; it != _options.end() ; ++it) {
         if (it->isRequired && it->isExist == false) {
             if (!it->longName.empty()) {
-                throw ParseArgumentRequiredException(it->longName.c_str(), "Option is required");
+                throw ParseArgumentRequiredException(it->longName.c_str(), "Option is required.");
             }
             else {
-                throw ParseArgumentRequiredException(it->shortName.c_str(), "Option is required");
+                throw ParseArgumentRequiredException(it->shortName.c_str(), "Option is required.");
             }
         }
     }
 }
 
 void Optparsor::addOption(const char* shortName, const char* longName, const char* help, bool isRequired,
-        std::size_t nbArgs,
-        const std::vector<const char *>& usageNames,
-        const std::vector<const char *>& defaultValues) {
+                          const char* usageName,
+                          std::size_t nbArgs,
+                          ...) {
     if ((shortName == NULL || shortName[0] == '\0') && (longName == NULL || longName[0] == '\0')) {
         throw ArgumentException("", "Bad short and long arguments.");
     }
@@ -302,34 +296,19 @@ void Optparsor::addOption(const char* shortName, const char* longName, const cha
     }
 
     // check usageNames
-    std::string defaultArgName;
-    if (usageNames.size() > 0 && usageNames.size() != nbArgs) {
+    std::string defaultUsageName;
+    if (usageName == NULL || usageName[0] == '\0') {
+        // create a defaultUsageName from longName or shortName
         if (longName != NULL && longName[0] != '\0') {
-            throw ArgumentException(longName, "Bad number of usageNames.");
+            defaultUsageName = longName + 2;
         }
         else {
-            throw ArgumentException(shortName, "Bad number of usageNames.");
+            defaultUsageName = shortName + 1;
         }
-    }
-    else {
-        // create a defaultArgName from longName or shortName
-        if (longName != NULL && longName[0] != '\0') {
-            defaultArgName = longName + 2;
+        for (std::size_t i = 0 ; i < defaultUsageName.size() ; ++i) {
+            defaultUsageName[i] = ::toupper(defaultUsageName[i]);
         }
-        else {
-            defaultArgName = shortName + 1;
-        }
-        for (std::size_t i = 0 ; i < defaultArgName.size() ; ++i) {
-            defaultArgName[i] = ::toupper(defaultArgName[i]);
-        }
-    }
-    if (defaultValues.size() > 0 && defaultValues.size() != nbArgs) {
-        if (longName != NULL && longName[0] != '\0') {
-            throw ArgumentException(longName, "Bad number of defaultValues.");
-        }
-        else {
-            throw ArgumentException(shortName, "Bad number of defaultValues.");
-        }
+        usageName = defaultUsageName.c_str();
     }
 
     // create option
@@ -356,21 +335,21 @@ void Optparsor::addOption(const char* shortName, const char* longName, const cha
     option.isExist = false;
     option.type = Option::OPTION;
     option.nbArgs = nbArgs;
-    for (std::size_t i = 0 ; i < nbArgs ; ++i) {
-        if (usageNames.size() > 0) {
-            option.usageNames.push_back(usageNames[i]);
+    option.usageName = usageName;
+    if (isRequired == false && nbArgs > 0) {
+        va_list pa;
+        va_start(pa, nbArgs);
+        for (std::size_t i = 0 ; i < nbArgs ; ++i) {
+            const char* defaultValue = (const char*)va_arg(pa, const char*);
+            option.defaultValues.push_back(defaultValue);
+            option.arguments.push_back(defaultValue);
         }
-        else {
-            option.usageNames.push_back(defaultArgName);
-        }
+        va_end(pa);
     }
-    for (std::size_t i = 0 ; i < nbArgs ; ++i) {
-        option.defaultValues.push_back(defaultValues[i]);
-    }
-    option.arguments = option.defaultValues;
 }
 
-void Optparsor::addArgument(const char* name, const char* help, bool isRequired, const char* usageName, const char* defaultValue) {
+void Optparsor::addArgument(const char* name, const char* help, bool isRequired, const char* usageName,
+                            const char* defaultValue) {
     if (name == NULL || name[0] == '\0') {
         throw ArgumentException("", "Bad name argument.");
     }
@@ -396,7 +375,7 @@ void Optparsor::addArgument(const char* name, const char* help, bool isRequired,
         option.help = help;
     }
     if (usageName != NULL) {
-        option.usageNames.push_back(usageName);
+        option.usageName = usageName;
     }
     if (defaultValue != NULL) {
         option.arguments.push_back(defaultValue);
@@ -456,7 +435,7 @@ bool Optparsor::getLongOption(int argc, char* argv[], int* index) {
     std::string arg;
     std::map<std::string, Option*>::iterator it;
     bool hasArg = takeArg(argv[*index], &option, &arg);
-    LOG_DEBUG("try to find \"-%s\" in option map", charOption.c_str());
+    LOG_DEBUG("try to find \"-%s\" in option map", option.c_str());
     it = _optionFromName.find(option);
     if (it == _optionFromName.end()) {
         throw ParseArgumentException(option.c_str(), "Option not added.");
