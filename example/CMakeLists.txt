@@ -1,5 +1,3 @@
-cmake_minimum_required(VERSION 2.6)
-
 project(example CXX)
 
 include_directories(
@@ -8,8 +6,8 @@ include_directories(
 
 file(GLOB SRC "*.cpp")
 
-add_executable(${PROJECT_NAME} ${SRC})
-set_target_properties(${PROJECT_NAME}
+add_executable("${PROJECT_NAME}" ${SRC})
+set_target_properties("${PROJECT_NAME}"
     PROPERTIES
         CXX_STANDARD 98
         CXX_STANDARD_REQUIRED ON
@@ -17,5 +15,7 @@ set_target_properties(${PROJECT_NAME}
         NO_SYSTEM_FROM_IMPORTED ON
 )
 
-target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Wextra -Werror -ggdb)
-target_link_libraries(${PROJECT_NAME} optionator)
+target_compile_options("${PROJECT_NAME}" PRIVATE -pedantic -Wall -Wextra -Werror)
+target_link_libraries("${PROJECT_NAME}" optparsor)
+
+add_test(NAME "${PROJECT_NAME}" COMMAND "${PROJECT_NAME}" -h)

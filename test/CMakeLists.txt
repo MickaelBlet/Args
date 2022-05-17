@@ -1,5 +1,3 @@
-cmake_minimum_required(VERSION 2.6)
-
 include_directories(
     "${CMAKE_CURRENT_SOURCE_DIR}/include"
 )
@@ -18,6 +16,6 @@ foreach(file ${test_files})
     )
     target_compile_options("optionator_${filenamewe}.gtest" PRIVATE -pedantic -Wall -Wextra -Werror)
     target_link_libraries("optionator_${filenamewe}.gtest" gtest_main gtest pthread)
-    target_link_libraries("optionator_${filenamewe}.gtest" optionator)
+    target_link_libraries("optionator_${filenamewe}.gtest" optparsor)
     add_test(NAME "optionator_${filenamewe}.gtest" COMMAND "optionator_${filenamewe}.gtest")
 endforeach()
