@@ -1,5 +1,5 @@
-#ifndef _MBLET_OPTPARSOR_HPP_
-#define _MBLET_OPTPARSOR_HPP_
+#ifndef _MBLET_ARGPARSOR_HPP_
+#define _MBLET_ARGPARSOR_HPP_
 
 #include <map>
 #include <string>
@@ -13,7 +13,7 @@ namespace mblet {
 /**
  * @brief Object for parse the main arguments
  */
-class Optparsor {
+class Argparsor {
 
   public:
 
@@ -41,7 +41,7 @@ class Optparsor {
         const char* argument() const throw() {
             return _argument.c_str();
         }
-      private:
+      protected:
         std::string _argument;
     };
 
@@ -73,48 +73,48 @@ class Optparsor {
     };
 
     /**
-     * @brief Option object
+     * @brief Argument object
      */
-    class Option {
+    class Argument {
 
       public:
 
         /**
-         * @brief Argument object from std::string
+         * @brief String object from std::string
          */
-        class Argument : public std::string {
+        class String : public std::string {
           public:
 
             /**
-             * @brief Construct a new Argument object
+             * @brief Construct a new String object
              */
-            Argument();
+            String();
 
             /**
-             * @brief Construct a new Argument object
+             * @brief Construct a new String object
              *
              * @param rhs
              */
-            Argument(const Argument& rhs);
+            String(const String& rhs);
 
             /**
-             * @brief Construct a new Argument object
+             * @brief Construct a new String object
              *
              * @param rhs
              */
-            Argument(const std::string& rhs);
+            String(const std::string& rhs);
 
             /**
-             * @brief Construct a new Argument object
+             * @brief Construct a new String object
              *
              * @param rhs
              */
-            Argument(const char* const& rhs);
+            String(const char* const& rhs);
 
             /**
-             * @brief Destroy the Argument object
+             * @brief Destroy the String object
              */
-            virtual ~Argument();
+            virtual ~String();
 
             /**
              * @brief Get value from type
@@ -152,22 +152,22 @@ class Optparsor {
         };
 
         /**
-         * @brief Construct a new Option object
+         * @brief Construct a new Argument object
          */
-        Option();
+        Argument();
 
         /**
-         * @brief Destroy the Option object
+         * @brief Destroy the Argument object
          */
-        ~Option();
+        ~Argument();
 
         /**
          * @brief Get arguments element at index
          *
          * @param index
-         * @return const Argument&
+         * @return const String&
          */
-        inline const Argument& at(std::size_t index) const {
+        inline const String& at(std::size_t index) const {
             if (arguments.size() < index) {
                 if (!longName.empty()) {
                     throw AccessDeniedException(longName.c_str(), "out of range");
@@ -220,7 +220,7 @@ class Optparsor {
         }
 
         /**
-         * @brief Tranform option to const string
+         * @brief Tranform argument to const string
          *
          * @return const char*
          */
@@ -260,7 +260,7 @@ class Optparsor {
         }
 
         /**
-         * @brief Tranform option to const string
+         * @brief Tranform argument to const string
          *
          * @return const char*
          */
@@ -281,21 +281,21 @@ class Optparsor {
          * @brief Override bracket operator
          *
          * @param index
-         * @return const Argument&
+         * @return const String&
          */
-        inline const Argument& operator[](std::size_t index) const {
+        inline const String& operator[](std::size_t index) const {
             return at(index);
         }
 
         /**
-         * @brief Friend function for convert Option object to ostream
+         * @brief Friend function for convert String object to ostream
          *
          * @param os
-         * @param option
+         * @param arg
          * @return std::ostream&
          */
-        inline friend std::ostream& operator<<(std::ostream& os, const Option& option) {
-            os << option.c_str();
+        inline friend std::ostream& operator<<(std::ostream& os, const Argument& arg) {
+            os << arg.c_str();
             return os;
         }
 
@@ -309,18 +309,18 @@ class Optparsor {
         std::size_t nbArgs;
         std::string argHelp;
         std::vector<std::string> defaultValues;
-        std::vector<Argument> arguments;
+        std::vector<String> arguments;
     };
 
     /**
-     * @brief Construct a new Optparsor object
+     * @brief Construct a new Argparsor object
      */
-    Optparsor();
+    Argparsor();
 
     /**
-     * @brief Destroy the Optparsor object
+     * @brief Destroy the Argparsor object
      */
-    ~Optparsor();
+    ~Argparsor();
 
     /**
      * @brief Get the bynary name
@@ -340,28 +340,28 @@ class Optparsor {
     std::ostream& getUsage(std::ostream& oss = std::cout);
 
     /**
-     * @brief Get the option object
+     * @brief Get the argument object
      *
      * @param str
-     * @return const Option&
+     * @return const Argument&
      */
-    inline const Option& getOption(const char* str) const {
-        std::map<std::string, Option*>::const_iterator cit = _optionFromName.find(str);
-        if (cit == _optionFromName.end()) {
+    inline const Argument& getOption(const char* str) const {
+        std::map<std::string, Argument*>::const_iterator cit = _argumentFromName.find(str);
+        if (cit == _argumentFromName.end()) {
             throw AccessDeniedException(str, "option not found");
         }
         return *(cit->second);
     }
 
     /**
-     * @brief Get the option object
+     * @brief Get the argument object
      *
      * @param str
-     * @return const Option&
+     * @return const Argument&
      */
-    inline const Option& getOption(const std::string& str) const {
-        std::map<std::string, Option*>::const_iterator cit = _optionFromName.find(str);
-        if (cit == _optionFromName.end()) {
+    inline const Argument& getOption(const std::string& str) const {
+        std::map<std::string, Argument*>::const_iterator cit = _argumentFromName.find(str);
+        if (cit == _argumentFromName.end()) {
             throw AccessDeniedException(str.c_str(), "option not found");
         }
         return *(cit->second);
@@ -371,9 +371,9 @@ class Optparsor {
      * @brief Override bracket operator with getOption
      *
      * @param str
-     * @return const Option&
+     * @return const Argument&
      */
-    inline const Option& operator[](const char* str) const {
+    inline const Argument& operator[](const char* str) const {
         return getOption(str);
     }
 
@@ -381,9 +381,9 @@ class Optparsor {
      * @brief Override bracket operator with getOption
      *
      * @param str
-     * @return const Option&
+     * @return const Argument&
      */
-    inline const Option& operator[](const std::string& str) const {
+    inline const Argument& operator[](const std::string& str) const {
         return getOption(str);
     }
 
@@ -397,13 +397,13 @@ class Optparsor {
     }
 
     /**
-     * @brief Set the help option
+     * @brief Set the help argument
      *
      * @param shortName
      * @param longName
      * @param help
      */
-    void setHelpOption(const char* shortName, const char* longName, const char* help);
+    void setHelpArgument(const char* shortName, const char* longName, const char* help);
 
     /**
      * @brief Set the usage message
@@ -431,7 +431,7 @@ class Optparsor {
     }
 
     /**
-     * @brief Parse option and argument
+     * @brief Parse arguments
      *
      * @param argc
      * @param argv
@@ -439,17 +439,17 @@ class Optparsor {
     void parseArguments(int argc, char* argv[]);
 
     /**
-     * @brief Add boolean option with short and long name
+     * @brief Add boolean argument with short and long name
      *
      * @param shortName
      * @param longName
      * @param help
      * @param isRequired
      */
-    void addBooleanOption(const char* shortName, const char* longName = NULL, const char* help = NULL, bool isRequired = false);
+    void addBooleanArgument(const char* shortName, const char* longName = NULL, const char* help = NULL, bool isRequired = false);
 
     /**
-     * @brief Add simple argument option with short and long name
+     * @brief Add simple argument with short and long name
      *
      * @param shortName
      * @param longName
@@ -458,12 +458,12 @@ class Optparsor {
      * @param argHelp
      * @param defaultValue
      */
-    void addSimpleOption(const char* shortName, const char* longName = NULL, const char* help = NULL, bool isRequired = false,
+    void addSimpleArgument(const char* shortName, const char* longName = NULL, const char* help = NULL, bool isRequired = false,
                          const char* argHelp = NULL, const char* defaultValue = NULL);
 
 
     /**
-     * @brief Add number argument option with short and long name
+     * @brief Add number argument with short and long name
      *
      * @param shortName
      * @param longName
@@ -473,11 +473,11 @@ class Optparsor {
      * @param nbArgs
      * @param ... default argument value (const char*)
      */
-    void addNumberOption(const char* shortName, const char* longName = NULL, const char* help = NULL, bool isRequired = false,
+    void addNumberArgument(const char* shortName, const char* longName = NULL, const char* help = NULL, bool isRequired = false,
                          const char* argHelp = NULL, std::size_t nbArgs = 0, ...);
 
     /**
-     * @brief Add infinite argument option with short and long name
+     * @brief Add infinite argument with short and long name
      *
      * @param shortName
      * @param longName
@@ -487,11 +487,11 @@ class Optparsor {
      * @param nbDefaultArgs
      * @param ...
      */
-    void addInfiniteOption(const char* shortName, const char* longName = NULL, const char* help = NULL, bool isRequired = false,
+    void addInfiniteArgument(const char* shortName, const char* longName = NULL, const char* help = NULL, bool isRequired = false,
                            const char* argHelp = NULL, std::size_t nbDefaultArgs = 0, ...);
 
     /**
-     * @brief Add multi option from short and long name with list argument
+     * @brief Add multi argument from short and long name with list argument
      *
      * @param shortName
      * @param longName
@@ -501,7 +501,7 @@ class Optparsor {
      * @param nbDefaultArgs
      * @param ...
      */
-    void addMultiOption(const char* shortName, const char* longName = NULL, const char* help = NULL, bool isRequired = false,
+    void addMultiArgument(const char* shortName, const char* longName = NULL, const char* help = NULL, bool isRequired = false,
                         const char* argHelp = NULL, std::size_t nbDefaultArgs = 0, ...);
 
     /**
@@ -519,18 +519,18 @@ class Optparsor {
   private:
 
     /**
-     * @brief Create a option with check format of shortName and longName
+     * @brief Create a argument with check format of shortName and longName
      *
      * @param shortName
      * @param longName
      * @param help
      * @param isRequired
-     * @return Option&
+     * @return Argument&
      */
-    Option& createOption(const char* shortName, const char* longName, const char* help, bool isRequired);
+    Argument& createArgument(const char* shortName, const char* longName, const char* help, bool isRequired);
 
     /**
-     * @brief Get the short option decompose multi short option
+     * @brief Get the short argument decompose multi short argument
      *
      * @param maxIndex
      * @param argv
@@ -538,16 +538,16 @@ class Optparsor {
      * @return true
      * @return false
      */
-    void getShortOption(int maxIndex, char* argv[], int* index);
+    void getShortArgument(int maxIndex, char* argv[], int* index);
 
     /**
-     * @brief Get the long option
+     * @brief Get the long argument
      *
      * @param maxIndex
      * @param argv
      * @param index
      */
-    void getLongOption(int maxIndex, char* argv[], int* index);
+    void getLongArgument(int maxIndex, char* argv[], int* index);
 
     /**
      * @brief Get the positionnal argument
@@ -560,10 +560,10 @@ class Optparsor {
 
     std::string _binaryName;
 
-    std::list<Option> _options;
-    std::map<std::string, Option*> _optionFromName;
+    std::list<Argument> _arguments;
+    std::map<std::string, Argument*> _argumentFromName;
 
-    Option* _helpOption;
+    Argument* _helpOption;
 
     std::string _usage;
     std::string _description;
@@ -574,4 +574,4 @@ class Optparsor {
 
 } // namespace mblet
 
-#endif // _MBLET_Optparsor_HPP_
+#endif // _MBLET_ARGPARSOR_HPP_

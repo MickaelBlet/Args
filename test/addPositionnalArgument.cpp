@@ -1,48 +1,48 @@
 #include <gtest/gtest.h>
 
-#include "optparsor.h"
+#include "argparsor.h"
 
 GTEST_TEST(addPositionnalOption, invalid_name) {
-    mblet::Optparsor optparsor;
+    mblet::Argparsor argparsor;
     EXPECT_THROW({
         try {
-            optparsor.addPositionalArgument(NULL, NULL);
+            argparsor.addPositionalArgument(NULL, NULL);
         }
-        catch (const mblet::Optparsor::ArgumentException& e) {
+        catch (const mblet::Argparsor::ArgumentException& e) {
             EXPECT_STREQ(e.what(), "bad name argument");
             throw;
         }
-    }, mblet::Optparsor::ArgumentException);
+    }, mblet::Argparsor::ArgumentException);
     EXPECT_THROW({
         try {
-            optparsor.addPositionalArgument("", NULL);
+            argparsor.addPositionalArgument("", NULL);
         }
-        catch (const mblet::Optparsor::ArgumentException& e) {
+        catch (const mblet::Argparsor::ArgumentException& e) {
             EXPECT_STREQ(e.what(), "bad name argument");
             throw;
         }
-    }, mblet::Optparsor::ArgumentException);
+    }, mblet::Argparsor::ArgumentException);
     EXPECT_THROW({
         try {
-            optparsor.addPositionalArgument("-nope", NULL);
+            argparsor.addPositionalArgument("-nope", NULL);
         }
-        catch (const mblet::Optparsor::ArgumentException& e) {
+        catch (const mblet::Argparsor::ArgumentException& e) {
             EXPECT_STREQ(e.what(), "bad name argument start by '-' character");
             throw;
         }
-    }, mblet::Optparsor::ArgumentException);
+    }, mblet::Argparsor::ArgumentException);
 }
 
 GTEST_TEST(addPositionnalOption, invalid_name_already_exist) {
-    mblet::Optparsor optparsor;
-    optparsor.addPositionalArgument("arg", NULL);
+    mblet::Argparsor argparsor;
+    argparsor.addPositionalArgument("arg", NULL);
     EXPECT_THROW({
         try {
-            optparsor.addPositionalArgument("arg", NULL);
+            argparsor.addPositionalArgument("arg", NULL);
         }
-        catch (const mblet::Optparsor::ArgumentException& e) {
+        catch (const mblet::Argparsor::ArgumentException& e) {
             EXPECT_STREQ(e.what(), "bad name argument already exist");
             throw;
         }
-    }, mblet::Optparsor::ArgumentException);
+    }, mblet::Argparsor::ArgumentException);
 }

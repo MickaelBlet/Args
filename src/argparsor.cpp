@@ -3,7 +3,7 @@
 #include <cstdlib>
 #include <cstdarg>
 
-#include "optparsor.h"
+#include "argparsor.h"
 
 #define PREFIX_SIZEOF_SHORT_OPTION (sizeof("-") - 1)
 #define PREFIX_SIZEOF_LONG_OPTION (sizeof("--") - 1)
@@ -104,14 +104,14 @@ static inline bool takeArg(const char* arg, std::string* retOptionName, std::str
     }
 }
 
-Optparsor::Optparsor() : _throwAtExtra(true) {
-    setHelpOption("-h", "--help", "show this help message and exit");
+Argparsor::Argparsor() : _throwAtExtra(true) {
+    setHelpArgument("-h", "--help", "show this help message and exit");
 }
 
-Optparsor::~Optparsor() {}
+Argparsor::~Argparsor() {}
 
-Optparsor::Option::Option() :
-    type(Option::BOOLEAN_OPTION),
+Argparsor::Argument::Argument() :
+    type(Argument::BOOLEAN_OPTION),
     isExist(false),
     count(0),
     isRequired(false),
@@ -121,18 +121,18 @@ Optparsor::Option::Option() :
     nbArgs(0),
     argHelp(std::string()),
     defaultValues(std::vector<std::string>()),
-    arguments(std::vector<Argument>()) {}
+    arguments(std::vector<String>()) {}
 
-Optparsor::Option::~Option() {}
+Argparsor::Argument::~Argument() {}
 
-Optparsor::Option::Argument::Argument() : std::string() {}
-Optparsor::Option::Argument::~Argument() {}
+Argparsor::Argument::String::String() : std::string() {}
+Argparsor::Argument::String::~String() {}
 
-Optparsor::Option::Argument::Argument(const Argument& rhs) : std::string(rhs) {}
-Optparsor::Option::Argument::Argument(const std::string& rhs) : std::string(rhs) {}
-Optparsor::Option::Argument::Argument(const char* const& rhs) : std::string(rhs) {}
+Argparsor::Argument::String::String(const String& rhs) : std::string(rhs) {}
+Argparsor::Argument::String::String(const std::string& rhs) : std::string(rhs) {}
+Argparsor::Argument::String::String(const char* const& rhs) : std::string(rhs) {}
 
-void Optparsor::Option::Argument::valueToStream(std::ostream& stringStream) const {
+void Argparsor::Argument::String::valueToStream(std::ostream& stringStream) const {
     std::size_t index = 0;
 
     if (c_str()[index] == '-' || c_str()[index] == '+') {
@@ -166,8 +166,8 @@ void Optparsor::Option::Argument::valueToStream(std::ostream& stringStream) cons
     }
 }
 
-static bool compareOption(const Optparsor::Option& first, const Optparsor::Option& second) {
-    if (first.type == Optparsor::Option::POSITIONAL_ARGUMENT) {
+static bool compareOption(const Argparsor::Argument& first, const Argparsor::Argument& second) {
+    if (first.type == Argparsor::Argument::POSITIONAL_ARGUMENT) {
         return false;
     }
     if (!first.shortName.empty() && !second.shortName.empty()) {
@@ -201,17 +201,17 @@ static bool compareOption(const Optparsor::Option& first, const Optparsor::Optio
     }
 }
 
-std::ostream& Optparsor::getUsage(std::ostream& oss) {
-    _options.sort(&compareOption);
+std::ostream& Argparsor::getUsage(std::ostream& oss) {
+    _arguments.sort(&compareOption);
     if (!_usage.empty()) {
         oss << _usage;
         return oss;
     }
     // usage line
     oss << "usage: " << _binaryName;
-    std::list<Option>::const_iterator it;
-    for (it = _options.begin() ; it != _options.end() ; ++it) {
-        if (it->type == Option::POSITIONAL_ARGUMENT) {
+    std::list<Argument>::const_iterator it;
+    for (it = _arguments.begin() ; it != _arguments.end() ; ++it) {
+        if (it->type == Argument::POSITIONAL_ARGUMENT) {
             continue;
         }
         oss << " [";
@@ -233,8 +233,8 @@ std::ostream& Optparsor::getUsage(std::ostream& oss) {
         }
         oss << ']';
     }
-    for (it = _options.begin() ; it != _options.end() ; ++it) {
-        if (it->type != Option::POSITIONAL_ARGUMENT) {
+    for (it = _arguments.begin() ; it != _arguments.end() ; ++it) {
+        if (it->type != Argument::POSITIONAL_ARGUMENT) {
             continue;
         }
         oss << " " << it->longName;
@@ -245,12 +245,12 @@ std::ostream& Optparsor::getUsage(std::ostream& oss) {
         oss << "\n" << _description << "\n";
     }
     // optionnal
-    if (!_options.empty()) {
+    if (!_arguments.empty()) {
         std::list<std::pair<std::string, std::string> > positionals;
         std::list<std::pair<std::string, std::string> > optionnals;
-        for (it = _options.begin() ; it != _options.end() ; ++it) {
+        for (it = _arguments.begin() ; it != _arguments.end() ; ++it) {
             std::list<std::pair<std::string, std::string> > *listOption = NULL;
-            if (it->type == Option::POSITIONAL_ARGUMENT) {
+            if (it->type == Argument::POSITIONAL_ARGUMENT) {
                 positionals.push_back(std::pair<std::string, std::string>("", ""));
                 listOption = &positionals;
             }
@@ -323,19 +323,19 @@ std::ostream& Optparsor::getUsage(std::ostream& oss) {
     return oss;
 }
 
-void Optparsor::setHelpOption(const char* shortName, const char* longName, const char* help) {
+void Argparsor::setHelpArgument(const char* shortName, const char* longName, const char* help) {
     if (_helpOption != NULL) {
-        for (std::list<Option>::iterator itList = _options.begin() ; itList != _options.end() ; ++itList) {
+        for (std::list<Argument>::iterator itList = _arguments.begin() ; itList != _arguments.end() ; ++itList) {
             if (_helpOption == itList.operator->()) {
-                _options.erase(itList);
+                _arguments.erase(itList);
                 break;
             }
         }
-        std::map<std::string, Option*>::iterator itMap = _optionFromName.begin();
-        while (itMap != _optionFromName.end()) {
+        std::map<std::string, Argument*>::iterator itMap = _argumentFromName.begin();
+        while (itMap != _argumentFromName.end()) {
             if (_helpOption == itMap->second) {
-                _optionFromName.erase(itMap);
-                itMap = _optionFromName.begin();
+                _argumentFromName.erase(itMap);
+                itMap = _argumentFromName.begin();
             }
             else {
                 ++itMap;
@@ -348,20 +348,20 @@ void Optparsor::setHelpOption(const char* shortName, const char* longName, const
         _helpOption = NULL;
         return;
     }
-    _helpOption = &createOption(shortName, longName, help, false);
+    _helpOption = &createArgument(shortName, longName, help, false);
 }
 
-void Optparsor::parseArguments(int argc, char* argv[]) {
+void Argparsor::parseArguments(int argc, char* argv[]) {
     _binaryName = argv[0];
     // save index of "--" if exist
     int endIndex = endOptionIndex(argc, argv);
     // foreach argument
     for (int i = 1 ; i < argc ; ++i) {
         if (isShortOption(argv[i])) {
-            getShortOption(endIndex, argv, &i);
+            getShortArgument(endIndex, argv, &i);
         }
         else if (isLongOption(argv[i])) {
-            getLongOption(endIndex, argv, &i);
+            getLongArgument(endIndex, argv, &i);
         }
         else if (isEndOption(argv[i])) {
             ++i;
@@ -381,11 +381,11 @@ void Optparsor::parseArguments(int argc, char* argv[]) {
         exit(1);
     }
     // check require option
-    std::list<Option>::iterator it;
-    for (it = _options.begin() ; it != _options.end() ; ++it) {
+    std::list<Argument>::iterator it;
+    for (it = _arguments.begin() ; it != _arguments.end() ; ++it) {
         if (it->isRequired && it->isExist == false) {
             if (!it->longName.empty()) {
-                if (it->type == Option::POSITIONAL_ARGUMENT) {
+                if (it->type == Argument::POSITIONAL_ARGUMENT) {
                     throw ParseArgumentRequiredException(it->longName.c_str(), "argument is required");
                 }
                 else {
@@ -399,15 +399,15 @@ void Optparsor::parseArguments(int argc, char* argv[]) {
     }
 }
 
-void Optparsor::addBooleanOption(const char* shortName, const char* longName, const char* help, bool isRequired) {
-    Option& option = createOption(shortName, longName, help, isRequired);
+void Argparsor::addBooleanArgument(const char* shortName, const char* longName, const char* help, bool isRequired) {
+    Argument& option = createArgument(shortName, longName, help, isRequired);
     option.nbArgs = 0;
-    option.type = Option::BOOLEAN_OPTION;
+    option.type = Argument::BOOLEAN_OPTION;
 }
 
-void Optparsor::addSimpleOption(const char* shortName, const char* longName, const char* help, bool isRequired,
+void Argparsor::addSimpleArgument(const char* shortName, const char* longName, const char* help, bool isRequired,
                                 const char* argHelp, const char* defaultValue) {
-    Option& option = createOption(shortName, longName, help, isRequired);
+    Argument& option = createArgument(shortName, longName, help, isRequired);
     // check argHelps
     std::string defaultUsageName;
     if (argHelp == NULL || argHelp[0] == '\0') {
@@ -423,7 +423,7 @@ void Optparsor::addSimpleOption(const char* shortName, const char* longName, con
         }
         argHelp = defaultUsageName.c_str();
     }
-    option.type = Option::SIMPLE_OPTION;
+    option.type = Argument::SIMPLE_OPTION;
     option.nbArgs = 1;
     option.argHelp = argHelp;
     if (isRequired == false && defaultValue != NULL) {
@@ -432,9 +432,9 @@ void Optparsor::addSimpleOption(const char* shortName, const char* longName, con
     }
 }
 
-void Optparsor::addNumberOption(const char* shortName, const char* longName, const char* help, bool isRequired,
+void Argparsor::addNumberArgument(const char* shortName, const char* longName, const char* help, bool isRequired,
                                 const char* argHelp, std::size_t nbArgs, ...) {
-    Option& option = createOption(shortName, longName, help, isRequired);
+    Argument& option = createArgument(shortName, longName, help, isRequired);
     // check argHelps
     std::string defaultUsageName;
     if (argHelp == NULL || argHelp[0] == '\0') {
@@ -458,7 +458,7 @@ void Optparsor::addNumberOption(const char* shortName, const char* longName, con
         defaultUsageName = numberDefaultUsageName;
         argHelp = defaultUsageName.c_str();
     }
-    option.type = Option::NUMBER_OPTION;
+    option.type = Argument::NUMBER_OPTION;
     option.nbArgs = nbArgs;
     if (nbArgs > 0) {
         option.argHelp = argHelp;
@@ -475,11 +475,11 @@ void Optparsor::addNumberOption(const char* shortName, const char* longName, con
     }
 }
 
-void Optparsor::addInfiniteOption(const char* shortName, const char* longName, const char* help, bool isRequired,
+void Argparsor::addInfiniteArgument(const char* shortName, const char* longName, const char* help, bool isRequired,
                                   const char* argHelp, std::size_t nbDefaultArgs, ...) {
-    Option& option = createOption(shortName, longName, help, isRequired);
+    Argument& option = createArgument(shortName, longName, help, isRequired);
     option.nbArgs = 0;
-    option.type = Option::INFINITE_OPTION;
+    option.type = Argument::INFINITE_OPTION;
     // check argHelps
     std::string defaultUsageName;
     if (argHelp == NULL || argHelp[0] == '\0') {
@@ -509,10 +509,10 @@ void Optparsor::addInfiniteOption(const char* shortName, const char* longName, c
     }
 }
 
-void Optparsor::addMultiOption(const char* shortName, const char* longName, const char* help, bool isRequired,
+void Argparsor::addMultiArgument(const char* shortName, const char* longName, const char* help, bool isRequired,
                                const char* argHelp, std::size_t nbDefaultArgs, ...) {
-    Option& option = createOption(shortName, longName, help, isRequired);
-    option.type = Option::MULTI_OPTION;
+    Argument& option = createArgument(shortName, longName, help, isRequired);
+    option.type = Argument::MULTI_OPTION;
     option.nbArgs = 1;
     // check argHelps
     std::string defaultUsageName;
@@ -542,7 +542,7 @@ void Optparsor::addMultiOption(const char* shortName, const char* longName, cons
     }
 }
 
-void Optparsor::addPositionalArgument(const char* name, const char* help, bool isRequired, const char* defaultValue) {
+void Argparsor::addPositionalArgument(const char* name, const char* help, bool isRequired, const char* defaultValue) {
     if (name == NULL || name[0] == '\0') {
         throw ArgumentException("", "bad name argument");
     }
@@ -550,20 +550,20 @@ void Optparsor::addPositionalArgument(const char* name, const char* help, bool i
         if (name[0] == '-') {
             throw ArgumentException(name, "bad name argument start by '-' character");
         }
-        else if (_optionFromName.find(name) != _optionFromName.end()) {
+        else if (_argumentFromName.find(name) != _argumentFromName.end()) {
             throw ArgumentException(name, "bad name argument already exist");
         }
     }
     // create option
-    _options.push_back(Option());
-    Option& option = _options.back();
-    _optionFromName.insert(std::pair<std::string, Option*>(name, &option));
+    _arguments.push_back(Argument());
+    Argument& option = _arguments.back();
+    _argumentFromName.insert(std::pair<std::string, Argument*>(name, &option));
 
     option.isExist = false;
     option.isRequired = isRequired;
     option.longName = name;
     option.nbArgs = 1;
-    option.type = Option::POSITIONAL_ARGUMENT;
+    option.type = Argument::POSITIONAL_ARGUMENT;
     if (help != NULL) {
         option.help = help;
     }
@@ -577,7 +577,7 @@ void Optparsor::addPositionalArgument(const char* name, const char* help, bool i
 ** private
 */
 
-Optparsor::Option& Optparsor::createOption(const char* shortName, const char* longName, const char* help,
+Argparsor::Argument& Argparsor::createArgument(const char* shortName, const char* longName, const char* help,
                                            bool isRequired) {
     if ((shortName == NULL || shortName[0] == '\0') && (longName == NULL || longName[0] == '\0')) {
         throw ArgumentException("", "invalid shortName and longName arguments");
@@ -592,7 +592,7 @@ Optparsor::Option& Optparsor::createOption(const char* shortName, const char* lo
         else if (shortName[2] != '\0') {
             throw ArgumentException(shortName, "invalid shortName argument not only one character");
         }
-        else if (_optionFromName.find(shortName) != _optionFromName.end()) {
+        else if (_argumentFromName.find(shortName) != _argumentFromName.end()) {
             throw ArgumentException(shortName, "invalid shortName argument already exist");
         }
     }
@@ -603,23 +603,23 @@ Optparsor::Option& Optparsor::createOption(const char* shortName, const char* lo
         else if (longName[0] == '-' && longName[1] == '-' && longName[2] == '\0') {
             throw ArgumentException(longName, "invalid longName argument is '--'");
         }
-        if (_optionFromName.find(longName) != _optionFromName.end()) {
+        if (_argumentFromName.find(longName) != _argumentFromName.end()) {
             throw ArgumentException(longName, "invalid longName argument already exist");
         }
     }
 
     // create option
-    _options.push_back(Option());
-    Option& option = _options.back();
+    _arguments.push_back(Argument());
+    Argument& option = _arguments.back();
     if (shortName != NULL && shortName[0] != '\0') {
-        _optionFromName.insert(std::pair<std::string, Option*>(shortName, &option));
+        _argumentFromName.insert(std::pair<std::string, Argument*>(shortName, &option));
         option.shortName = shortName;
     }
     else {
         option.shortName = "";
     }
     if (longName != NULL && longName[0] != '\0') {
-        _optionFromName.insert(std::pair<std::string, Option*>(longName, &option));
+        _argumentFromName.insert(std::pair<std::string, Argument*>(longName, &option));
         option.longName = longName;
     }
     else {
@@ -633,16 +633,16 @@ Optparsor::Option& Optparsor::createOption(const char* shortName, const char* lo
     return option;
 }
 
-void Optparsor::getShortOption(int maxIndex, char* argv[], int* index) {
+void Argparsor::getShortArgument(int maxIndex, char* argv[], int* index) {
     std::string options;
     std::string arg;
-    std::map<std::string, Option*>::iterator it;
+    std::map<std::string, Argument*>::iterator it;
     bool hasArg = takeArg(argv[*index], &options, &arg);
     // get firsts option
     for (std::size_t i = 1 ; i < options.size() - 1 ; ++i) {
         std::string charOption(options, i, 1);
-        it = _optionFromName.find("-" + charOption);
-        if (it == _optionFromName.end()) {
+        it = _argumentFromName.find("-" + charOption);
+        if (it == _argumentFromName.end()) {
             throw ParseArgumentException(charOption.c_str(), "invalid option");
         }
         else if (it->second->nbArgs != 0) {
@@ -653,16 +653,16 @@ void Optparsor::getShortOption(int maxIndex, char* argv[], int* index) {
     }
     // get last option
     std::string charOption(options, options.size() - 1, 1);
-    it = _optionFromName.find("-" + charOption);
-    if (it == _optionFromName.end()) {
+    it = _argumentFromName.find("-" + charOption);
+    if (it == _argumentFromName.end()) {
         throw ParseArgumentException(charOption.c_str(), "invalid option");
     }
 
     if (hasArg) {
-        if (it->second->type == Option::NUMBER_OPTION && it->second->nbArgs != 1) {
+        if (it->second->type == Argument::NUMBER_OPTION && it->second->nbArgs != 1) {
             throw ParseArgumentException(charOption.c_str(), "option cannot use with only 1 argument");
         }
-        if (it->second->type != Option::MULTI_OPTION || it->second->isExist == false) {
+        if (it->second->type != Argument::MULTI_OPTION || it->second->isExist == false) {
             it->second->arguments.clear();
         }
         it->second->arguments.push_back(arg);
@@ -671,10 +671,10 @@ void Optparsor::getShortOption(int maxIndex, char* argv[], int* index) {
         if (*index + it->second->nbArgs >= static_cast<unsigned int>(maxIndex)) {
             throw ParseArgumentException(charOption.c_str(), "bad number of argument");
         }
-        if (it->second->type != Option::MULTI_OPTION || it->second->isExist == false) {
+        if (it->second->type != Argument::MULTI_OPTION || it->second->isExist == false) {
             it->second->arguments.clear();
         }
-        if (it->second->type == Option::INFINITE_OPTION) {
+        if (it->second->type == Argument::INFINITE_OPTION) {
             std::size_t countArg = 0;
             for (int j = *index + 1 ; j < maxIndex ; ++j) {
                 if (isShortOption(argv[j]) || isLongOption(argv[j])) {
@@ -696,21 +696,21 @@ void Optparsor::getShortOption(int maxIndex, char* argv[], int* index) {
     ++it->second->count;
 }
 
-void Optparsor::getLongOption(int maxIndex, char* argv[], int* index) {
+void Argparsor::getLongArgument(int maxIndex, char* argv[], int* index) {
     std::string option;
     std::string arg;
-    std::map<std::string, Option*>::iterator it;
+    std::map<std::string, Argument*>::iterator it;
     bool hasArg = takeArg(argv[*index], &option, &arg);
-    it = _optionFromName.find(option);
-    if (it == _optionFromName.end()) {
+    it = _argumentFromName.find(option);
+    if (it == _argumentFromName.end()) {
         throw ParseArgumentException(option.c_str() + PREFIX_SIZEOF_LONG_OPTION, "invalid option");
     }
 
     if (hasArg) {
-        if (it->second->type == Option::NUMBER_OPTION && it->second->nbArgs != 1) {
+        if (it->second->type == Argument::NUMBER_OPTION && it->second->nbArgs != 1) {
             throw ParseArgumentException(option.c_str() + PREFIX_SIZEOF_LONG_OPTION, "option cannot use with only 1 argument");
         }
-        if (it->second->type != Option::MULTI_OPTION || it->second->isExist == false) {
+        if (it->second->type != Argument::MULTI_OPTION || it->second->isExist == false) {
             it->second->arguments.clear();
         }
         it->second->arguments.push_back(arg);
@@ -719,10 +719,10 @@ void Optparsor::getLongOption(int maxIndex, char* argv[], int* index) {
         if (*index + it->second->nbArgs >= static_cast<unsigned int>(maxIndex)) {
             throw ParseArgumentException(option.c_str() + PREFIX_SIZEOF_LONG_OPTION, "bad number of argument");
         }
-        if (it->second->type != Option::MULTI_OPTION || it->second->isExist == false) {
+        if (it->second->type != Argument::MULTI_OPTION || it->second->isExist == false) {
             it->second->arguments.clear();
         }
-        if (it->second->type == Option::INFINITE_OPTION) {
+        if (it->second->type == Argument::INFINITE_OPTION) {
             std::size_t countArg = 0;
             for (int j = *index + 1 ; j < maxIndex ; ++j) {
                 if (isShortOption(argv[j]) || isLongOption(argv[j])) {
@@ -744,18 +744,18 @@ void Optparsor::getLongOption(int maxIndex, char* argv[], int* index) {
     ++it->second->count;
 }
 
-void Optparsor::getPositionnalArgument(int /*maxIndex*/, char* argv[], int* index) {
-    std::list<Option>::iterator it;
-    for (it = _options.begin() ; it != _options.end() ; ++it) {
+void Argparsor::getPositionnalArgument(int /*maxIndex*/, char* argv[], int* index) {
+    std::list<Argument>::iterator it;
+    for (it = _arguments.begin() ; it != _arguments.end() ; ++it) {
         // assign argument to first not used argument
-        if (it->type == Option::POSITIONAL_ARGUMENT && it->isExist == false) {
+        if (it->type == Argument::POSITIONAL_ARGUMENT && it->isExist == false) {
             it->isExist = true;
             it->arguments.clear();
             it->arguments.push_back(argv[*index]);
             break;
         }
     }
-    if (it == _options.end()) {
+    if (it == _arguments.end()) {
         if (_throwAtExtra) {
             throw ParseArgumentException(argv[*index], "invalid extra argument");
         }

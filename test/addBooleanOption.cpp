@@ -1,130 +1,130 @@
 #include <gtest/gtest.h>
 
-#include "optparsor.h"
+#include "argparsor.h"
 
-GTEST_TEST(addBooleanOption, invalid_shortName_and_longName) {
-    mblet::Optparsor optparsor;
+GTEST_TEST(addBooleanArgument, invalid_shortName_and_longName) {
+    mblet::Argparsor argparsor;
     EXPECT_THROW({
         try {
-            optparsor.addBooleanOption(NULL, NULL);
+            argparsor.addBooleanArgument(NULL, NULL);
         }
-        catch (const mblet::Optparsor::ArgumentException& e) {
+        catch (const mblet::Argparsor::ArgumentException& e) {
             EXPECT_STREQ(e.what(), "invalid shortName and longName arguments");
             throw;
         }
-    }, mblet::Optparsor::ArgumentException);
+    }, mblet::Argparsor::ArgumentException);
     EXPECT_THROW({
         try {
-            optparsor.addBooleanOption("", NULL);
+            argparsor.addBooleanArgument("", NULL);
         }
-        catch (const mblet::Optparsor::ArgumentException& e) {
+        catch (const mblet::Argparsor::ArgumentException& e) {
             EXPECT_STREQ(e.what(), "invalid shortName and longName arguments");
             throw;
         }
-    }, mblet::Optparsor::ArgumentException);
+    }, mblet::Argparsor::ArgumentException);
     EXPECT_THROW({
         try {
-            optparsor.addBooleanOption(NULL, "");
+            argparsor.addBooleanArgument(NULL, "");
         }
-        catch (const mblet::Optparsor::ArgumentException& e) {
+        catch (const mblet::Argparsor::ArgumentException& e) {
             EXPECT_STREQ(e.what(), "invalid shortName and longName arguments");
             throw;
         }
-    }, mblet::Optparsor::ArgumentException);
+    }, mblet::Argparsor::ArgumentException);
     EXPECT_THROW({
         try {
-            optparsor.addBooleanOption("", "");
+            argparsor.addBooleanArgument("", "");
         }
-        catch (const mblet::Optparsor::ArgumentException& e) {
+        catch (const mblet::Argparsor::ArgumentException& e) {
             EXPECT_STREQ(e.what(), "invalid shortName and longName arguments");
             throw;
         }
-    }, mblet::Optparsor::ArgumentException);
+    }, mblet::Argparsor::ArgumentException);
 }
 
-GTEST_TEST(addBooleanOption, invalid_shortName) {
-    mblet::Optparsor optparsor;
+GTEST_TEST(addBooleanArgument, invalid_shortName) {
+    mblet::Argparsor argparsor;
     EXPECT_THROW({
         try {
-            optparsor.addBooleanOption("not -", NULL);
+            argparsor.addBooleanArgument("not -", NULL);
         }
-        catch (const mblet::Optparsor::ArgumentException& e) {
+        catch (const mblet::Argparsor::ArgumentException& e) {
             EXPECT_STREQ(e.what(), "invalid shortName argument not start by '-' character");
             throw;
         }
-    }, mblet::Optparsor::ArgumentException);
+    }, mblet::Argparsor::ArgumentException);
     EXPECT_THROW({
         try {
-            optparsor.addBooleanOption("-", NULL);
+            argparsor.addBooleanArgument("-", NULL);
         }
-        catch (const mblet::Optparsor::ArgumentException& e) {
+        catch (const mblet::Argparsor::ArgumentException& e) {
             EXPECT_STREQ(e.what(), "invalid shortName argument is '-'");
             throw;
         }
-    }, mblet::Optparsor::ArgumentException);
+    }, mblet::Argparsor::ArgumentException);
     EXPECT_THROW({
         try {
-            optparsor.addBooleanOption("-ab", NULL);
+            argparsor.addBooleanArgument("-ab", NULL);
         }
-        catch (const mblet::Optparsor::ArgumentException& e) {
+        catch (const mblet::Argparsor::ArgumentException& e) {
             EXPECT_STREQ(e.what(), "invalid shortName argument not only one character");
             throw;
         }
-    }, mblet::Optparsor::ArgumentException);
-    optparsor.addBooleanOption("-a", NULL);
+    }, mblet::Argparsor::ArgumentException);
+    argparsor.addBooleanArgument("-a", NULL);
     EXPECT_THROW({
         try {
-            optparsor.addBooleanOption("-a", NULL);
+            argparsor.addBooleanArgument("-a", NULL);
         }
-        catch (const mblet::Optparsor::ArgumentException& e) {
+        catch (const mblet::Argparsor::ArgumentException& e) {
             EXPECT_STREQ(e.what(), "invalid shortName argument already exist");
             throw;
         }
-    }, mblet::Optparsor::ArgumentException);
+    }, mblet::Argparsor::ArgumentException);
 }
 
-GTEST_TEST(addBooleanOption, invalid_longName) {
-    mblet::Optparsor optparsor;
+GTEST_TEST(addBooleanArgument, invalid_longName) {
+    mblet::Argparsor argparsor;
     EXPECT_THROW({
         try {
-            optparsor.addBooleanOption(NULL, "not --");
+            argparsor.addBooleanArgument(NULL, "not --");
         }
-        catch (const mblet::Optparsor::ArgumentException& e) {
+        catch (const mblet::Argparsor::ArgumentException& e) {
             EXPECT_STREQ(e.what(), "invalid longName argument not start by '--' characters");
             throw;
         }
-    }, mblet::Optparsor::ArgumentException);
+    }, mblet::Argparsor::ArgumentException);
     EXPECT_THROW({
         try {
-            optparsor.addBooleanOption(NULL, "--");
+            argparsor.addBooleanArgument(NULL, "--");
         }
-        catch (const mblet::Optparsor::ArgumentException& e) {
+        catch (const mblet::Argparsor::ArgumentException& e) {
             EXPECT_STREQ(e.what(), "invalid longName argument is '--'");
             throw;
         }
-    }, mblet::Optparsor::ArgumentException);
-    optparsor.addBooleanOption(NULL, "--abc");
+    }, mblet::Argparsor::ArgumentException);
+    argparsor.addBooleanArgument(NULL, "--abc");
     EXPECT_THROW({
         try {
-            optparsor.addBooleanOption(NULL, "--abc");
+            argparsor.addBooleanArgument(NULL, "--abc");
         }
-        catch (const mblet::Optparsor::ArgumentException& e) {
+        catch (const mblet::Argparsor::ArgumentException& e) {
             EXPECT_STREQ(e.what(), "invalid longName argument already exist");
             throw;
         }
-    }, mblet::Optparsor::ArgumentException);
+    }, mblet::Argparsor::ArgumentException);
 }
 
-GTEST_TEST(addBooleanOption, valid_type) {
-    mblet::Optparsor optparsor;
-    optparsor.addBooleanOption("-a", "--abc");
-    EXPECT_EQ(optparsor["-a"].type, mblet::Optparsor::Option::BOOLEAN_OPTION);
-    EXPECT_EQ(optparsor["--abc"].type, mblet::Optparsor::Option::BOOLEAN_OPTION);
+GTEST_TEST(addBooleanArgument, valid_type) {
+    mblet::Argparsor argparsor;
+    argparsor.addBooleanArgument("-a", "--abc");
+    EXPECT_EQ(argparsor["-a"].type, mblet::Argparsor::Argument::BOOLEAN_OPTION);
+    EXPECT_EQ(argparsor["--abc"].type, mblet::Argparsor::Argument::BOOLEAN_OPTION);
 }
 
-GTEST_TEST(addBooleanOption, valid_size) {
-    mblet::Optparsor optparsor;
-    optparsor.addBooleanOption("-a", "--abc");
-    EXPECT_EQ(optparsor["-a"].size(), 0);
-    EXPECT_EQ(optparsor["--abc"].size(), 0);
+GTEST_TEST(addBooleanArgument, valid_size) {
+    mblet::Argparsor argparsor;
+    argparsor.addBooleanArgument("-a", "--abc");
+    EXPECT_EQ(argparsor["-a"].size(), 0);
+    EXPECT_EQ(argparsor["--abc"].size(), 0);
 }

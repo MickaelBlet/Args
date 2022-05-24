@@ -16,4 +16,4 @@ set_target_properties("${PROJECT_NAME}"
 )
 
 target_compile_options("${PROJECT_NAME}" PRIVATE -Wall -Wextra -Werror)
-target_link_libraries("${PROJECT_NAME}" optparsor)
+target_link_libraries("${PROJECT_NAME}" argparsor)

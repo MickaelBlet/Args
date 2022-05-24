@@ -1,17 +1,17 @@
 #include <gtest/gtest.h>
 
-#include "optparsor.h"
+#include "argparsor.h"
 
 GTEST_TEST(getOption, not_found) {
-    mblet::Optparsor optparsor;
+    mblet::Argparsor argparsor;
     EXPECT_THROW({
         try {
-            optparsor.getOption("unknown");
+            argparsor.getOption("unknown");
         }
-        catch (const mblet::Optparsor::AccessDeniedException& e) {
+        catch (const mblet::Argparsor::AccessDeniedException& e) {
             EXPECT_STREQ(e.argument(), "unknown");
             EXPECT_STREQ(e.what(), "option not found");
             throw;
         }
-    }, mblet::Optparsor::ArgumentException);
+    }, mblet::Argparsor::ArgumentException);
 }
