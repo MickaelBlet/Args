@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 
-#include "optparsor.hpp"
+#include "optparsor.h"
 
 GTEST_TEST(parseArguments, multi_short_invalid_option) {
     const char* argv[] = {

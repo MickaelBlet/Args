@@ -7,8 +7,6 @@
 #include <list>
 #include <sstream>
 #include <iostream>
-#include <cstdarg>
-#include <cstdlib>
 
 namespace mblet {
 
@@ -150,7 +148,7 @@ class Optparsor {
             NUMBER_OPTION,
             INFINITE_OPTION,
             MULTI_OPTION,
-            POSITIONNAL_OPTION
+            POSITIONAL_ARGUMENT
         };
 
         /**
@@ -195,7 +193,7 @@ class Optparsor {
                     ret = isExist;
                     break;
                 case SIMPLE_OPTION:
-                case POSITIONNAL_OPTION:
+                case POSITIONAL_ARGUMENT:
                     if (!arguments.empty()) {
                         ret = arguments.begin()->get<T>();
                     }
@@ -233,7 +231,7 @@ class Optparsor {
                     return (isExist) ? "true" : "false";
                     break;
                 case SIMPLE_OPTION:
-                case POSITIONNAL_OPTION:
+                case POSITIONAL_ARGUMENT:
                     if (arguments.size() > 0) {
                         return arguments.begin()->c_str();
                     }
@@ -259,6 +257,15 @@ class Optparsor {
                     return "unknown";
                     break;
             }
+        }
+
+        /**
+         * @brief Tranform option to const string
+         *
+         * @return const char*
+         */
+        inline const char* data() const {
+            return c_str();
         }
 
         /**
@@ -300,7 +307,7 @@ class Optparsor {
         std::string longName;
         std::string help;
         std::size_t nbArgs;
-        std::string usageName;
+        std::string argHelp;
         std::vector<std::string> defaultValues;
         std::vector<Argument> arguments;
     };
@@ -439,7 +446,7 @@ class Optparsor {
      * @param help
      * @param isRequired
      */
-    void addBooleanOption(const char* shortName, const char* longName, const char* help = NULL, bool isRequired = false);
+    void addBooleanOption(const char* shortName, const char* longName = NULL, const char* help = NULL, bool isRequired = false);
 
     /**
      * @brief Add simple argument option with short and long name
@@ -448,11 +455,11 @@ class Optparsor {
      * @param longName
      * @param help
      * @param isRequired
-     * @param usageName
+     * @param argHelp
      * @param defaultValue
      */
-    void addSimpleOption(const char* shortName, const char* longName, const char* help = NULL, bool isRequired = false,
-                         const char* usageName = NULL, const char* defaultValue = NULL);
+    void addSimpleOption(const char* shortName, const char* longName = NULL, const char* help = NULL, bool isRequired = false,
+                         const char* argHelp = NULL, const char* defaultValue = NULL);
 
 
     /**
@@ -462,12 +469,12 @@ class Optparsor {
      * @param longName
      * @param help
      * @param isRequired
-     * @param usageName
+     * @param argHelp
      * @param nbArgs
      * @param ... default argument value (const char*)
      */
-    void addNumberOption(const char* shortName, const char* longName, const char* help = NULL, bool isRequired = false,
-                         const char* usageName = NULL, std::size_t nbArgs = 0, ...);
+    void addNumberOption(const char* shortName, const char* longName = NULL, const char* help = NULL, bool isRequired = false,
+                         const char* argHelp = NULL, std::size_t nbArgs = 0, ...);
 
     /**
      * @brief Add infinite argument option with short and long name
@@ -476,12 +483,12 @@ class Optparsor {
      * @param longName
      * @param help
      * @param isRequired
-     * @param usageName
+     * @param argHelp
      * @param nbDefaultArgs
      * @param ...
      */
-    void addInfiniteOption(const char* shortName, const char* longName, const char* help = NULL, bool isRequired = false,
-                           const char* usageName = NULL, std::size_t nbDefaultArgs = 0, ...);
+    void addInfiniteOption(const char* shortName, const char* longName = NULL, const char* help = NULL, bool isRequired = false,
+                           const char* argHelp = NULL, std::size_t nbDefaultArgs = 0, ...);
 
     /**
      * @brief Add multi option from short and long name with list argument
@@ -490,12 +497,12 @@ class Optparsor {
      * @param longName
      * @param help
      * @param isRequired
-     * @param usageName
+     * @param argHelp
      * @param nbDefaultArgs
      * @param ...
      */
-    void addMultiOption(const char* shortName, const char* longName, const char* help = NULL, bool isRequired = false,
-                        const char* usageName = NULL, std::size_t nbDefaultArgs = 0, ...);
+    void addMultiOption(const char* shortName, const char* longName = NULL, const char* help = NULL, bool isRequired = false,
+                        const char* argHelp = NULL, std::size_t nbDefaultArgs = 0, ...);
 
     /**
      * @brief Add positionnal argument

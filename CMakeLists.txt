@@ -22,15 +22,13 @@ set_target_properties("${PROJECT_NAME}"
 
 if (BUILD_EXAMPLE)
     message(STATUS "Enable BUILD_EXAMPLE: ${BUILD_EXAMPLE}")
-    enable_testing()
     add_subdirectory(example)
 endif() # BUILD_EXAMPLE
 
-if(BUILD_TESTING)
+if (BUILD_TESTING)
     message(STATUS "Enable BUILD_TESTING: ${BUILD_TESTING}")
     enable_testing()
 
-    # Coverage
     if (BUILD_COVERAGE)
         message(STATUS "Enable BUILD_COVERAGE: ${BUILD_COVERAGE}")
         target_compile_options("${PROJECT_NAME}" PRIVATE -g -O0 --coverage -fprofile-arcs -ftest-coverage)

@@ -15,7 +15,5 @@ set_target_properties("${PROJECT_NAME}"
         NO_SYSTEM_FROM_IMPORTED ON
 )
 
-target_compile_options("${PROJECT_NAME}" PRIVATE -pedantic -Wall -Wextra -Werror)
+target_compile_options("${PROJECT_NAME}" PRIVATE -Wall -Wextra -Werror)
 target_link_libraries("${PROJECT_NAME}" optparsor)
-
-add_test(NAME "${PROJECT_NAME}" COMMAND "${PROJECT_NAME}" -h)

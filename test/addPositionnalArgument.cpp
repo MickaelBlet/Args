@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 
-#include "optparsor.hpp"
+#include "optparsor.h"
 
 GTEST_TEST(addPositionnalOption, invalid_name) {
     mblet::Optparsor optparsor;

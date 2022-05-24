@@ -14,7 +14,7 @@ foreach(file ${test_files})
             CXX_EXTENSIONS OFF
             NO_SYSTEM_FROM_IMPORTED ON
     )
-    target_compile_options("optionator_${filenamewe}.gtest" PRIVATE -pedantic -Wall -Wextra -Werror)
+    target_compile_options("optionator_${filenamewe}.gtest" PRIVATE -Wall -Wextra -Werror)
     target_link_libraries("optionator_${filenamewe}.gtest" gtest_main gtest pthread)
     target_link_libraries("optionator_${filenamewe}.gtest" optparsor)
     add_test(NAME "optionator_${filenamewe}.gtest" COMMAND "optionator_${filenamewe}.gtest")

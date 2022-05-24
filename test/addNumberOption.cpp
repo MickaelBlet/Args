@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 
-#include "optparsor.hpp"
+#include "optparsor.h"
 
 GTEST_TEST(addNumberOption, invalid_shortName_and_longName) {
     mblet::Optparsor optparsor;

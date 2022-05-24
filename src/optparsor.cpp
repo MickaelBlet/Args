@@ -1,10 +1,9 @@
 #include <iostream>
 #include <cstring>
 #include <cstdlib>
+#include <cstdarg>
 
-#include <cstdio>
-
-#include "optparsor.hpp"
+#include "optparsor.h"
 
 #define PREFIX_SIZEOF_SHORT_OPTION (sizeof("-") - 1)
 #define PREFIX_SIZEOF_LONG_OPTION (sizeof("--") - 1)
@@ -120,7 +119,7 @@ Optparsor::Option::Option() :
     longName(std::string()),
     help(std::string()),
     nbArgs(0),
-    usageName(std::string()),
+    argHelp(std::string()),
     defaultValues(std::vector<std::string>()),
     arguments(std::vector<Argument>()) {}
 
@@ -168,7 +167,7 @@ void Optparsor::Option::Argument::valueToStream(std::ostream& stringStream) cons
 }
 
 static bool compareOption(const Optparsor::Option& first, const Optparsor::Option& second) {
-    if (first.type == Optparsor::Option::POSITIONNAL_OPTION) {
+    if (first.type == Optparsor::Option::POSITIONAL_ARGUMENT) {
         return false;
     }
     if (!first.shortName.empty() && !second.shortName.empty()) {
@@ -212,21 +211,21 @@ std::ostream& Optparsor::getUsage(std::ostream& oss) {
     oss << "usage: " << _binaryName;
     std::list<Option>::const_iterator it;
     for (it = _options.begin() ; it != _options.end() ; ++it) {
-        if (it->type == Option::POSITIONNAL_OPTION) {
+        if (it->type == Option::POSITIONAL_ARGUMENT) {
             continue;
         }
         oss << " [";
         if (!it->shortName.empty()) {
-            if (!it->usageName.empty()) {
-                oss << it->shortName << ' ' << it->usageName;
+            if (!it->argHelp.empty()) {
+                oss << it->shortName << ' ' << it->argHelp;
             }
             else {
                 oss << it->shortName;
             }
         }
         else {
-            if (!it->usageName.empty()) {
-                oss << it->longName << ' ' << it->usageName;
+            if (!it->argHelp.empty()) {
+                oss << it->longName << ' ' << it->argHelp;
             }
             else {
                 oss << it->longName;
@@ -235,7 +234,7 @@ std::ostream& Optparsor::getUsage(std::ostream& oss) {
         oss << ']';
     }
     for (it = _options.begin() ; it != _options.end() ; ++it) {
-        if (it->type != Option::POSITIONNAL_OPTION) {
+        if (it->type != Option::POSITIONAL_ARGUMENT) {
             continue;
         }
         oss << " " << it->longName;
@@ -251,7 +250,7 @@ std::ostream& Optparsor::getUsage(std::ostream& oss) {
         std::list<std::pair<std::string, std::string> > optionnals;
         for (it = _options.begin() ; it != _options.end() ; ++it) {
             std::list<std::pair<std::string, std::string> > *listOption = NULL;
-            if (it->type == Option::POSITIONNAL_OPTION) {
+            if (it->type == Option::POSITIONAL_ARGUMENT) {
                 positionals.push_back(std::pair<std::string, std::string>("", ""));
                 listOption = &positionals;
             }
@@ -271,8 +270,8 @@ std::ostream& Optparsor::getUsage(std::ostream& oss) {
             else if (!it->longName.empty()) {
                 optionStr += it->longName;
             }
-            if (!it->usageName.empty()) {
-                optionStr += " " + it->usageName;
+            if (!it->argHelp.empty()) {
+                optionStr += " " + it->argHelp;
             }
             helpStr += "  " + it->help;
             if (it->isRequired) {
@@ -300,7 +299,7 @@ std::ostream& Optparsor::getUsage(std::ostream& oss) {
                 max = optIt->first.size();
             }
         }
-        if (!optionnals.empty()) {
+        if (!positionals.empty()) {
             oss << "\npositional arguments:\n";
             for (optIt = positionals.begin() ; optIt != positionals.end() ; ++optIt) {
                 oss.width(max);
@@ -386,7 +385,12 @@ void Optparsor::parseArguments(int argc, char* argv[]) {
     for (it = _options.begin() ; it != _options.end() ; ++it) {
         if (it->isRequired && it->isExist == false) {
             if (!it->longName.empty()) {
-                throw ParseArgumentRequiredException(it->longName.c_str(), "option is required");
+                if (it->type == Option::POSITIONAL_ARGUMENT) {
+                    throw ParseArgumentRequiredException(it->longName.c_str(), "argument is required");
+                }
+                else {
+                    throw ParseArgumentRequiredException(it->longName.c_str(), "option is required");
+                }
             }
             else {
                 throw ParseArgumentRequiredException(it->shortName.c_str(), "option is required");
@@ -402,11 +406,11 @@ void Optparsor::addBooleanOption(const char* shortName, const char* longName, co
 }
 
 void Optparsor::addSimpleOption(const char* shortName, const char* longName, const char* help, bool isRequired,
-                                const char* usageName, const char* defaultValue) {
+                                const char* argHelp, const char* defaultValue) {
     Option& option = createOption(shortName, longName, help, isRequired);
-    // check usageNames
+    // check argHelps
     std::string defaultUsageName;
-    if (usageName == NULL || usageName[0] == '\0') {
+    if (argHelp == NULL || argHelp[0] == '\0') {
         // create a defaultUsageName from longName or shortName
         if (longName != NULL && longName[0] != '\0') {
             defaultUsageName = longName + PREFIX_SIZEOF_LONG_OPTION;
@@ -417,11 +421,11 @@ void Optparsor::addSimpleOption(const char* shortName, const char* longName, con
         for (std::size_t i = 0 ; i < defaultUsageName.size() ; ++i) {
             defaultUsageName[i] = ::toupper(defaultUsageName[i]);
         }
-        usageName = defaultUsageName.c_str();
+        argHelp = defaultUsageName.c_str();
     }
     option.type = Option::SIMPLE_OPTION;
     option.nbArgs = 1;
-    option.usageName = usageName;
+    option.argHelp = argHelp;
     if (isRequired == false && defaultValue != NULL) {
         option.arguments.push_back(defaultValue);
         option.defaultValues.push_back(defaultValue);
@@ -429,11 +433,11 @@ void Optparsor::addSimpleOption(const char* shortName, const char* longName, con
 }
 
 void Optparsor::addNumberOption(const char* shortName, const char* longName, const char* help, bool isRequired,
-                                const char* usageName, std::size_t nbArgs, ...) {
+                                const char* argHelp, std::size_t nbArgs, ...) {
     Option& option = createOption(shortName, longName, help, isRequired);
-    // check usageNames
+    // check argHelps
     std::string defaultUsageName;
-    if (usageName == NULL || usageName[0] == '\0') {
+    if (argHelp == NULL || argHelp[0] == '\0') {
         // create a defaultUsageName from longName or shortName
         if (longName != NULL && longName[0] != '\0') {
             defaultUsageName = longName + PREFIX_SIZEOF_LONG_OPTION;
@@ -444,12 +448,20 @@ void Optparsor::addNumberOption(const char* shortName, const char* longName, con
         for (std::size_t i = 0 ; i < defaultUsageName.size() ; ++i) {
             defaultUsageName[i] = ::toupper(defaultUsageName[i]);
         }
-        usageName = defaultUsageName.c_str();
+        std::string numberDefaultUsageName;
+        for (std::size_t i = 0 ; i < nbArgs ; ++i) {
+            if (i > 0) {
+                numberDefaultUsageName += " ";
+            }
+            numberDefaultUsageName += defaultUsageName;
+        }
+        defaultUsageName = numberDefaultUsageName;
+        argHelp = defaultUsageName.c_str();
     }
     option.type = Option::NUMBER_OPTION;
     option.nbArgs = nbArgs;
     if (nbArgs > 0) {
-        option.usageName = usageName;
+        option.argHelp = argHelp;
     }
     if (isRequired == false && nbArgs > 0) {
         va_list pa;
@@ -464,13 +476,13 @@ void Optparsor::addNumberOption(const char* shortName, const char* longName, con
 }
 
 void Optparsor::addInfiniteOption(const char* shortName, const char* longName, const char* help, bool isRequired,
-                                  const char* usageName, std::size_t nbDefaultArgs, ...) {
+                                  const char* argHelp, std::size_t nbDefaultArgs, ...) {
     Option& option = createOption(shortName, longName, help, isRequired);
     option.nbArgs = 0;
     option.type = Option::INFINITE_OPTION;
-    // check usageNames
+    // check argHelps
     std::string defaultUsageName;
-    if (usageName == NULL || usageName[0] == '\0') {
+    if (argHelp == NULL || argHelp[0] == '\0') {
         // create a defaultUsageName from longName or shortName
         if (longName != NULL && longName[0] != '\0') {
             defaultUsageName = longName + PREFIX_SIZEOF_LONG_OPTION;
@@ -482,9 +494,9 @@ void Optparsor::addInfiniteOption(const char* shortName, const char* longName, c
             defaultUsageName[i] = ::toupper(defaultUsageName[i]);
         }
         defaultUsageName += "...";
-        usageName = defaultUsageName.c_str();
+        argHelp = defaultUsageName.c_str();
     }
-    option.usageName = usageName;
+    option.argHelp = argHelp;
     if (isRequired == false && nbDefaultArgs > 0) {
         va_list pa;
         va_start(pa, nbDefaultArgs);
@@ -498,13 +510,13 @@ void Optparsor::addInfiniteOption(const char* shortName, const char* longName, c
 }
 
 void Optparsor::addMultiOption(const char* shortName, const char* longName, const char* help, bool isRequired,
-                               const char* usageName, std::size_t nbDefaultArgs, ...) {
+                               const char* argHelp, std::size_t nbDefaultArgs, ...) {
     Option& option = createOption(shortName, longName, help, isRequired);
     option.type = Option::MULTI_OPTION;
     option.nbArgs = 1;
-    // check usageNames
+    // check argHelps
     std::string defaultUsageName;
-    if (usageName == NULL || usageName[0] == '\0') {
+    if (argHelp == NULL || argHelp[0] == '\0') {
         // create a defaultUsageName from longName or shortName
         if (longName != NULL && longName[0] != '\0') {
             defaultUsageName = longName + PREFIX_SIZEOF_LONG_OPTION;
@@ -515,9 +527,9 @@ void Optparsor::addMultiOption(const char* shortName, const char* longName, cons
         for (std::size_t i = 0 ; i < defaultUsageName.size() ; ++i) {
             defaultUsageName[i] = ::toupper(defaultUsageName[i]);
         }
-        usageName = defaultUsageName.c_str();
+        argHelp = defaultUsageName.c_str();
     }
-    option.usageName = usageName;
+    option.argHelp = argHelp;
     if (isRequired == false && nbDefaultArgs > 0) {
         va_list pa;
         va_start(pa, nbDefaultArgs);
@@ -551,7 +563,7 @@ void Optparsor::addPositionalArgument(const char* name, const char* help, bool i
     option.isRequired = isRequired;
     option.longName = name;
     option.nbArgs = 1;
-    option.type = Option::POSITIONNAL_OPTION;
+    option.type = Option::POSITIONAL_ARGUMENT;
     if (help != NULL) {
         option.help = help;
     }
@@ -736,7 +748,7 @@ void Optparsor::getPositionnalArgument(int /*maxIndex*/, char* argv[], int* inde
     std::list<Option>::iterator it;
     for (it = _options.begin() ; it != _options.end() ; ++it) {
         // assign argument to first not used argument
-        if (it->type == Option::POSITIONNAL_OPTION && it->isExist == false) {
+        if (it->type == Option::POSITIONAL_ARGUMENT && it->isExist == false) {
             it->isExist = true;
             it->arguments.clear();
             it->arguments.push_back(argv[*index]);
