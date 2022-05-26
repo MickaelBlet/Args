@@ -1,53 +1,34 @@
-// #include <iostream>
-
-// #include "argparsor.hpp"
-
-// int main(int argc, char* argv[]) {
-//     mblet::Argparsor argparsor;
-//     // argparsor.throwAtExtra(true);
-//     // argparsor.setDescription("example of description");
-//     // argparsor.setHelpArgument("", "--help", "custom help message");
-//     // argparsor.addBooleanArgument("-b", "--boolean", "boolean option", false);
-//     // argparsor.addSimpleArgument("-s", "--simple", "little s options", false, "TESTS", "TUTU");
-//     // argparsor.addNumberArgument("-n", "--number", "number option", false, "FOO BAR", 2, "FOO", "BAR");
-//     // argparsor.addMultiArgument("-m", "--multi", "multi options", false, "TESTS", 2, "foo", "bar");
-//     // argparsor.addInfiniteArgument("-i", "--infinite", "infinite options", false, "", 2, "foo", "bar");
-//     argparsor.addPositionalArgument("REQUIRED", "required", true);
-//     argparsor.addPositionalArgument("ARGUMENT", "argument", false, "defaultValue");
-//     // argparsor.addPositionalArgument("ARG", "arg", false);
-//     try {
-//         argparsor.parseArguments(argc, argv);
-//         // std::cout << "-b: " << argparsor["-b"] << " (count: " << argparsor["-b"].count << ")" << std::endl;
-//         // std::cout << "-s: " << argparsor["-s"].get<std::string>() << std::endl;
-//         // std::cout << "-n: " << argparsor["-n"] << std::endl;
-//         // std::cout << "-m: " << argparsor["-m"] << std::endl;
-//         // std::cout << "-i: " << argparsor["--infinite"] << std::endl;
-//         // std::cout << "ARG: " << argparsor["ARG"] << std::endl;
-//     }
-//     catch (const mblet::Argparsor::ParseArgumentException& e) {
-//         std::cerr << argparsor.getBynaryName() << ": " << e.what() << " -- '" << e.argument() << "'" << std::endl;
-//         argparsor.getUsage(std::cerr);
-//         throw;
-//     }
-//     // argparsor.getUsage(std::cerr);
-//     return 0;
-// }
-
 #include "argparsor.h"
 
 int main(int argc, char* argv[]) {
     mblet::Argparsor argparsor;
-    argparsor.addBooleanArgument("-r", "--required", "help of required", true);
-    argparsor.addBooleanArgument("-s", "--simple", "help of simple", false);
+    argparsor.setDescription("custom description message");
+    argparsor.setHelpArgument("-h", "--help", "custom help option message");
+    argparsor.addPositionalArgument("REQUIRED", "help of required positional argument", true);
+    argparsor.addBooleanArgument("-b", NULL, "help of boolean option", false);
+    argparsor.addBooleanArgument("-c", NULL, "help of count option", false);
+    argparsor.addSimpleArgument("-s", "--simple", "help of simple option", false, "argSimple", NULL);
+    argparsor.addNumberArgument("-n", "--number", "help of number", false, "ARG1 ARG2", 2, "foo", "bar");
+    argparsor.addInfiniteArgument(NULL, "--infinite", "help of infinite", false);
+    argparsor.addMultiArgument("-m", "--multi", "help of multi", false, "MULTI", 3, "0", "1", "2");
     try {
         argparsor.parseArguments(argc, argv);
+        std::cout << "-b: " << argparsor["-b"] << std::endl;
+        std::cout << "-c: " << argparsor["-c"].count << std::endl;
+        std::cout << "REQUIRED: " << argparsor["REQUIRED"].get<int>() << " (" << argparsor["REQUIRED"].str() << ")" << std::endl;
+        if (argparsor["-s"]) {
+            std::cout << "-s: " << argparsor["-s"] << std::endl;
+        }
+        std::cout << "-n: [0]: " << argparsor["-n"][0] << ", [1]: " << argparsor["-n"][1].get<double>() << " (" << argparsor["-n"] << ")" << std::endl;
+        if (argparsor["--infinite"]) {
+            std::cout << "--infinite: " << argparsor["--infinite"] << std::endl;
+        }
+        std::cout << "-m: " << argparsor["-m"] << std::endl;
     }
     catch (const mblet::Argparsor::ParseArgumentException& e) {
-        std::cerr << argparsor.getBynaryName() << ": " << e.what() \
-                  << " -- '" << e.argument() << "'" << std::endl;
-        return 1; // END
+        std::cerr << argparsor.getBynaryName() << ": " << e.what();
+        std::cerr << " -- '" << e.argument() << "'" << std::endl;
+        return 1; //END
     }
-    std::cout << "-r: " << argparsor["-r"].c_str() << std::endl;
-    std::cout << "-s: " << argparsor["-s"].c_str() << std::endl;
     return 0;
 }

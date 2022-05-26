@@ -249,7 +249,7 @@ std::ostream& Argparsor::getUsage(std::ostream& oss) {
         std::list<std::pair<std::string, std::string> > positionals;
         std::list<std::pair<std::string, std::string> > optionnals;
         for (it = _arguments.begin() ; it != _arguments.end() ; ++it) {
-            std::list<std::pair<std::string, std::string> > *listOption = NULL;
+            std::list<std::pair<std::string, std::string> >* listOption = NULL;
             if (it->type == Argument::POSITIONAL_ARGUMENT) {
                 positionals.push_back(std::pair<std::string, std::string>("", ""));
                 listOption = &positionals;
@@ -358,21 +358,21 @@ void Argparsor::parseArguments(int argc, char* argv[]) {
     // foreach argument
     for (int i = 1 ; i < argc ; ++i) {
         if (isShortOption(argv[i])) {
-            getShortArgument(endIndex, argv, &i);
+            parseShortArgument(endIndex, argv, &i);
         }
         else if (isLongOption(argv[i])) {
-            getLongArgument(endIndex, argv, &i);
+            parseLongArgument(endIndex, argv, &i);
         }
         else if (isEndOption(argv[i])) {
             ++i;
             while (i < argc) {
-                getPositionnalArgument(argc, argv, &i);
+                parsePositionnalArgument(argc, argv, &i);
                 ++i;
             }
             break;
         }
         else {
-            getPositionnalArgument(argc, argv, &i);
+            parsePositionnalArgument(argc, argv, &i);
         }
     }
     // check help option
@@ -389,11 +389,11 @@ void Argparsor::parseArguments(int argc, char* argv[]) {
                     throw ParseArgumentRequiredException(it->longName.c_str(), "argument is required");
                 }
                 else {
-                    throw ParseArgumentRequiredException(it->longName.c_str(), "option is required");
+                    throw ParseArgumentRequiredException(it->longName.c_str() + PREFIX_SIZEOF_LONG_OPTION, "option is required");
                 }
             }
             else {
-                throw ParseArgumentRequiredException(it->shortName.c_str(), "option is required");
+                throw ParseArgumentRequiredException(it->shortName.c_str() + PREFIX_SIZEOF_SHORT_OPTION, "option is required");
             }
         }
     }
@@ -406,7 +406,7 @@ void Argparsor::addBooleanArgument(const char* shortName, const char* longName, 
 }
 
 void Argparsor::addSimpleArgument(const char* shortName, const char* longName, const char* help, bool isRequired,
-                                const char* argHelp, const char* defaultValue) {
+                                  const char* argHelp, const char* defaultValue) {
     Argument& option = createArgument(shortName, longName, help, isRequired);
     // check argHelps
     std::string defaultUsageName;
@@ -433,7 +433,7 @@ void Argparsor::addSimpleArgument(const char* shortName, const char* longName, c
 }
 
 void Argparsor::addNumberArgument(const char* shortName, const char* longName, const char* help, bool isRequired,
-                                const char* argHelp, std::size_t nbArgs, ...) {
+                                  const char* argHelp, std::size_t nbArgs, ...) {
     Argument& option = createArgument(shortName, longName, help, isRequired);
     // check argHelps
     std::string defaultUsageName;
@@ -476,7 +476,7 @@ void Argparsor::addNumberArgument(const char* shortName, const char* longName, c
 }
 
 void Argparsor::addInfiniteArgument(const char* shortName, const char* longName, const char* help, bool isRequired,
-                                  const char* argHelp, std::size_t nbDefaultArgs, ...) {
+                                    const char* argHelp, std::size_t nbDefaultArgs, ...) {
     Argument& option = createArgument(shortName, longName, help, isRequired);
     option.nbArgs = 0;
     option.type = Argument::INFINITE_OPTION;
@@ -510,7 +510,7 @@ void Argparsor::addInfiniteArgument(const char* shortName, const char* longName,
 }
 
 void Argparsor::addMultiArgument(const char* shortName, const char* longName, const char* help, bool isRequired,
-                               const char* argHelp, std::size_t nbDefaultArgs, ...) {
+                                 const char* argHelp, std::size_t nbDefaultArgs, ...) {
     Argument& option = createArgument(shortName, longName, help, isRequired);
     option.type = Argument::MULTI_OPTION;
     option.nbArgs = 1;
@@ -578,7 +578,7 @@ void Argparsor::addPositionalArgument(const char* name, const char* help, bool i
 */
 
 Argparsor::Argument& Argparsor::createArgument(const char* shortName, const char* longName, const char* help,
-                                           bool isRequired) {
+                                               bool isRequired) {
     if ((shortName == NULL || shortName[0] == '\0') && (longName == NULL || longName[0] == '\0')) {
         throw ArgumentException("", "invalid shortName and longName arguments");
     }
@@ -633,7 +633,7 @@ Argparsor::Argument& Argparsor::createArgument(const char* shortName, const char
     return option;
 }
 
-void Argparsor::getShortArgument(int maxIndex, char* argv[], int* index) {
+void Argparsor::parseShortArgument(int maxIndex, char* argv[], int* index) {
     std::string options;
     std::string arg;
     std::map<std::string, Argument*>::iterator it;
@@ -657,46 +657,11 @@ void Argparsor::getShortArgument(int maxIndex, char* argv[], int* index) {
     if (it == _argumentFromName.end()) {
         throw ParseArgumentException(charOption.c_str(), "invalid option");
     }
-
-    if (hasArg) {
-        if (it->second->type == Argument::NUMBER_OPTION && it->second->nbArgs != 1) {
-            throw ParseArgumentException(charOption.c_str(), "option cannot use with only 1 argument");
-        }
-        if (it->second->type != Argument::MULTI_OPTION || it->second->isExist == false) {
-            it->second->arguments.clear();
-        }
-        it->second->arguments.push_back(arg);
-    }
-    else {
-        if (*index + it->second->nbArgs >= static_cast<unsigned int>(maxIndex)) {
-            throw ParseArgumentException(charOption.c_str(), "bad number of argument");
-        }
-        if (it->second->type != Argument::MULTI_OPTION || it->second->isExist == false) {
-            it->second->arguments.clear();
-        }
-        if (it->second->type == Argument::INFINITE_OPTION) {
-            std::size_t countArg = 0;
-            for (int j = *index + 1 ; j < maxIndex ; ++j) {
-                if (isShortOption(argv[j]) || isLongOption(argv[j])) {
-                    break;
-                }
-                it->second->arguments.push_back(argv[j]);
-                ++countArg;
-            }
-            *index += countArg;
-        }
-        else {
-            for (unsigned int j = *index + 1 ; j <= (*index + it->second->nbArgs) ; ++j) {
-                it->second->arguments.push_back(argv[j]);
-            }
-            *index += it->second->nbArgs;
-        }
-    }
-    it->second->isExist = true;
-    ++it->second->count;
+    parseArgument(maxIndex, argv, index, hasArg, charOption.c_str(),
+                arg.c_str(), it->second);
 }
 
-void Argparsor::getLongArgument(int maxIndex, char* argv[], int* index) {
+void Argparsor::parseLongArgument(int maxIndex, char* argv[], int* index) {
     std::string option;
     std::string arg;
     std::map<std::string, Argument*>::iterator it;
@@ -705,46 +670,85 @@ void Argparsor::getLongArgument(int maxIndex, char* argv[], int* index) {
     if (it == _argumentFromName.end()) {
         throw ParseArgumentException(option.c_str() + PREFIX_SIZEOF_LONG_OPTION, "invalid option");
     }
+    parseArgument(maxIndex, argv, index, hasArg, option.c_str() + PREFIX_SIZEOF_LONG_OPTION,
+                arg.c_str(), it->second);
+}
 
+void Argparsor::parseArgument(int maxIndex, char* argv[], int* index, bool hasArg, const char* option, const char* arg,
+                            Argument* argument) {
     if (hasArg) {
-        if (it->second->type == Argument::NUMBER_OPTION && it->second->nbArgs != 1) {
-            throw ParseArgumentException(option.c_str() + PREFIX_SIZEOF_LONG_OPTION, "option cannot use with only 1 argument");
+        if (argument->type == Argument::NUMBER_OPTION && argument->nbArgs != 1) {
+            throw ParseArgumentException(option, "option cannot use with only 1 argument");
         }
-        if (it->second->type != Argument::MULTI_OPTION || it->second->isExist == false) {
-            it->second->arguments.clear();
+        if (argument->type != Argument::MULTI_OPTION || argument->isExist == false) {
+            argument->arguments.clear();
         }
-        it->second->arguments.push_back(arg);
+        argument->arguments.push_back(arg);
     }
     else {
-        if (*index + it->second->nbArgs >= static_cast<unsigned int>(maxIndex)) {
-            throw ParseArgumentException(option.c_str() + PREFIX_SIZEOF_LONG_OPTION, "bad number of argument");
+        if (*index + argument->nbArgs >= static_cast<unsigned int>(maxIndex)) {
+            throw ParseArgumentException(option, "bad number of argument");
         }
-        if (it->second->type != Argument::MULTI_OPTION || it->second->isExist == false) {
-            it->second->arguments.clear();
+        if (argument->type != Argument::MULTI_OPTION || argument->isExist == false) {
+            argument->arguments.clear();
         }
-        if (it->second->type == Argument::INFINITE_OPTION) {
+        if (argument->type == Argument::INFINITE_OPTION) {
             std::size_t countArg = 0;
             for (int j = *index + 1 ; j < maxIndex ; ++j) {
-                if (isShortOption(argv[j]) || isLongOption(argv[j])) {
+                if (endOfInfiniteArgument(argv[j])) {
                     break;
                 }
-                it->second->arguments.push_back(argv[j]);
+                argument->arguments.push_back(argv[j]);
                 ++countArg;
             }
             *index += countArg;
         }
         else {
-            for (unsigned int j = *index + 1 ; j <= (*index + it->second->nbArgs) ; ++j) {
-                it->second->arguments.push_back(argv[j]);
+            for (unsigned int j = *index + 1 ; j <= (*index + argument->nbArgs) ; ++j) {
+                argument->arguments.push_back(argv[j]);
             }
-            *index += it->second->nbArgs;
+            *index += argument->nbArgs;
         }
     }
-    it->second->isExist = true;
-    ++it->second->count;
+    argument->isExist = true;
+    ++argument->count;
 }
 
-void Argparsor::getPositionnalArgument(int /*maxIndex*/, char* argv[], int* index) {
+bool Argparsor::endOfInfiniteArgument(const char* argument) {
+    std::string option;
+    std::string arg;
+    std::map<std::string, Argument*>::iterator it;
+    if (isShortOption(argument)) {
+        takeArg(argument, &option, &arg);
+        // get firsts option
+        for (std::size_t i = 1 ; i < option.size() - 1 ; ++i) {
+            std::string charOption(option, i, 1);
+            it = _argumentFromName.find("-" + charOption);
+            if (it == _argumentFromName.end()) {
+                return false;
+            }
+            else if (it->second->nbArgs != 0) {
+                return false;
+            }
+        }
+        // get last option
+        std::string charOption(option, option.size() - 1, 1);
+        it = _argumentFromName.find("-" + charOption);
+    }
+    else if (isLongOption(argument)) {
+        takeArg(argument, &option, &arg);
+        it = _argumentFromName.find(option);
+    }
+    else {
+        return false;
+    }
+    if (it == _argumentFromName.end()) {
+        return false;
+    }
+    return true;
+}
+
+void Argparsor::parsePositionnalArgument(int /*maxIndex*/, char* argv[], int* index) {
     std::list<Argument>::iterator it;
     for (it = _arguments.begin() ; it != _arguments.end() ; ++it) {
         // assign argument to first not used argument

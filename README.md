@@ -1,7 +1,9 @@
 # Argparsor
-Check and Get options from argc and argv
+
+Parse and stock options from argc and argv
 
 ## Build
+
 ```bash
 # static build
 mkdir build ; pushd build && cmake .. && make -j ; popd
@@ -13,168 +15,93 @@ mkdir build ; pushd build && cmake -DBUILD_TESTING=1 -DBUILD_COVERAGE=1 .. && ma
 
 ## Arguments
 
-|Type|Method|Parameters
-|-|-|-
-|positional|addPositionalArgument|name<br/>help (default: NULL)<br/>required (default: false)<br/>defaultValue (default: NULL)
-|boolean|addBooleanArgument|shortName<br/>longName (default: NULL)<br/>help (default: NULL)<br/>required (default: false)
-|simple|addSimpleArgument|shortName<br/>longName (default: NULL)<br/>help (default: NULL)<br/>required (default: false)<br/>usageName (default: NULL)<br/>defaultValue (default: NULL)
-|number|addNumberArgument|shortName<br/>longName (default: NULL)<br/>help (default: NULL)<br/>required (default: false)<br/>usageName (default: NULL)<br/>nbArgs (default: 0)<br/>...
-|infinite|addInfiniteArgument|shortName<br/>longName (default: NULL)<br/>help (default: NULL)<br/>required (default: false)<br/>usageName (default: NULL)<br/>nbDefaultArgs (default: 0)<br/>...
-|multi|addMultiArgument|shortName<br/>longName (default: NULL)<br/>help (default: NULL)<br/>required (default: false)<br/>usageName (default: NULL)<br/>nbDefaultArgs (default: 0)<br/>...
+|Method|Parameters
+|-|-
+|addPositionalArgument|name<br/>help (default: NULL)<br/>required (default: false)<br/>defaultValue (default: NULL)
+|addBooleanArgument|shortName<br/>longName (default: NULL)<br/>help (default: NULL)<br/>required (default: false)
+|addSimpleArgument|shortName<br/>longName (default: NULL)<br/>help (default: NULL)<br/>required (default: false)<br/>usageName (default: NULL)<br/>defaultValue (default: NULL)
+|addNumberArgument|shortName<br/>longName (default: NULL)<br/>help (default: NULL)<br/>required (default: false)<br/>usageName (default: NULL)<br/>nbArgs (default: 0)<br/>...
+|addInfiniteArgument|shortName<br/>longName (default: NULL)<br/>help (default: NULL)<br/>required (default: false)<br/>usageName (default: NULL)<br/>nbDefaultArgs (default: 0)<br/>...
+|addMultiArgument|shortName<br/>longName (default: NULL)<br/>help (default: NULL)<br/>required (default: false)<br/>usageName (default: NULL)<br/>nbDefaultArgs (default: 0)<br/>...
 
 ## Examples
-
-### Default
 
 ```cpp
 #include "argparsor.h"
 
 int main(int argc, char* argv[]) {
     mblet::Argparsor argparsor;
+    argparsor.setDescription("custom description message");
+    argparsor.setHelpArgument("-h", "--help", "custom help option message");
+    argparsor.addPositionalArgument("REQUIRED", "help of required positional argument", true);
+    argparsor.addBooleanArgument("-b", NULL, "help of boolean option", false);
+    argparsor.addBooleanArgument("-c", NULL, "help of count option", false);
+    argparsor.addSimpleArgument("-s", "--simple", "help of simple option", false, "argSimple", NULL);
+    argparsor.addNumberArgument("-n", "--number", "help of number", false, "ARG1 ARG2", 2, "foo", "bar");
+    argparsor.addInfiniteArgument(NULL, "--infinite", "help of infinite");
+    argparsor.addMultiArgument("-m", "--multi", "help of multi", false, "MULTI", 3, "0", "1", "2");
     try {
         argparsor.parseArguments(argc, argv);
+        std::cout << "-b: " << argparsor["-b"] << std::endl;
+        std::cout << "-c: " << argparsor["-c"].count << std::endl;
+        std::cout << "REQUIRED: " << argparsor["REQUIRED"].get<int>() << " (" << argparsor["REQUIRED"].str() << ")" << std::endl;
+        if (argparsor["-s"]) {
+            std::cout << "-s: " << argparsor["-s"] << std::endl;
+        }
+        std::cout << "-n: [0]: " << argparsor["-n"][0] << ", [1]: " << argparsor["-n"][1].get<double>() << " (" << argparsor["-n"] << ")" << std::endl;
+        if (argparsor["--infinite"]) {
+            std::cout << "--infinite: " << argparsor["--infinite"] << std::endl;
+        }
+        std::cout << "-m: " << argparsor["-m"] << std::endl;
     }
     catch (const mblet::Argparsor::ParseArgumentException& e) {
-        std::cerr << argparsor.getBynaryName() << ": " << e.what() \
-                  << " -- '" << e.argument() << "'" << std::endl;
+        std::cerr << argparsor.getBynaryName() << ": " << e.what();
+        std::cerr << " -- '" << e.argument() << "'" << std::endl;
         return 1; //END
     }
     return 0;
 }
 ```
+
 ```
+$ ./a.out -h
+usage: ./a.out [-b] [-c] [-h] [-m MULTI] [-n ARG1 ARG2] [-s argSimple] [--infinite INFINITE...] REQUIRED
+
+custom description message
+
+positional arguments:
+  REQUIRED                help of required positional argument (required)
+
+optional arguments:
+  -b                      help of boolean option
+  -c                      help of count option
+  -h, --help              custom help option message
+  -m, --multi MULTI       help of multi (default: 0 1 2)
+  -n, --number ARG1 ARG2  help of number (default: foo bar)
+  -s, --simple argSimple  help of simple option
+  --infinite INFINITE...  help of infinite
 $ ./a.out -a
 ./a.out: invalid option -- 'a'
 $ ./a.out --foo
 ./a.out: invalid option -- 'foo'
-$ ./a.out --help
-usage: ./a.out [-h]
-
-optional arguments:
-  -h, --help  show this help message and exit
-```
-
-### Positional arguments
-
-```cpp
-#include "argparsor.h"
-
-int main(int argc, char* argv[]) {
-    mblet::Argparsor argparsor;
-    argparsor.addPositionalArgument("REQUIRED", "help of required", true);
-    argparsor.addPositionalArgument("ARGUMENT", "help of argument", false, "defaultValue");
-    try {
-        argparsor.parseArguments(argc, argv);
-    }
-    catch (const mblet::Argparsor::ParseArgumentException& e) {
-        std::cerr << argparsor.getBynaryName() << ": " << e.what() \
-                  << " -- '" << e.argument() << "'" << std::endl;
-        return 1; // END
-    }
-    std::cout << "REQUIRED: " << argparsor["REQUIRED"].c_str() << std::endl;
-    if (argparsor["ARGUMENT"]) {
-        std::cout << "ARGUMENT: " << argparsor["ARGUMENT"].c_str() << std::endl;
-    }
-    return 0;
-}
-```
-```
-$ ./a.out
-./a.out: argument is required -- 'REQUIRED'
-$ ./a.out foo
-REQUIRED: foo
-$ ./a.out foo bar
-REQUIRED: foo
-ARGUMENT: bar
-$ ./a.out --help
-usage: ./a.out [-h] REQUIRED ARGUMENT
-
-positional arguments:
-  REQUIRED    help of required (required)
-  ARGUMENT    help of argument (default: defaultValue)
-
-optional arguments:
-  -h, --help  show this help message and exit
-```
-
-### Boolean Argument
-```cpp
-#include "argparsor.h"
-
-int main(int argc, char* argv[]) {
-    mblet::Argparsor argparsor;
-    argparsor.addBooleanArgument("-r", "--required", "help of required", true);
-    argparsor.addBooleanArgument("-b", "--boolean", "help of boolean", false);
-    try {
-        argparsor.parseArguments(argc, argv);
-    }
-    catch (const mblet::Argparsor::ParseArgumentException& e) {
-        std::cerr << argparsor.getBynaryName() << ": " << e.what() \
-                  << " -- '" << e.argument() << "'" << std::endl;
-        return 1; // END
-    }
-    std::cout << "-r: " << argparsor["-r"].c_str() << std::endl;
-    std::cout << "-b: " << argparsor["-b"].c_str() << std::endl;
-    return 0;
-}
-```
-```
-$ ./a.out
-./a.out: option is required -- '--required'
-$ ./a.out --required
--r: true
+$ ./a.out 042
 -b: false
-$ ./a.out --required --boolean
--r: true
--b: true
-$ ./a.out --help
-usage: ./a.out [-h] [-r] [-s]
-
-optional arguments:
-  -b, --boolean   help of boolean
-  -h, --help      show this help message and exit
-  -r, --required  help of required (required)
+-c: 0
+REQUIRED: 34 (042)
+-n: [0]: foo, [1]: 0 (foo, bar)
+-m: 0, 1, 2
+$ ./a.out 0x42 -n 24 42.42
+-b: false
+-c: 0
+REQUIRED: 66 (0x42)
+-n: [0]: 24, [1]: 42.42 (24, 42.42)
+-m: 0, 1, 2
+$ ./a.out true -n 24 42.42 -s woot --infinite -1 0 1 2 -m=foo -ccc -m bar
+-b: false
+-c: 3
+REQUIRED: 1 (true)
+-s: woot
+-n: [0]: 24, [1]: 42.42 (24, 42.42)
+--infinite: -1, 0, 1, 2
+-m: foo, bar
 ```
-
-### Simple Argument
-```cpp
-#include "argparsor.h"
-
-int main(int argc, char* argv[]) {
-    mblet::Argparsor argparsor;
-    argparsor.addSimpleArgument("-r", "--required", "help of required", true, "argRequired");
-    argparsor.addSimpleArgument("-s", "--simple", "help of simple", false, "argSimple", "defaultValue");
-    try {
-        argparsor.parseArguments(argc, argv);
-    }
-    catch (const mblet::Argparsor::ParseArgumentException& e) {
-        std::cerr << argparsor.getBynaryName() << ": " << e.what() \
-                  << " -- '" << e.argument() << "'" << std::endl;
-        return 1; // END
-    }
-    std::cout << "-r: " << argparsor["-r"].c_str() << std::endl;
-    std::cout << "-s: " << argparsor["-s"].c_str() << std::endl;
-    return 0;
-}
-```
-```
-$ ./a.out
-./a.out: option is required -- '--required'
-$ ./a.out --required foo
--r: foo
--s: defaultValue
-$ ./a.out --required=foo --simple=bar
--r: foo
--s: bar
-$ ./a.out --help
-usage: ./a.out [-h] [-r argRequired] [-s argSimple]
-
-optional arguments:
-  -h, --help                  show this help message and exit
-  -r, --required argRequired  help of required (required)
-  -s, --simple argSimple      help of simple (default: defaultValue)
-```
-
-### Other
-
-Other example at [example/example.md](example/example.md)

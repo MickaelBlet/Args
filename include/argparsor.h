@@ -168,14 +168,6 @@ class Argparsor {
          * @return const String&
          */
         inline const String& at(std::size_t index) const {
-            if (arguments.size() < index) {
-                if (!longName.empty()) {
-                    throw AccessDeniedException(longName.c_str(), "out of range");
-                }
-                else {
-                    throw AccessDeniedException(shortName.c_str(), "out of range");
-                }
-            }
             return arguments.at(index);
         }
 
@@ -222,10 +214,9 @@ class Argparsor {
         /**
          * @brief Tranform argument to const string
          *
-         * @return const char*
+         * @return std::string
          */
-        inline const char* c_str() const {
-            static std::string retValue;
+        inline std::string str() const {
             switch (type) {
                 case BOOLEAN_OPTION:
                     return (isExist) ? "true" : "false";
@@ -233,7 +224,7 @@ class Argparsor {
                 case SIMPLE_OPTION:
                 case POSITIONAL_ARGUMENT:
                     if (arguments.size() > 0) {
-                        return arguments.begin()->c_str();
+                        return *(arguments.begin());
                     }
                     else {
                         return "";
@@ -249,23 +240,13 @@ class Argparsor {
                         }
                         oss << arguments[i];
                     }
-                    retValue = oss.str();
-                    return retValue.c_str();
+                    return oss.str();
                     break;
                 }
                 default:
                     return "unknown";
                     break;
             }
-        }
-
-        /**
-         * @brief Tranform argument to const string
-         *
-         * @return const char*
-         */
-        inline const char* data() const {
-            return c_str();
         }
 
         /**
@@ -295,7 +276,7 @@ class Argparsor {
          * @return std::ostream&
          */
         inline friend std::ostream& operator<<(std::ostream& os, const Argument& arg) {
-            os << arg.c_str();
+            os << arg.str();
             return os;
         }
 
@@ -360,11 +341,7 @@ class Argparsor {
      * @return const Argument&
      */
     inline const Argument& getOption(const std::string& str) const {
-        std::map<std::string, Argument*>::const_iterator cit = _argumentFromName.find(str);
-        if (cit == _argumentFromName.end()) {
-            throw AccessDeniedException(str.c_str(), "option not found");
-        }
-        return *(cit->second);
+        return getOption(str.c_str());
     }
 
     /**
@@ -446,7 +423,8 @@ class Argparsor {
      * @param help
      * @param isRequired
      */
-    void addBooleanArgument(const char* shortName, const char* longName = NULL, const char* help = NULL, bool isRequired = false);
+    void addBooleanArgument(const char* shortName, const char* longName = NULL, const char* help = NULL,
+                            bool isRequired = false);
 
     /**
      * @brief Add simple argument with short and long name
@@ -458,8 +436,9 @@ class Argparsor {
      * @param argHelp
      * @param defaultValue
      */
-    void addSimpleArgument(const char* shortName, const char* longName = NULL, const char* help = NULL, bool isRequired = false,
-                         const char* argHelp = NULL, const char* defaultValue = NULL);
+    void addSimpleArgument(const char* shortName, const char* longName = NULL, const char* help = NULL,
+                           bool isRequired = false,
+                           const char* argHelp = NULL, const char* defaultValue = NULL);
 
 
     /**
@@ -473,8 +452,9 @@ class Argparsor {
      * @param nbArgs
      * @param ... default argument value (const char*)
      */
-    void addNumberArgument(const char* shortName, const char* longName = NULL, const char* help = NULL, bool isRequired = false,
-                         const char* argHelp = NULL, std::size_t nbArgs = 0, ...);
+    void addNumberArgument(const char* shortName, const char* longName = NULL, const char* help = NULL,
+                           bool isRequired = false,
+                           const char* argHelp = NULL, std::size_t nbArgs = 0, ...);
 
     /**
      * @brief Add infinite argument with short and long name
@@ -487,8 +467,9 @@ class Argparsor {
      * @param nbDefaultArgs
      * @param ...
      */
-    void addInfiniteArgument(const char* shortName, const char* longName = NULL, const char* help = NULL, bool isRequired = false,
-                           const char* argHelp = NULL, std::size_t nbDefaultArgs = 0, ...);
+    void addInfiniteArgument(const char* shortName, const char* longName = NULL, const char* help = NULL,
+                             bool isRequired = false,
+                             const char* argHelp = NULL, std::size_t nbDefaultArgs = 0, ...);
 
     /**
      * @brief Add multi argument from short and long name with list argument
@@ -501,8 +482,9 @@ class Argparsor {
      * @param nbDefaultArgs
      * @param ...
      */
-    void addMultiArgument(const char* shortName, const char* longName = NULL, const char* help = NULL, bool isRequired = false,
-                        const char* argHelp = NULL, std::size_t nbDefaultArgs = 0, ...);
+    void addMultiArgument(const char* shortName, const char* longName = NULL, const char* help = NULL,
+                          bool isRequired = false,
+                          const char* argHelp = NULL, std::size_t nbDefaultArgs = 0, ...);
 
     /**
      * @brief Add positionnal argument
@@ -514,7 +496,7 @@ class Argparsor {
      * @param defaultValue
      */
     void addPositionalArgument(const char* name, const char* help = NULL, bool isRequired = false,
-                                const char* defaultValue = NULL);
+                               const char* defaultValue = NULL);
 
   private:
 
@@ -538,7 +520,7 @@ class Argparsor {
      * @return true
      * @return false
      */
-    void getShortArgument(int maxIndex, char* argv[], int* index);
+    void parseShortArgument(int maxIndex, char* argv[], int* index);
 
     /**
      * @brief Get the long argument
@@ -547,7 +529,20 @@ class Argparsor {
      * @param argv
      * @param index
      */
-    void getLongArgument(int maxIndex, char* argv[], int* index);
+    void parseLongArgument(int maxIndex, char* argv[], int* index);
+
+    /**
+     * @brief Get the argument
+     *
+     * @param maxIndex
+     * @param argv
+     * @param index
+     * @param hasArg
+     * @param option
+     * @param arg
+     * @param argument
+     */
+    void parseArgument(int maxIndex, char* argv[], int* index, bool hasArg, const char* option, const char *arg, Argument* argument);
 
     /**
      * @brief Get the positionnal argument
@@ -556,7 +551,16 @@ class Argparsor {
      * @param argv
      * @param index
      */
-    void getPositionnalArgument(int maxIndex, char* argv[], int* index);
+    void parsePositionnalArgument(int maxIndex, char* argv[], int* index);
+
+    /**
+     * @brief Check end of infinite parsing
+     *
+     * @param argument
+     * @return true
+     * @return false
+     */
+    bool endOfInfiniteArgument(const char* argument);
 
     std::string _binaryName;
 
