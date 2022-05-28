@@ -80,22 +80,32 @@ optional arguments:
   -n, --number ARG1 ARG2  help of number (default: foo bar)
   -s, --simple argSimple  help of simple option
   --infinite INFINITE...  help of infinite
+```
+```
 $ ./a.out -a
 ./a.out: invalid option -- 'a'
+```
+```
 $ ./a.out --foo
 ./a.out: invalid option -- 'foo'
+```
+```
 $ ./a.out 042
 -b: false
 -c: 0
 REQUIRED: 34 (042)
 -n: [0]: foo, [1]: 0 (foo, bar)
 -m: 0, 1, 2
+```
+```
 $ ./a.out 0x42 -n 24 42.42
 -b: false
 -c: 0
 REQUIRED: 66 (0x42)
 -n: [0]: 24, [1]: 42.42 (24, 42.42)
 -m: 0, 1, 2
+```
+```
 $ ./a.out true -n 24 42.42 -s woot --infinite -1 0 1 2 -m=foo -ccc -m bar
 -b: false
 -c: 3
