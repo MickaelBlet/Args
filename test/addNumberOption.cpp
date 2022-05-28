@@ -124,11 +124,11 @@ GTEST_TEST(addNumberArgument, valid_type) {
 
 GTEST_TEST(addNumberArgument, valid_size) {
     mblet::Argparsor argparsor;
-    argparsor.addNumberArgument("-a", "--abc");
+    argparsor.addNumberArgument("-a", "--abc", "help", false, "usage", 0);
     EXPECT_EQ(argparsor["-a"].size(), 0);
     EXPECT_EQ(argparsor["--abc"].size(), 0);
     // with default value
-    argparsor.addNumberArgument("-b", "--bcd", "help", false, "NUMBER", 2, "foo", "bar");
+    argparsor.addNumberArgument("-b", "--bcd", "help", false, NULL, 2, "foo", "bar");
     EXPECT_EQ(argparsor["-b"].size(), 2);
     EXPECT_EQ(argparsor["--bcd"].size(), 2);
 }

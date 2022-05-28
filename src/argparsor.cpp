@@ -125,12 +125,9 @@ Argparsor::Argument::Argument() :
 
 Argparsor::Argument::~Argument() {}
 
-Argparsor::Argument::String::String() : std::string() {}
-Argparsor::Argument::String::~String() {}
-
 Argparsor::Argument::String::String(const String& rhs) : std::string(rhs) {}
-Argparsor::Argument::String::String(const std::string& rhs) : std::string(rhs) {}
 Argparsor::Argument::String::String(const char* const& rhs) : std::string(rhs) {}
+Argparsor::Argument::String::~String() {}
 
 void Argparsor::Argument::String::valueToStream(std::ostream& stringStream) const {
     std::size_t index = 0;
@@ -170,6 +167,9 @@ static bool compareOption(const Argparsor::Argument& first, const Argparsor::Arg
     if (first.type == Argparsor::Argument::POSITIONAL_ARGUMENT) {
         return false;
     }
+    if (second.type == Argparsor::Argument::POSITIONAL_ARGUMENT) {
+        return false;
+    }
     if (!first.shortName.empty() && !second.shortName.empty()) {
         return first.shortName <= second.shortName;
     }
@@ -179,25 +179,8 @@ static bool compareOption(const Argparsor::Argument& first, const Argparsor::Arg
     else if (first.shortName.empty() && !second.shortName.empty()) {
         return false;
     }
-    else if (!first.longName.empty() && !second.longName.empty()) {
-        if (first.longName[0] == '-' && second.longName[0] == '-') {
-            return first.longName <= second.longName;
-        }
-        else if (first.longName[0] == '-' && second.longName[0] != '-') {
-            return true;
-        }
-        else if (first.longName[0] != '-' && second.longName[0] == '-') {
-            return false;
-        }
-        else {
-            return first.longName <= second.longName;
-        }
-    }
-    else if (!first.longName.empty() && second.longName.empty()) {
-        return false;
-    }
     else {
-        return true;
+        return first.longName < second.longName;
     }
 }
 
@@ -343,8 +326,7 @@ void Argparsor::setHelpArgument(const char* shortName, const char* longName, con
         }
     }
     // disable help
-    if ((shortName == NULL || shortName[0] == '\0') &&
-        (longName  == NULL || longName[0]  == '\0')) {
+    if ((shortName == NULL || shortName[0] == '\0') && (longName  == NULL || longName[0]  == '\0')) {
         _helpOption = NULL;
         return;
     }
@@ -658,7 +640,7 @@ void Argparsor::parseShortArgument(int maxIndex, char* argv[], int* index) {
         throw ParseArgumentException(charOption.c_str(), "invalid option");
     }
     parseArgument(maxIndex, argv, index, hasArg, charOption.c_str(),
-                arg.c_str(), it->second);
+                  arg.c_str(), it->second);
 }
 
 void Argparsor::parseLongArgument(int maxIndex, char* argv[], int* index) {
@@ -671,11 +653,11 @@ void Argparsor::parseLongArgument(int maxIndex, char* argv[], int* index) {
         throw ParseArgumentException(option.c_str() + PREFIX_SIZEOF_LONG_OPTION, "invalid option");
     }
     parseArgument(maxIndex, argv, index, hasArg, option.c_str() + PREFIX_SIZEOF_LONG_OPTION,
-                arg.c_str(), it->second);
+                  arg.c_str(), it->second);
 }
 
 void Argparsor::parseArgument(int maxIndex, char* argv[], int* index, bool hasArg, const char* option, const char* arg,
-                            Argument* argument) {
+                              Argument* argument) {
     if (hasArg) {
         if (argument->type == Argument::NUMBER_OPTION && argument->nbArgs != 1) {
             throw ParseArgumentException(option, "option cannot use with only 1 argument");

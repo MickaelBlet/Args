@@ -17,5 +17,10 @@ foreach(file ${test_files})
     target_compile_options("optionator_${filenamewe}.gtest" PRIVATE -Wall -Wextra -Werror)
     target_link_libraries("optionator_${filenamewe}.gtest" gtest_main gtest pthread)
     target_link_libraries("optionator_${filenamewe}.gtest" argparsor)
-    add_test(NAME "optionator_${filenamewe}.gtest" COMMAND "optionator_${filenamewe}.gtest")
+    add_test(NAME "optionator_${filenamewe}.gtest" COMMAND "$<TARGET_FILE:optionator_${filenamewe}.gtest>")
 endforeach()
+
+if (BUILD_COVERAGE)
+    add_test(NAME "gcov_argparsor.cpp" COMMAND sh -c "find \"${CMAKE_CURRENT_BINARY_DIR}/..\" -name \"argparsor.cpp.gcda\" -exec sh -c \"gcov -n \\\"{}\\\" | grep -A 1 \\\"argparsor.cpp\\\" | grep \\\":\\\" | sed 's/[^:]\\+[:]\\([0-9]\\+[.][0-9]\\+%\\).*/\\1/g'\" \\;")
+    set_property(TEST "gcov_argparsor.cpp" PROPERTY PASS_REGULAR_EXPRESSION "^100.00%")
+endif() # BUILD_COVERAGE

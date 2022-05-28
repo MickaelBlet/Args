@@ -87,22 +87,10 @@ class Argparsor {
 
             /**
              * @brief Construct a new String object
-             */
-            String();
-
-            /**
-             * @brief Construct a new String object
              *
              * @param rhs
              */
             String(const String& rhs);
-
-            /**
-             * @brief Construct a new String object
-             *
-             * @param rhs
-             */
-            String(const std::string& rhs);
 
             /**
              * @brief Construct a new String object
@@ -380,7 +368,7 @@ class Argparsor {
      * @param longName
      * @param help
      */
-    void setHelpArgument(const char* shortName, const char* longName, const char* help);
+    void setHelpArgument(const char* shortName = NULL, const char* longName = NULL, const char* help = NULL);
 
     /**
      * @brief Set the usage message
@@ -542,7 +530,8 @@ class Argparsor {
      * @param arg
      * @param argument
      */
-    void parseArgument(int maxIndex, char* argv[], int* index, bool hasArg, const char* option, const char *arg, Argument* argument);
+    void parseArgument(int maxIndex, char* argv[], int* index, bool hasArg, const char* option, const char* arg,
+                       Argument* argument);
 
     /**
      * @brief Get the positionnal argument

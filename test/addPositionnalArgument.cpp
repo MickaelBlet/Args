@@ -35,7 +35,7 @@ GTEST_TEST(addPositionnalOption, invalid_name) {
 
 GTEST_TEST(addPositionnalOption, invalid_name_already_exist) {
     mblet::Argparsor argparsor;
-    argparsor.addPositionalArgument("arg", NULL);
+    argparsor.addPositionalArgument("arg", "help", false, "default");
     EXPECT_THROW({
         try {
             argparsor.addPositionalArgument("arg", NULL);
