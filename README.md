@@ -32,6 +32,7 @@ mkdir build ; pushd build && cmake -DBUILD_TESTING=1 -DBUILD_COVERAGE=1 .. && ma
 int main(int argc, char* argv[]) {
     mblet::Argparsor argparsor;
     argparsor.setDescription("custom description message");
+    argparsor.setEpilog("custom epilog message");
     argparsor.setHelpArgument("-h", "--help", "custom help option message");
     argparsor.addPositionalArgument("REQUIRED", "help of required positional argument", true);
     argparsor.addBooleanArgument("-b", NULL, "help of boolean option", false);
@@ -80,6 +81,8 @@ optional arguments:
   -n, --number ARG1 ARG2  help of number (default: foo bar)
   -s, --simple argSimple  help of simple option
   --infinite INFINITE...  help of infinite
+
+custom epilog message
 ```
 ```
 $ ./a.out -a

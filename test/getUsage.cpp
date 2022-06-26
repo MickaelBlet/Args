@@ -13,6 +13,7 @@ GTEST_TEST(getUsage, custom) {
 GTEST_TEST(getUsage, allTypeArgument) {
     mblet::Argparsor argparsor;
     argparsor.setDescription("custom description message");
+    argparsor.setEpilog("custom epilog message");
     argparsor.setHelpArgument("-h", "--help", "custom help option message");
     argparsor.addPositionalArgument("REQUIRED", "help of required positional argument", true);
     argparsor.addPositionalArgument("SLOW", "help of required positional argument", true);
@@ -45,5 +46,7 @@ GTEST_TEST(getUsage, allTypeArgument) {
     usage << "  --count                 help of count option\n";
     usage << "  --count2                help of count option\n";
     usage << "  --simple ARG            help of simple option\n";
+    usage << "\n";
+    usage << "custom epilog message\n";
     EXPECT_EQ(oss.str(), usage.str());
 }

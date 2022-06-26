@@ -328,6 +328,10 @@ std::ostream& Argparsor::getUsage(std::ostream& oss) {
             }
         }
     }
+    // epilog
+    if (!_epilog.empty()) {
+        oss << "\n" << _epilog << "\n";
+    }
     return oss;
 }
 
@@ -358,14 +362,19 @@ void Argparsor::setHelpArgument(const char* shortName, const char* longName, con
     _helpOption = &createArgument(shortName, longName, help, false);
 }
 
-void Argparsor::parseArguments(int argc, char* argv[]) {
+void Argparsor::parseArguments(int argc, char* argv[], bool alternative) {
     _binaryName = argv[0];
     // save index of "--" if exist
     int endIndex = endOptionIndex(argc, argv);
     // foreach argument
     for (int i = 1 ; i < argc ; ++i) {
         if (isShortOption(argv[i])) {
-            parseShortArgument(endIndex, argv, &i);
+            if (alternative) {
+                parseAlternativeArgument(endIndex, argv, &i);
+            }
+            else {
+                parseShortArgument(endIndex, argv, &i);
+            }
         }
         else if (isLongOption(argv[i])) {
             parseLongArgument(endIndex, argv, &i);
@@ -638,6 +647,23 @@ Argparsor::Argument& Argparsor::createArgument(const char* shortName, const char
     option.isRequired = isRequired;
     option.isExist = false;
     return option;
+}
+
+void Argparsor::parseAlternativeArgument(int maxIndex, char* argv[], int* index) {
+    std::string option;
+    std::string arg;
+    std::map<std::string, Argument*>::iterator it;
+    bool hasArg = takeArg(argv[*index], &option, &arg);
+    // try to find long option
+    it = _argumentFromName.find("-" + option);
+    if (it == _argumentFromName.end()) {
+        parseShortArgument(maxIndex, argv, index);
+    }
+    else {
+        option = "-" + option;
+        parseArgument(maxIndex, argv, index, hasArg, option.c_str() + PREFIX_SIZEOF_LONG_OPTION,
+                    arg.c_str(), it->second);
+    }
 }
 
 void Argparsor::parseShortArgument(int maxIndex, char* argv[], int* index) {

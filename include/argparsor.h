@@ -414,6 +414,15 @@ class Argparsor {
     }
 
     /**
+     * @brief Set the epilog in usage message
+     *
+     * @param epilog
+     */
+    inline void setEpilog(const char* epilog) {
+        _epilog = epilog;
+    }
+
+    /**
      * @brief Activate exception when extra argument exist
      */
     inline void throwAtExtra(bool exceptionAtExtra) {
@@ -425,8 +434,9 @@ class Argparsor {
      *
      * @param argc
      * @param argv
+     * @param alternative
      */
-    void parseArguments(int argc, char* argv[]);
+    void parseArguments(int argc, char* argv[], bool alternative = false);
 
     /**
      * @brief Add boolean argument with short and long name
@@ -478,7 +488,7 @@ class Argparsor {
      * @param isRequired
      * @param argHelp
      * @param nbDefaultArgs
-     * @param ...
+     * @param ... default argument value (const char*)
      */
     void addInfiniteArgument(const char* shortName, const char* longName = NULL, const char* help = NULL,
                              bool isRequired = false,
@@ -493,7 +503,7 @@ class Argparsor {
      * @param isRequired
      * @param argHelp
      * @param nbDefaultArgs
-     * @param ...
+     * @param ... default argument value (const char*)
      */
     void addMultiArgument(const char* shortName, const char* longName = NULL, const char* help = NULL,
                           bool isRequired = false,
@@ -525,13 +535,20 @@ class Argparsor {
     Argument& createArgument(const char* shortName, const char* longName, const char* help, bool isRequired);
 
     /**
+     * @brief Get short or long argument
+     *
+     * @param maxIndex
+     * @param argv
+     * @param index
+     */
+    void parseAlternativeArgument(int maxIndex, char* argv[], int* index);
+
+    /**
      * @brief Get the short argument decompose multi short argument
      *
      * @param maxIndex
      * @param argv
      * @param index
-     * @return true
-     * @return false
      */
     void parseShortArgument(int maxIndex, char* argv[], int* index);
 
@@ -585,6 +602,7 @@ class Argparsor {
 
     std::string _usage;
     std::string _description;
+    std::string _epilog;
 
     bool _throwAtExtra;
     std::vector<std::string> _extraArguments;
