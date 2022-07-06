@@ -161,7 +161,7 @@ GTEST_TEST(parseArgumentsAlternative, long_option_bad_narg) {
     }, mblet::Argparsor::ParseArgumentException);
 }
 
-GTEST_TEST(parseArgumentsAlternative, positionnal_invalid_extra_option) {
+GTEST_TEST(parseArgumentsAlternative, positionnal_invalid_additional_option) {
     const char* argv[] = {
         "binaryname",
         "arg"
@@ -170,11 +170,11 @@ GTEST_TEST(parseArgumentsAlternative, positionnal_invalid_extra_option) {
     mblet::Argparsor argparsor;
     EXPECT_THROW({
         try {
-            argparsor.parseArguments(argc, const_cast<char**>(argv), true);
+            argparsor.parseArguments(argc, const_cast<char**>(argv), true, true);
         }
         catch (const mblet::Argparsor::ParseArgumentException& e) {
             EXPECT_STREQ(e.argument(), "arg");
-            EXPECT_STREQ(e.what(), "invalid extra argument");
+            EXPECT_STREQ(e.what(), "invalid additional argument");
             throw;
         }
     }, mblet::Argparsor::ParseArgumentException);
@@ -246,7 +246,6 @@ GTEST_TEST(parseArgumentsAlternative, positional_argument) {
     };
     const int argc = sizeof(argv) / sizeof(*argv);
     mblet::Argparsor argparsor;
-    argparsor.throwAtExtra(false);
     argparsor.addPositionalArgument("arg");
     argparsor.parseArguments(argc, const_cast<char**>(argv), true);
     EXPECT_EQ(argparsor["arg"].str(), "woot");

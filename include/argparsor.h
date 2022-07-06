@@ -378,12 +378,12 @@ class Argparsor {
     }
 
     /**
-     * @brief Get the extra argument vector
+     * @brief Get the vector of additional argument
      *
      * @return const std::vector<std::string>&
      */
-    inline const std::vector<std::string>& getExtraArgument() const {
-        return _extraArguments;
+    inline const std::vector<std::string>& getAdditionalArguments() const {
+        return _additionalArguments;
     }
 
     /**
@@ -423,20 +423,14 @@ class Argparsor {
     }
 
     /**
-     * @brief Activate exception when extra argument exist
-     */
-    inline void throwAtExtra(bool exceptionAtExtra) {
-        _throwAtExtra = exceptionAtExtra;
-    }
-
-    /**
      * @brief Parse arguments
      *
      * @param argc
      * @param argv
      * @param alternative
+     * @param strict
      */
-    void parseArguments(int argc, char* argv[], bool alternative = false);
+    void parseArguments(int argc, char* argv[], bool alternative = false, bool strict = false);
 
     /**
      * @brief Add boolean argument with short and long name
@@ -578,11 +572,11 @@ class Argparsor {
     /**
      * @brief Get the positionnal argument
      *
-     * @param maxIndex
      * @param argv
      * @param index
+     * @param strict
      */
-    void parsePositionnalArgument(int maxIndex, char* argv[], int* index);
+    void parsePositionnalArgument(char* argv[], int* index, bool strict);
 
     /**
      * @brief Check end of infinite parsing
@@ -604,8 +598,7 @@ class Argparsor {
     std::string _description;
     std::string _epilog;
 
-    bool _throwAtExtra;
-    std::vector<std::string> _extraArguments;
+    std::vector<std::string> _additionalArguments;
 };
 
 } // namespace mblet

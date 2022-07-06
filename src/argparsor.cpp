@@ -129,7 +129,7 @@ static inline bool takeArg(const char* arg, std::string* retOptionName, std::str
     }
 }
 
-Argparsor::Argparsor() : _throwAtExtra(true) {
+Argparsor::Argparsor() {
     setHelpArgument("-h", "--help", "show this help message and exit");
 }
 
@@ -362,7 +362,7 @@ void Argparsor::setHelpArgument(const char* shortName, const char* longName, con
     _helpOption = &createArgument(shortName, longName, help, false);
 }
 
-void Argparsor::parseArguments(int argc, char* argv[], bool alternative) {
+void Argparsor::parseArguments(int argc, char* argv[], bool alternative, bool strict) {
     _binaryName = argv[0];
     // save index of "--" if exist
     int endIndex = endOptionIndex(argc, argv);
@@ -382,13 +382,13 @@ void Argparsor::parseArguments(int argc, char* argv[], bool alternative) {
         else if (isEndOption(argv[i])) {
             ++i;
             while (i < argc) {
-                parsePositionnalArgument(argc, argv, &i);
+                parsePositionnalArgument(argv, &i, strict);
                 ++i;
             }
             break;
         }
         else {
-            parsePositionnalArgument(argc, argv, &i);
+            parsePositionnalArgument(argv, &i, strict);
         }
     }
     // check help option
@@ -781,10 +781,10 @@ bool Argparsor::endOfInfiniteArgument(const char* argument) {
     return true;
 }
 
-void Argparsor::parsePositionnalArgument(int /*maxIndex*/, char* argv[], int* index) {
+void Argparsor::parsePositionnalArgument(char* argv[], int* index, bool strict) {
     std::list<Argument>::iterator it;
     for (it = _arguments.begin() ; it != _arguments.end() ; ++it) {
-        // assign argument to first not used argument
+        // assign to first not used positional argument
         if (it->type == Argument::POSITIONAL_ARGUMENT && it->isExist == false) {
             it->isExist = true;
             it->arguments.clear();
@@ -793,11 +793,11 @@ void Argparsor::parsePositionnalArgument(int /*maxIndex*/, char* argv[], int* in
         }
     }
     if (it == _arguments.end()) {
-        if (_throwAtExtra) {
-            throw ParseArgumentException(argv[*index], "invalid extra argument");
+        if (strict) {
+            throw ParseArgumentException(argv[*index], "invalid additional argument");
         }
         else {
-            _extraArguments.push_back(argv[*index]);
+            _additionalArguments.push_back(argv[*index]);
         }
     }
 }
