@@ -24,9 +24,9 @@
  */
 
 #include <iostream>
-#include <cstring>
 #include <cstdlib>
 #include <cstdarg>
+#include <cstring>
 
 #include "argparsor.h"
 
@@ -146,47 +146,9 @@ Argparsor::Argument::Argument() :
     nbArgs(0),
     argHelp(std::string()),
     defaultValues(std::vector<std::string>()),
-    arguments(std::vector<String>()) {}
+    arguments(std::vector<std::string>()) {}
 
 Argparsor::Argument::~Argument() {}
-
-Argparsor::Argument::String::String(const String& rhs) : std::string(rhs) {}
-Argparsor::Argument::String::String(const char* const& rhs) : std::string(rhs) {}
-Argparsor::Argument::String::~String() {}
-
-void Argparsor::Argument::String::valueToStream(std::ostream& stringStream) const {
-    std::size_t index = 0;
-
-    if (c_str()[index] == '-' || c_str()[index] == '+') {
-        ++index;
-    }
-    // is hex
-    if (c_str()[index] == '0' && c_str()[index + 1] == 'x') {
-        stringStream << strtoll(c_str(), NULL, 16);
-    }
-    // is binary
-    else if (c_str()[index] == '0' && c_str()[index + 1] == 'b') {
-        stringStream << strtoull(c_str() + index + 2, NULL, 2);
-    }
-    // is octal
-    else if (c_str()[index] == '0' && find('.') == std::string::npos) {
-        stringStream << strtoll(c_str(), NULL, 8);
-    }
-    // is bool
-    else if (*this == "TRUE" || *this == "True" || *this == "true" ||
-             *this == "ON"   || *this == "On"   || *this == "on"   ||
-             *this == "YES"  || *this == "Yes"  || *this == "yes") {
-        stringStream << true;
-    }
-    else if (*this == "FALSE" || *this == "False" || *this == "false" ||
-             *this == "OFF"   || *this == "Off"   || *this == "off"   ||
-             *this == "NO"    || *this == "No"    || *this == "no") {
-        stringStream << false;
-    }
-    else {
-        stringStream << *this;
-    }
-}
 
 static bool compareOption(const Argparsor::Argument& first, const Argparsor::Argument& second) {
     if (first.type == Argparsor::Argument::POSITIONAL_ARGUMENT) {
@@ -662,7 +624,7 @@ void Argparsor::parseAlternativeArgument(int maxIndex, char* argv[], int* index)
     else {
         option = "-" + option;
         parseArgument(maxIndex, argv, index, hasArg, option.c_str() + PREFIX_SIZEOF_LONG_OPTION,
-                    arg.c_str(), it->second);
+                      arg.c_str(), it->second);
     }
 }
 

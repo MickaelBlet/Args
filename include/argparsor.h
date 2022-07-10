@@ -104,57 +104,6 @@ class Argparsor {
 
       public:
 
-        /**
-         * @brief String object from std::string
-         */
-        class String : public std::string {
-          public:
-
-            /**
-             * @brief Construct a new String object
-             *
-             * @param rhs
-             */
-            String(const String& rhs);
-
-            /**
-             * @brief Construct a new String object
-             *
-             * @param rhs
-             */
-            String(const char* const& rhs);
-
-            /**
-             * @brief Destroy the String object
-             */
-            virtual ~String();
-
-            /**
-             * @brief Get value from type
-             *
-             * @tparam T
-             * @return T
-             */
-            template<typename T>
-            inline T get() const {
-                T retValue;
-                std::stringstream stringStream("");
-                valueToStream(stringStream);
-                stringStream >> retValue;
-                return retValue;
-            }
-
-          private:
-
-            /**
-             * @brief Insert value in stringstream
-             *
-             * @param stringStream
-             */
-            void valueToStream(std::ostream& stringStream) const;
-
-        };
-
         enum Type {
             BOOLEAN_OPTION,
             SIMPLE_OPTION,
@@ -180,39 +129,8 @@ class Argparsor {
          * @param index
          * @return const String&
          */
-        inline const String& at(std::size_t index) const {
+        inline const std::string& at(std::size_t index) const {
             return arguments.at(index);
-        }
-
-        /**
-         * @brief Get type of value
-         *
-         * @tparam T type of return
-         * @return T
-         */
-        template<typename T>
-        inline T get() const {
-            T ret;
-            switch (type) {
-                case BOOLEAN_OPTION:
-                    ret = isExist;
-                    break;
-                case SIMPLE_OPTION:
-                case POSITIONAL_ARGUMENT:
-                    if (!arguments.empty()) {
-                        ret = arguments.begin()->get<T>();
-                    }
-                    break;
-                default:
-                    if (!longName.empty()) {
-                        throw AccessDeniedException(longName.c_str(), "argument type can't read directly");
-                    }
-                    else {
-                        throw AccessDeniedException(shortName.c_str(), "argument type can't read directly");
-                    }
-                    break;
-            }
-            return ret;
         }
 
         /**
@@ -232,8 +150,7 @@ class Argparsor {
         inline std::string str() const {
             switch (type) {
                 case BOOLEAN_OPTION:
-                    return (isExist) ? "true" : "false";
-                    break;
+                    return ((isExist) ? "true" : "false");
                 case SIMPLE_OPTION:
                 case POSITIONAL_ARGUMENT:
                     if (arguments.size() > 0) {
@@ -242,7 +159,6 @@ class Argparsor {
                     else {
                         return "";
                     }
-                    break;
                 case NUMBER_OPTION:
                 case MULTI_OPTION:
                 case INFINITE_OPTION: {
@@ -254,11 +170,9 @@ class Argparsor {
                         oss << arguments[i];
                     }
                     return oss.str();
-                    break;
                 }
                 default:
                     return "unknown";
-                    break;
             }
         }
 
@@ -272,12 +186,30 @@ class Argparsor {
         }
 
         /**
+         * @brief override std::string operator
+         *
+         * @return tranform std::string of value array
+         */
+        inline operator std::string() const {
+            return str();
+        }
+
+        /**
+         * @brief override std::vector<std::string> operator
+         *
+         * @return const ref of value array
+         */
+        inline operator const std::vector<std::string>&() const {
+            return arguments;
+        }
+
+        /**
          * @brief Override bracket operator
          *
          * @param index
          * @return const String&
          */
-        inline const String& operator[](std::size_t index) const {
+        inline const std::string& operator[](std::size_t index) const {
             return at(index);
         }
 
@@ -303,7 +235,7 @@ class Argparsor {
         std::size_t nbArgs;
         std::string argHelp;
         std::vector<std::string> defaultValues;
-        std::vector<String> arguments;
+        std::vector<std::string> arguments;
     };
 
     /**

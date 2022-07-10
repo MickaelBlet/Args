@@ -23,11 +23,5 @@ GTEST_TEST(get, get_value) {
     };
     const int argc = sizeof(argv) / sizeof(*argv);
     argparsor.parseArguments(argc, const_cast<char**>(argv));
-    EXPECT_EQ(argparsor["-a"].get<int>(), -42);
-    EXPECT_EQ(argparsor["-b"].get<int>(), 042);
-    EXPECT_EQ(argparsor["-c"].get<int>(), 0x42);
-    EXPECT_EQ(argparsor["-d"].get<int>(), 1);
-    EXPECT_EQ(argparsor["-e"].get<bool>(), true);
-    EXPECT_EQ(argparsor["-f"].get<bool>(), false);
     EXPECT_EQ(argparsor["-g"].str(), "foo");
 }

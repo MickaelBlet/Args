@@ -16,15 +16,19 @@ int main(int argc, char* argv[]) {
         argparsor.parseArguments(argc, argv, true);
         std::cout << "-b: " << argparsor["-b"] << std::endl;
         std::cout << "-c: " << argparsor["-c"].count << std::endl;
-        std::cout << "REQUIRED: " << argparsor["REQUIRED"].get<int>() << " (" << argparsor["REQUIRED"].str() << ")" <<
-                  std::endl;
+        std::string required = argparsor["REQUIRED"];
+        std::cout << "REQUIRED: " << argparsor["REQUIRED"] << " (" << required << ")" << std::endl;
         if (argparsor["-s"]) {
             std::cout << "-s: " << argparsor["-s"] << std::endl;
         }
-        std::cout << "-n: [0]: " << argparsor["-n"][0] << ", [1]: " << argparsor["-n"][1].get<double>() << " (" <<
-                  argparsor["-n"] << ")" << std::endl;
+        std::cout << "-n: [0]: " << argparsor["-n"][0] << ", [1]: " << argparsor["-n"][1] << " (" << argparsor["-n"] << ")" << std::endl;
         if (argparsor["--infinite"]) {
-            std::cout << "--infinite: " << argparsor["--infinite"] << std::endl;
+            std::string rrrs = argparsor["--infinite"];
+            std::vector<std::string> rrr = argparsor["--infinite"];
+            for (std::size_t i = 0; i < rrr.size(); ++i) {
+                std::cout << rrr[i] << std::endl;
+            }
+            std::cout << "--infinite: " << rrrs << argparsor["--infinite"] << std::endl;
         }
         std::cout << "-m: " << argparsor["-m"] << std::endl;
     }

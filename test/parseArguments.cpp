@@ -275,8 +275,8 @@ GTEST_TEST(parseArguments, multi_argument) {
     argparsor.parseArguments(argc, const_cast<char**>(argv));
     EXPECT_EQ(argparsor["-m"].count, 2);
     EXPECT_EQ(argparsor["-m"].size(), 2);
-    EXPECT_STREQ(argparsor["-m"][0].c_str(), "0");
-    EXPECT_STREQ(argparsor["-m"][1].c_str(), "0");
+    EXPECT_EQ(argparsor["-m"][0], "0");
+    EXPECT_EQ(argparsor["-m"][1], "0");
 }
 
 GTEST_TEST(parseArguments, infinite_argument) {
@@ -293,8 +293,8 @@ GTEST_TEST(parseArguments, infinite_argument) {
     argparsor.parseArguments(argc, const_cast<char**>(argv));
     EXPECT_EQ(argparsor["-i"].count, 2);
     EXPECT_EQ(argparsor["-i"].size(), 2);
-    EXPECT_STREQ(argparsor["-i"][0].c_str(), "0");
-    EXPECT_STREQ(argparsor["-i"][1].c_str(), "1");
+    EXPECT_EQ(argparsor["-i"][0], "0");
+    EXPECT_EQ(argparsor["-i"][1], "1");
 }
 
 GTEST_TEST(parseArguments, help) {
