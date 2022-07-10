@@ -47,11 +47,11 @@ int main(int argc, char* argv[]) {
         argparsor.parseArguments(argc, argv);
         std::cout << "-b: " << argparsor["-b"] << std::endl;
         std::cout << "-c: " << argparsor["-c"].count << std::endl;
-        std::cout << "REQUIRED: " << argparsor["REQUIRED"].get<int>() << " (" << argparsor["REQUIRED"].str() << ")" << std::endl;
+        std::cout << "REQUIRED: " << argparsor["REQUIRED"] << std::endl;
         if (argparsor["-s"]) {
             std::cout << "-s: " << argparsor["-s"] << std::endl;
         }
-        std::cout << "-n: [0]: " << argparsor["-n"][0] << ", [1]: " << argparsor["-n"][1].get<double>() << " (" << argparsor["-n"] << ")" << std::endl;
+        std::cout << "-n: [0]: " << argparsor["-n"][0] << ", [1]: " << argparsor["-n"][1] << " (" << argparsor["-n"] << ")" << std::endl;
         if (argparsor["--infinite"]) {
             std::cout << "--infinite: " << argparsor["--infinite"] << std::endl;
         }
@@ -95,26 +95,26 @@ $ ./a.out --foo
 ./a.out: invalid option -- 'foo'
 ```
 ```
-$ ./a.out 042
+$ ./a.out 42
 -b: false
 -c: 0
-REQUIRED: 34 (042)
--n: [0]: foo, [1]: 0 (foo, bar)
+REQUIRED: 42
+-n: [0]: foo, [1]: bar (foo, bar)
 -m: 0, 1, 2
 ```
 ```
-$ ./a.out 0x42 -n 24 42.42
+$ ./a.out 42 -n 24 42.42
 -b: false
 -c: 0
-REQUIRED: 66 (0x42)
+REQUIRED: 42
 -n: [0]: 24, [1]: 42.42 (24, 42.42)
 -m: 0, 1, 2
 ```
 ```
-$ ./a.out true -n 24 42.42 -s woot --infinite -1 0 1 2 -m=foo -ccc -m bar
+$ ./a.out 42 -n 24 42.42 -s woot --infinite -1 0 1 2 -m=foo -ccc -m bar
 -b: false
 -c: 3
-REQUIRED: 1 (true)
+REQUIRED: 42
 -s: woot
 -n: [0]: 24, [1]: 42.42 (24, 42.42)
 --infinite: -1, 0, 1, 2
