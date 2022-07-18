@@ -2,6 +2,74 @@
 
 Parse and stock options from argc and argv
 
+Examples at [examples.md](doc/examples.md)
+
+## Option format
+
+Short format
+```bash
+"-b"          # [b] == true
+"-s" "Simple" # [s] == Simple
+"-sSimple"    # [s] == Simple
+"-s=Simple"   # [s] == Simple
+"-bsSimple"   # [b] == true and [s] == Simple
+"-bs=Simple"  # [b] == true and [s] == Simple
+```
+
+Long format
+```bash
+"--boolean"         # [boolean] == true
+"--simple" "Simple" # [simple] == Simple
+"--simple=Simple"   # [simple] == Simple
+"-simple" "Simple"  # (alternative) [simple] == Simple
+"-simple=Simple"    # (alternative) [simple] == Simple
+```
+
+## Methods
+
+### addArgument
+
+Define how a single command-line argument should be parsed
+
+```cpp
+void addArgument(
+    const Vector& nameOrFlags, // Either a name or a list of option strings, e.g. foo or -f, --foo
+    const char* actionOrDefault = NULL, // The basic type of action to be taken when this argument is encountered at the command line
+    // action list: store_true, store_false, infinite, append, extend, version, help
+    const char* help = NULL, // A brief description of what the argument does
+    bool isRequired = false, // Whether or not the command-line option may be omitted (optionals only)
+    const char* argsHelp = NULL, // A name for the argument in usage messages
+    std::size_t nbArgs = 0, // The number of command-line arguments that should be consumed
+    const Vector& defaultArgs = Vector() // The value produced if the argument is absent from the command line
+);
+```
+
+### parseArguments
+
+Convert argument strings to objects and assign them as attributes of the argparsor map.
+
+Previous calls to add_argument() determine exactly what objects are created and how they are assigned
+
+```cpp
+void parseArguments(
+    int argc,
+    char* argv[],
+    bool alternative = false, //active parsing for accept long option with only one '-' character
+    bool strict = false // active exception if not all argument is used else you can take additionnal argument with getAdditionalArguments method
+);
+
+```
+
+## Vector
+
+Vector is a object can be initialize with initialize string list or single string or for c++98 with `vector` method.
+
+```cpp
+args.addArgument("--boolean");
+args.addArgument({"-b", "--boolean"});
+args.addArgument(args.vector("-b", "--boolean")); // C++98
+```
+
 ## Build
 
 ```bash
@@ -9,114 +77,10 @@ Parse and stock options from argc and argv
 mkdir build ; pushd build && cmake .. && make -j ; popd
 # shared build
 mkdir build ; pushd build && cmake -DBUILD_SHARED_LIBS=1 .. && make -j ; popd
+# build examples
+mkdir build ; pushd build && cmake -DBUILD_EXAMPLE=1 .. && make -j ; popd
 # build and launch test (gcov and gtest required)
 mkdir build ; pushd build && cmake -DBUILD_TESTING=1 -DBUILD_COVERAGE=1 .. && make -j && make test ; popd
-```
-
-<details open><summary><h2>Argument methods</h2></summary>
-
-|Method|Parameters
-|-|-
-|addPositionalArgument|name<br/>help (default: NULL)<br/>required (default: false)<br/>defaultValue (default: NULL)
-|addBooleanArgument|shortName<br/>longName (default: NULL)<br/>help (default: NULL)<br/>required (default: false)
-|addSimpleArgument|shortName<br/>longName (default: NULL)<br/>help (default: NULL)<br/>required (default: false)<br/>usageName (default: NULL)<br/>defaultValue (default: NULL)
-|addNumberArgument|shortName<br/>longName (default: NULL)<br/>help (default: NULL)<br/>required (default: false)<br/>usageName (default: NULL)<br/>nbArgs (default: 0)<br/>...
-|addInfiniteArgument|shortName<br/>longName (default: NULL)<br/>help (default: NULL)<br/>required (default: false)<br/>usageName (default: NULL)<br/>nbDefaultArgs (default: 0)<br/>...
-|addMultiArgument|shortName<br/>longName (default: NULL)<br/>help (default: NULL)<br/>required (default: false)<br/>usageName (default: NULL)<br/>nbDefaultArgs (default: 0)<br/>...
-
-</details>
-
-## Examples
-
-```cpp
-#include "argparsor.h"
-
-int main(int argc, char* argv[]) {
-    mblet::Argparsor argparsor;
-    argparsor.setDescription("custom description message");
-    argparsor.setEpilog("custom epilog message");
-    argparsor.setHelpArgument("-h", "--help", "custom help option message");
-    argparsor.addPositionalArgument("REQUIRED", "help of required positional argument", true);
-    argparsor.addBooleanArgument("-b", NULL, "help of boolean option", false);
-    argparsor.addBooleanArgument("-c", NULL, "help of count option", false);
-    argparsor.addSimpleArgument("-s", "--simple", "help of simple option", false, "argSimple", NULL);
-    argparsor.addNumberArgument("-n", "--number", "help of number", false, "ARG1 ARG2", 2, "foo", "bar");
-    argparsor.addInfiniteArgument(NULL, "--infinite", "help of infinite");
-    argparsor.addMultiArgument("-m", "--multi", "help of multi", false, "MULTI", 3, "0", "1", "2");
-    try {
-        argparsor.parseArguments(argc, argv);
-        std::cout << "-b: " << argparsor["-b"] << std::endl;
-        std::cout << "-c: " << argparsor["-c"].count << std::endl;
-        std::cout << "REQUIRED: " << argparsor["REQUIRED"] << std::endl;
-        if (argparsor["-s"]) {
-            std::cout << "-s: " << argparsor["-s"] << std::endl;
-        }
-        std::cout << "-n: [0]: " << argparsor["-n"][0] << ", [1]: " << argparsor["-n"][1] << " (" << argparsor["-n"] << ")" << std::endl;
-        if (argparsor["--infinite"]) {
-            std::cout << "--infinite: " << argparsor["--infinite"] << std::endl;
-        }
-        std::cout << "-m: " << argparsor["-m"] << std::endl;
-    }
-    catch (const mblet::Argparsor::ParseArgumentException& e) {
-        std::cerr << argparsor.getBynaryName() << ": " << e.what();
-        std::cerr << " -- '" << e.argument() << "'" << std::endl;
-        return 1; //END
-    }
-    return 0;
-}
-```
-
-```
-$ ./a.out -h
-usage: ./a.out [-b] [-c] [-h] [-m MULTI] [-n ARG1 ARG2] [-s argSimple] [--infinite INFINITE...] REQUIRED
-
-custom description message
-
-positional arguments:
-  REQUIRED                help of required positional argument (required)
-
-optional arguments:
-  -b                      help of boolean option
-  -c                      help of count option
-  -h, --help              custom help option message
-  -m, --multi MULTI       help of multi (default: 0 1 2)
-  -n, --number ARG1 ARG2  help of number (default: foo bar)
-  -s, --simple argSimple  help of simple option
-  --infinite INFINITE...  help of infinite
-
-custom epilog message
-```
-```
-$ ./a.out -a
-./a.out: invalid option -- 'a'
-```
-```
-$ ./a.out --foo
-./a.out: invalid option -- 'foo'
-```
-```
-$ ./a.out 42
--b: false
--c: 0
-REQUIRED: 42
--n: [0]: foo, [1]: bar (foo, bar)
--m: 0, 1, 2
-```
-```
-$ ./a.out 42 -n 24 42.42
--b: false
--c: 0
-REQUIRED: 42
--n: [0]: 24, [1]: 42.42 (24, 42.42)
--m: 0, 1, 2
-```
-```
-$ ./a.out 42 -n 24 42.42 -s woot --infinite -1 0 1 2 -m=foo -ccc -m bar
--b: false
--c: 3
-REQUIRED: 42
--s: woot
--n: [0]: 24, [1]: 42.42 (24, 42.42)
---infinite: -1, 0, 1, 2
--m: foo, bar
+# static build for c++98
+mkdir build ; pushd build && cmake -DCMAKE_CXX_STANDARD=98 .. && make -j ; popd
 ```

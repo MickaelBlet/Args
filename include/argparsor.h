@@ -40,6 +40,55 @@ namespace mblet {
  */
 class Argparsor {
 
+  private:
+
+    /**
+     * @brief overide std::vector<std::string> with simple or table argument
+     */
+    struct Vector : public std::vector<std::string> {
+
+        inline Vector() : std::vector<std::string>() {}
+
+        template<std::size_t S>
+        inline Vector(const char* (&v)[S]) : std::vector<std::string>() {
+            for (std::size_t i = 0; i < S; ++i) {
+                std::vector<std::string>::push_back(v[i]);
+            }
+        }
+
+        template<std::size_t S>
+        inline Vector(const char* const(&v)[S]) : std::vector<std::string>() {
+            for (std::size_t i = 0; i < S; ++i) {
+                std::vector<std::string>::push_back(v[i]);
+            }
+        }
+
+        template<std::size_t S>
+        inline Vector(const std::string(&v)[S]) : std::vector<std::string>() {
+            for (std::size_t i = 0; i < S; ++i) {
+                std::vector<std::string>::push_back(v[i]);
+            }
+        }
+
+        template<std::size_t S>
+        inline Vector(const char (&v)[S]) : std::vector<std::string>() {
+            std::vector<std::string>::push_back(v);
+        }
+
+        inline Vector(const char* (&v)) : std::vector<std::string>() {
+            std::vector<std::string>::push_back(v);
+        }
+
+        inline Vector(const std::string& v) : std::vector<std::string>() {
+            std::vector<std::string>::push_back(v);
+        }
+
+#if __cplusplus >= 201103L
+        inline Vector(const std::initializer_list<std::string>& l) : std::vector<std::string>(l) {}
+#endif
+
+    };
+
   public:
 
     /**
@@ -100,16 +149,21 @@ class Argparsor {
     /**
      * @brief Argument object
      */
-    class Argument {
+    class Argument : public std::vector<Argument> {
 
       public:
 
         enum Type {
+            NONE = 0,
             BOOLEAN_OPTION,
+            REVERSE_BOOLEAN_OPTION,
             SIMPLE_OPTION,
             NUMBER_OPTION,
             INFINITE_OPTION,
             MULTI_OPTION,
+            MULTI_INFINITE_OPTION,
+            MULTI_NUMBER_OPTION,
+            MULTI_NUMBER_INFINITE_OPTION,
             POSITIONAL_ARGUMENT
         };
 
@@ -119,60 +173,91 @@ class Argparsor {
         Argument();
 
         /**
+         * @brief Construct a new Argument object from argument
+         */
+        Argument(const char* arg);
+
+        /**
+         * @brief Copy a Argument object
+         *
+         * @param rhs
+         */
+        Argument(const Argument& rhs);
+
+        /**
          * @brief Destroy the Argument object
          */
-        ~Argument();
+        virtual ~Argument();
 
-        /**
-         * @brief Get arguments element at index
-         *
-         * @param index
-         * @return const String&
-         */
-        inline const std::string& at(std::size_t index) const {
-            return arguments.at(index);
+        inline bool isExist() const {
+            return _isExist;
         }
 
-        /**
-         * @brief Get size of arguments
-         *
-         * @return std::size_t
-         */
-        inline std::size_t size() const {
-            return arguments.size();
+        inline bool isRequired() const {
+            return _isRequired;
         }
 
-        /**
-         * @brief Tranform argument to const string
-         *
-         * @return std::string
-         */
+        inline std::size_t count() const {
+            return _count;
+        }
+
+        inline std::size_t nbArgs() const {
+            return _nbArgs;
+        }
+
+        inline Type getType() const {
+            return _type;
+        }
+
+        inline const std::string& getHelp() const {
+            return _help;
+        }
+
+        inline const std::string& getArgHelp() const {
+            return _argHelp;
+        }
+
+        inline const std::string& getArgument() const {
+            return _argument;
+        }
+
+        inline const std::string& getDefault() const {
+            return _default;
+        }
+
         inline std::string str() const {
-            switch (type) {
-                case BOOLEAN_OPTION:
-                    return ((isExist) ? "true" : "false");
-                case SIMPLE_OPTION:
-                case POSITIONAL_ARGUMENT:
-                    if (arguments.size() > 0) {
-                        return *(arguments.begin());
-                    }
-                    else {
-                        return "";
-                    }
-                case NUMBER_OPTION:
-                case MULTI_OPTION:
-                case INFINITE_OPTION: {
-                    std::ostringstream oss("");
-                    for (std::size_t i = 0 ; i < arguments.size() ; ++i) {
+            if (_type == BOOLEAN_OPTION) {
+                return ((_isExist) ? "true" : "false");
+            }
+            else if (_type == REVERSE_BOOLEAN_OPTION) {
+                return ((_isExist) ? "false" : "true");
+            }
+            else {
+                std::ostringstream oss("");
+                if (!empty()) {
+                    for (std::size_t i = 0 ; i < size() ; ++i) {
                         if (i > 0) {
                             oss << ", ";
                         }
-                        oss << arguments[i];
+                        if (!at(i).empty()) {
+                            oss << "(";
+                            for (std::size_t j = 0 ; j < at(i).size() ; ++j) {
+                                if (j > 0) {
+                                    oss << ", ";
+                                }
+                                oss << at(i).at(j)._argument;
+                            }
+                            oss << ")";
+                        }
+                        else {
+                            oss << at(i)._argument;
+                        }
                     }
-                    return oss.str();
                 }
-                default:
-                    return "unknown";
+                else {
+                    oss << _argument;
+                }
+                return oss.str();
             }
         }
 
@@ -182,60 +267,102 @@ class Argparsor {
          * @return true if exist or false if not exist
          */
         inline operator bool() const {
-            return isExist;
+            if (_type == REVERSE_BOOLEAN_OPTION) {
+                return !_isExist;
+            }
+            else {
+                return _isExist;
+            }
         }
 
         /**
-         * @brief override std::string operator
+         * @brief tranform to string
          *
-         * @return tranform std::string of value array
+         * @return std::string
          */
         inline operator std::string() const {
             return str();
         }
 
         /**
-         * @brief override std::vector<std::string> operator
+         * @brief tranform to vector of string
          *
-         * @return const ref of value array
+         * @return std::vector<std::string>
          */
-        inline operator const std::vector<std::string>&() const {
-            return arguments;
+        inline operator std::vector<std::string>() const {
+            if (_type == NUMBER_OPTION || _type == MULTI_OPTION ||
+                _type == INFINITE_OPTION || _type == MULTI_INFINITE_OPTION) {
+                std::vector<std::string> ret;
+                for (std::size_t i = 0 ; i < size() ; ++i) {
+                    ret.push_back(at(i).getArgument());
+                }
+                return ret;
+            }
+            else {
+                throw Exception("convertion to vector of string not authorized");
+            }
         }
 
         /**
-         * @brief Override bracket operator
+         * @brief tranform to vector of vector of string
+         *
+         * @return std::vector<std::vector<std::string> >
+         */
+        inline operator std::vector<std::vector<std::string> >() const {
+            if (_type == MULTI_NUMBER_OPTION || _type == MULTI_NUMBER_INFINITE_OPTION) {
+                std::vector<std::vector<std::string> > ret;
+                for (std::size_t i = 0 ; i < size() ; ++i) {
+                    ret.push_back(std::vector<std::string>());
+                    for (std::size_t j = 0 ; j < at(i).size() ; ++j) {
+                        ret[i].push_back(at(i).at(j).getArgument());
+                    }
+                }
+                return ret;
+            }
+            else {
+                throw Exception("convertion to vector of vector of string not authorized");
+            }
+        }
+
+        /**
+         * @brief overide brakcet operator
          *
          * @param index
-         * @return const String&
+         * @return const Argument&
          */
-        inline const std::string& operator[](std::size_t index) const {
+        inline const Argument& operator[](unsigned long index) const {
             return at(index);
         }
 
         /**
-         * @brief Friend function for convert String object to ostream
+         * @brief Friend function for convert Argument object to ostream
          *
          * @param os
-         * @param arg
+         * @param argument
          * @return std::ostream&
          */
-        inline friend std::ostream& operator<<(std::ostream& os, const Argument& arg) {
-            os << arg.str();
+        inline friend std::ostream& operator<<(std::ostream& os, const Argument& argument) {
+            os << argument.str();
             return os;
         }
 
-        enum Type type;
-        bool isExist;
-        std::size_t count;
-        bool isRequired;
-        std::string shortName;
-        std::string longName;
-        std::string help;
-        std::size_t nbArgs;
-        std::string argHelp;
-        std::vector<std::string> defaultValues;
-        std::vector<std::string> arguments;
+      private:
+
+        friend class Argparsor;
+
+        static bool compareOption(const Argument& first, const Argument& second);
+
+        std::vector<std::string> _names;
+        bool _isExist;
+        bool _isRequired;
+        std::size_t _count;
+        std::size_t _nbArgs;
+        enum Type _type;
+        std::string _help;
+        std::string _argHelp;
+        std::string _argument;
+        std::string _default;
+
     };
 
     /**
@@ -266,47 +393,55 @@ class Argparsor {
     std::ostream& getUsage(std::ostream& oss = std::cout);
 
     /**
+     * @brief Get the Version object
+     *
+     * @param oss
+     * @return std::ostream&
+     */
+    std::ostream& getVersion(std::ostream& oss = std::cout);
+
+    /**
      * @brief Get the argument object
      *
      * @param str
      * @return const Argument&
      */
-    inline const Argument& getOption(const char* str) const {
+    inline const Argument& getArgument(const char* str) const {
+        return getArgument(std::string(str));
+    }
+
+    /**
+     * @brief Get the argument object
+     *
+     * @param str
+     * @return const Argument&
+     */
+    inline const Argument& getArgument(const std::string& str) const {
         std::map<std::string, Argument*>::const_iterator cit = _argumentFromName.find(str);
         if (cit == _argumentFromName.end()) {
-            throw AccessDeniedException(str, "option not found");
+            throw AccessDeniedException(str.c_str(), "argument not found");
         }
         return *(cit->second);
     }
 
     /**
-     * @brief Get the argument object
-     *
-     * @param str
-     * @return const Argument&
-     */
-    inline const Argument& getOption(const std::string& str) const {
-        return getOption(str.c_str());
-    }
-
-    /**
-     * @brief Override bracket operator with getOption
+     * @brief Override bracket operator with getArgument
      *
      * @param str
      * @return const Argument&
      */
     inline const Argument& operator[](const char* str) const {
-        return getOption(str);
+        return getArgument(str);
     }
 
     /**
-     * @brief Override bracket operator with getOption
+     * @brief Override bracket operator with getArgument
      *
      * @param str
      * @return const Argument&
      */
     inline const Argument& operator[](const std::string& str) const {
-        return getOption(str);
+        return getArgument(str);
     }
 
     /**
@@ -317,15 +452,6 @@ class Argparsor {
     inline const std::vector<std::string>& getAdditionalArguments() const {
         return _additionalArguments;
     }
-
-    /**
-     * @brief Set the help argument
-     *
-     * @param shortName
-     * @param longName
-     * @param help
-     */
-    void setHelpArgument(const char* shortName = NULL, const char* longName = NULL, const char* help = NULL);
 
     /**
      * @brief Set the usage message
@@ -355,119 +481,61 @@ class Argparsor {
     }
 
     /**
-     * @brief Parse arguments
-     *
+     * @brief Convert argument strings to objects and assign them as attributes of the argparsor map.
+     * Previous calls to add_argument() determine exactly what objects are created and how they are assigned
      * @param argc
      * @param argv
-     * @param alternative
-     * @param strict
+     * @param alternative active parsing for accept long option with only one '-' character
+     * @param strict active exception if not all argument is used else you can take additionnal argument with
+     *        getAdditionalArguments method
      */
     void parseArguments(int argc, char* argv[], bool alternative = false, bool strict = false);
 
     /**
-     * @brief Add boolean argument with short and long name
+     * @brief Define how a single command-line argument should be parsed
      *
-     * @param shortName
-     * @param longName
-     * @param help
-     * @param isRequired
+     * @param nameOrFlags Either a name or a list of option strings, e.g. foo or -f, --foo
+     * @param actionOrDefault The basic type of action to be taken when this argument is encountered at the command line
+     * action list: store_true, store_false, append, extend, version, help
+     * @param help A brief description of what the argument does
+     * @param isRequired Whether or not the command-line option may be omitted (optionals only)
+     * @param argsHelp A name for the argument in usage messages
+     * @param nbArgs The number of command-line arguments that should be consumed
+     * @param defaultArgs The value produced if the argument is absent from the command line
      */
-    void addBooleanArgument(const char* shortName, const char* longName = NULL, const char* help = NULL,
-                            bool isRequired = false);
+    void addArgument(const Vector& nameOrFlags, const char* actionOrDefault = NULL,
+                     const char* help = NULL, bool isRequired = false, const char* argsHelp = NULL,
+                     std::size_t nbArgs = 0, const Vector& defaultArgs = Vector());
 
     /**
-     * @brief Add simple argument with short and long name
+     * @brief Constructor of Vector for cpp98
      *
-     * @param shortName
-     * @param longName
-     * @param help
-     * @param isRequired
-     * @param argHelp
-     * @param defaultValue
+     * @param v1
+     * @param v2
+     * @param v3
+     * @param v4
+     * @param v5
+     * @param v6
+     * @param v7
+     * @param v8
+     * @param v9
+     * @param v10
+     * @return Vector
      */
-    void addSimpleArgument(const char* shortName, const char* longName = NULL, const char* help = NULL,
-                           bool isRequired = false,
-                           const char* argHelp = NULL, const char* defaultValue = NULL);
-
-
-    /**
-     * @brief Add number argument with short and long name
-     *
-     * @param shortName
-     * @param longName
-     * @param help
-     * @param isRequired
-     * @param argHelp
-     * @param nbArgs
-     * @param ... default argument value (const char*)
-     */
-    void addNumberArgument(const char* shortName, const char* longName = NULL, const char* help = NULL,
-                           bool isRequired = false,
-                           const char* argHelp = NULL, std::size_t nbArgs = 0, ...);
-
-    /**
-     * @brief Add infinite argument with short and long name
-     *
-     * @param shortName
-     * @param longName
-     * @param help
-     * @param isRequired
-     * @param argHelp
-     * @param nbDefaultArgs
-     * @param ... default argument value (const char*)
-     */
-    void addInfiniteArgument(const char* shortName, const char* longName = NULL, const char* help = NULL,
-                             bool isRequired = false,
-                             const char* argHelp = NULL, std::size_t nbDefaultArgs = 0, ...);
-
-    /**
-     * @brief Add multi argument from short and long name with list argument
-     *
-     * @param shortName
-     * @param longName
-     * @param help
-     * @param isRequired
-     * @param argHelp
-     * @param nbDefaultArgs
-     * @param ... default argument value (const char*)
-     */
-    void addMultiArgument(const char* shortName, const char* longName = NULL, const char* help = NULL,
-                          bool isRequired = false,
-                          const char* argHelp = NULL, std::size_t nbDefaultArgs = 0, ...);
-
-    /**
-     * @brief Add positionnal argument
-     *
-     * @param name
-     * @param help
-     * @param isRequired
-     * @param argName
-     * @param defaultValue
-     */
-    void addPositionalArgument(const char* name, const char* help = NULL, bool isRequired = false,
-                               const char* defaultValue = NULL);
+    inline static Vector vector(const char* v1 = NULL, const char* v2 = NULL, const char* v3 = NULL, const char* v4 = NULL,
+                                const char* v5 = NULL, const char* v6 = NULL, const char* v7 = NULL, const char* v8 = NULL,
+                                const char* v9 = NULL, const char* v10 = NULL) {
+        const char* args[] = {v1, v2, v3, v4, v5, v6, v7, v8, v9, v10};
+        Vector v;
+        for (std::size_t i = 0; i < sizeof(args) / sizeof(*args); ++i) {
+            if (args[i]) {
+                v.push_back(args[i]);
+            }
+        }
+        return v;
+    }
 
   private:
-
-    /**
-     * @brief Create a argument with check format of shortName and longName
-     *
-     * @param shortName
-     * @param longName
-     * @param help
-     * @param isRequired
-     * @return Argument&
-     */
-    Argument& createArgument(const char* shortName, const char* longName, const char* help, bool isRequired);
-
-    /**
-     * @brief Get short or long argument
-     *
-     * @param maxIndex
-     * @param argv
-     * @param index
-     */
-    void parseAlternativeArgument(int maxIndex, char* argv[], int* index);
 
     /**
      * @brief Get the short argument decompose multi short argument
@@ -475,8 +543,9 @@ class Argparsor {
      * @param maxIndex
      * @param argv
      * @param index
+     * @param alternative
      */
-    void parseShortArgument(int maxIndex, char* argv[], int* index);
+    void parseShortArgument(int maxIndex, char* argv[], int* index, bool alternative);
 
     /**
      * @brief Get the long argument
@@ -484,8 +553,9 @@ class Argparsor {
      * @param maxIndex
      * @param argv
      * @param index
+     * @param alternative
      */
-    void parseLongArgument(int maxIndex, char* argv[], int* index);
+    void parseLongArgument(int maxIndex, char* argv[], int* index, bool alternative);
 
     /**
      * @brief Get the argument
@@ -497,9 +567,10 @@ class Argparsor {
      * @param option
      * @param arg
      * @param argument
+     * @param alternative
      */
     void parseArgument(int maxIndex, char* argv[], int* index, bool hasArg, const char* option, const char* arg,
-                       Argument* argument);
+                       Argument* argument, bool alternative);
 
     /**
      * @brief Get the positionnal argument
@@ -514,10 +585,11 @@ class Argparsor {
      * @brief Check end of infinite parsing
      *
      * @param argument
+     * @param alternative
      * @return true
      * @return false
      */
-    bool endOfInfiniteArgument(const char* argument);
+    bool endOfInfiniteArgument(const char* argument, bool alternative);
 
     std::string _binaryName;
 
@@ -525,6 +597,7 @@ class Argparsor {
     std::map<std::string, Argument*> _argumentFromName;
 
     Argument* _helpOption;
+    Argument* _versionOption;
 
     std::string _usage;
     std::string _description;

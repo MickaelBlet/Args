@@ -10,9 +10,13 @@ file(GLOB SOURCES "${PROJECT_SOURCE_DIR}/src/*.cpp")
 add_library("${PROJECT_NAME}" ${SOURCES})
 target_compile_options("${PROJECT_NAME}" PRIVATE -pedantic -Wall -Wextra -Werror)
 
+if (NOT "${CMAKE_CXX_STANDARD}")
+    set(CMAKE_CXX_STANDARD 11 CACHE STRING "C++ standard to be used")
+endif()
+
 set_target_properties("${PROJECT_NAME}"
     PROPERTIES
-        CXX_STANDARD 98
+        CXX_STANDARD "${CMAKE_CXX_STANDARD}"
         CXX_STANDARD_REQUIRED ON
         CXX_EXTENSIONS OFF
         NO_SYSTEM_FROM_IMPORTED ON
