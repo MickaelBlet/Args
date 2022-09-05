@@ -1,4 +1,4 @@
-K9# Examples
+# Examples
 
 Positionnal:
 - [Argument](#argument)
