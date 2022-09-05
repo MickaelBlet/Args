@@ -1,4 +1,4 @@
-# Examples
+K9# Examples
 
 Positionnal:
 - [Argument](#argument)
@@ -159,7 +159,7 @@ int main(int argc, char* argv[]) {
 $ ./a.out
 do nothing
 $ ./a.out --help
-usage: ./build/example/changeHelperOption.example [-h]
+usage: ./a.out [-h]
 
 optional arguments:
   -h, --help  custom help option message
@@ -377,7 +377,7 @@ int main(int argc, char* argv[]) {
 
 ```
 $ ./a.out -h
-usage: /mnt/c/Users/mblet/Documents/Optionator/build/example/example [-E] [-N MULTI] [-b] [-c] [-e EXTEND] [-h] [-m MULTI] [-n ARG1 ARG2] [-s argSimple] [-v] [--infinite INFINITE...] REQUIRED
+usage: ./a.out [-E] [-N MULTI] [-b] [-c] [-e EXTEND] [-h] [-m MULTI] [-n ARG1 ARG2] [-s argSimple] [-v] [--infinite INFINITE...] REQUIRED
 
 custom description message
 
