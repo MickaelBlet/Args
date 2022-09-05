@@ -19,7 +19,7 @@ All:
 
 ## Argument
 ```cpp
-#include "argparsor.h"
+#include "mblet/argparsor.h"
 int main(int argc, char* argv[]) {
     mblet::Argparsor args;
     args.addArgument("ARG", NULL, "custom argument message", false);
@@ -53,7 +53,7 @@ Additionnal argument(s):
 ## Append
 With nbArgs == 1
 ```cpp
-#include "argparsor.h"
+#include "mblet/argparsor.h"
 int main(int argc, char* argv[]) {
     mblet::Argparsor args;
     args.addArgument({"-a", "--append"}, "append", "custom append option message", false, NULL, 1);
@@ -72,7 +72,7 @@ $ ./a.out -a1 --append=2 -a=3
 ```
 With nbArgs == 3
 ```cpp
-#include "argparsor.h"
+#include "mblet/argparsor.h"
 int main(int argc, char* argv[]) {
     mblet::Argparsor args;
     args.addArgument({"-a", "--append"}, "append", "custom append option message", false, NULL, 3);
@@ -98,7 +98,7 @@ $ ./a.out -a 1 2 3 --append 4 5 6
 ## Extend
 With nbArgs == 1
 ```cpp
-#include "argparsor.h"
+#include "mblet/argparsor.h"
 int main(int argc, char* argv[]) {
     mblet::Argparsor args;
     args.addArgument({"-e", "--extend"}, "extend", "custom extend option message", false, NULL, 1);
@@ -120,7 +120,7 @@ $ ./a.out -e1 --extend=2 -e=3 --extend 4 5 6
 ```
 With nbArgs == 3
 ```cpp
-#include "argparsor.h"
+#include "mblet/argparsor.h"
 int main(int argc, char* argv[]) {
     mblet::Argparsor args;
     args.addArgument({"-e", "--extend"}, "extend", "custom extend option message", false, NULL, 3);
@@ -146,7 +146,7 @@ $ ./a.out -e 1 2 3 4 5 6 --extend 7 8 9
 
 ## Help
 ```cpp
-#include "argparsor.h"
+#include "mblet/argparsor.h"
 int main(int argc, char* argv[]) {
     mblet::Argparsor args;
     args.addArgument({"-h", "--help"}, "help", "custom help option message");
@@ -167,7 +167,7 @@ optional arguments:
 
 ## Infinite
 ```cpp
-#include "argparsor.h"
+#include "mblet/argparsor.h"
 int main(int argc, char* argv[]) {
     mblet::Argparsor args;
     args.addArgument({"-i", "--infinite"}, "infinite", "custom infinite option message", false, NULL, 1);
@@ -195,7 +195,7 @@ $ ./a.out -i1 --infinite=2 -i=3 --infinite 4 5 6
 ## None
 With nbArgs == 1
 ```cpp
-#include "argparsor.h"
+#include "mblet/argparsor.h"
 int main(int argc, char* argv[]) {
     mblet::Argparsor args;
     args.addArgument({"-n", "--none"}, NULL, "custom none option message", false, NULL, 1);
@@ -212,7 +212,7 @@ $ ./a.out -n 1 --none 2
 ```
 With nbArgs == 3
 ```cpp
-#include "argparsor.h"
+#include "mblet/argparsor.h"
 int main(int argc, char* argv[]) {
     mblet::Argparsor args;
     args.addArgument({"-n", "--none"}, NULL, "custom none option message", false, NULL, 3);
@@ -236,7 +236,7 @@ $ ./a.out -n 1 2 3 --none 4 5 6
 
 ## StoreTrue
 ```cpp
-#include "argparsor.h"
+#include "mblet/argparsor.h"
 int main(int argc, char* argv[]) {
     mblet::Argparsor args;
     args.addArgument({"-b", "--boolean"}, "store_true", "custom booblean option message", false);
@@ -267,7 +267,7 @@ count: 4
 
 ## StoreFalse
 ```cpp
-#include "argparsor.h"
+#include "mblet/argparsor.h"
 int main(int argc, char* argv[]) {
     mblet::Argparsor args;
     args.addArgument({"--no-boolean"}, "store_false", "custom not booblean option message", false);
@@ -290,7 +290,7 @@ false
 
 ## Version
 ```cpp
-#include "argparsor.h"
+#include "mblet/argparsor.h"
 int main(int argc, char* argv[]) {
     mblet::Argparsor args;
     args.addArgument({"-v", "--version"}, "version", "custom version option message", false, NULL, 0, {"multi line", "Version: 0.0.0"});
@@ -309,7 +309,7 @@ Version: 0.0.0
 
 ## C++11 or highter
 ```cpp
-#include "argparsor.h"
+#include "mblet/argparsor.h"
 
 int main(int argc, char* argv[]) {
     mblet::Argparsor args;
