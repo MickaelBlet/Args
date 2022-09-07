@@ -385,20 +385,18 @@ class Argparsor {
     }
 
     /**
-     * @brief Get the usage object
+     * @brief Get the Usage
      *
-     * @param oss
-     * @return std::ostream&
+     * @return std::string
      */
-    std::ostream& getUsage(std::ostream& oss = std::cout);
+    std::string getUsage() const;
 
     /**
-     * @brief Get the Version object
+     * @brief Get the Version
      *
-     * @param oss
-     * @return std::ostream&
+     * @return std::string
      */
-    std::ostream& getVersion(std::ostream& oss = std::cout);
+    std::string getVersion() const;
 
     /**
      * @brief Get the argument object

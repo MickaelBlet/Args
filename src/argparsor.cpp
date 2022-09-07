@@ -274,12 +274,12 @@ bool Argparsor::Argument::compareOption(const Argparsor::Argument& first, const 
     }
 }
 
-std::ostream& Argparsor::getUsage(std::ostream& oss) {
+std::string Argparsor::getUsage() const {
+    std::ostringstream oss("");
     if (!_usage.empty()) {
         oss << _usage;
-        return oss;
+        return oss.str();
     }
-    _arguments.sort(&Argparsor::Argument::compareOption);
     bool hasOption = false;
     bool hasPositionnal = false;
     // usage line
@@ -433,14 +433,15 @@ std::ostream& Argparsor::getUsage(std::ostream& oss) {
     if (!_epilog.empty()) {
         oss << '\n' << _epilog << '\n';
     }
-    return oss;
+    return oss.str();
 }
 
-std::ostream& Argparsor::getVersion(std::ostream& oss) {
+std::string Argparsor::getVersion() const {
+    std::ostringstream oss("");
     if (_versionOption != NULL) {
-        oss << _versionOption->getDefault() << '\n';
+        oss << _versionOption->getDefault() << std::endl;
     }
-    return oss;
+    return oss.str();
 }
 
 void Argparsor::parseArguments(int argc, char* argv[], bool alternative, bool strict) {
@@ -473,12 +474,12 @@ void Argparsor::parseArguments(int argc, char* argv[], bool alternative, bool st
     }
     // check help option
     if (_helpOption != NULL && _helpOption->_isExist) {
-        getUsage();
+        std::cout << getUsage() << std::flush;
         exit(0);
     }
     // check version option
     if (_versionOption != NULL && _versionOption->_isExist) {
-        getVersion();
+        std::cout << getVersion() << std::flush;
         exit(0);
     }
     // check require option
@@ -526,6 +527,7 @@ void Argparsor::addArgument(const Vector& nameOrFlags, const char* actionOrDefau
 
         _arguments.push_back(argument);
         _argumentFromName.insert(std::pair<std::string, Argument*>(nameOrFlags[0], &(_arguments.back())));
+        _arguments.sort(&Argparsor::Argument::compareOption);
         return;
     }
 
@@ -832,6 +834,7 @@ void Argparsor::addArgument(const Vector& nameOrFlags, const char* actionOrDefau
     // add in Argument list
     _arguments.push_back(argument);
     Argument& newArgument = _arguments.back(); // get new argument object
+    _arguments.sort(&Argparsor::Argument::compareOption);
     for (std::size_t i = 0; i < newArgument._names.size(); ++i) {
         _argumentFromName.insert(std::pair<std::string, Argument*>(newArgument._names[i], &newArgument));
     }

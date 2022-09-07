@@ -5,9 +5,7 @@
 GTEST_TEST(getUsage, custom) {
     mblet::Argparsor args;
     args.setUsage("foo");
-    std::ostringstream oss("");
-    args.getUsage(oss);
-    EXPECT_EQ(oss.str(), "foo");
+    EXPECT_EQ(args.getUsage(), "foo");
 }
 
 GTEST_TEST(getUsage, compareOption) {
@@ -26,15 +24,14 @@ GTEST_TEST(getUsage, compareOption) {
     args.addArgument("--long2", "store_true", "help of long2 option", true);
     args.addArgument("-f", "store_true", "help of f short option", false);
     args.addArgument("--long3", "store_true", "help of long3 option", false);
+    args.addArgument("--long6", "store_true", "help of long6 option", true);
     args.addArgument("--long4", "store_true", "help of long4 option", false);
     args.addArgument("-g", "store_true", "help of g short option", true);
-    args.addArgument("--long5", "store_true", "help of long4 option", false);
+    args.addArgument("--long5", "store_true", "help of long5 option", false);
 
-    std::ostringstream oss("");
-    args.getUsage(oss);
     std::ostringstream usage("");
 
-    usage << "usage:  -a -d -e -g --long2 [-b] [-c] [-f] [-h] [--long1] [--long3] [--long4] [--long5] -- REQUIRED1 REQUIRED2 [NOTREQUIRED1] [NOTREQUIRED2]\n";
+    usage << "usage:  -a -d -e -g --long2 --long6 [-b] [-c] [-f] [-h] [--long1] [--long3] [--long4] [--long5] -- REQUIRED1 REQUIRED2 [NOTREQUIRED1] [NOTREQUIRED2]\n";
     usage << "\n";
     usage << "positional arguments:\n";
     usage << "  REQUIRED1      help of required1 positional argument (required)\n";
@@ -48,6 +45,7 @@ GTEST_TEST(getUsage, compareOption) {
     usage << "  -e             help of e short option (required)\n";
     usage << "  -g             help of g short option (required)\n";
     usage << "  --long2        help of long2 option (required)\n";
+    usage << "  --long6        help of long6 option (required)\n";
     usage << "  -b             help of b short option\n";
     usage << "  -c             help of c short option\n";
     usage << "  -f             help of f short option\n";
@@ -55,9 +53,9 @@ GTEST_TEST(getUsage, compareOption) {
     usage << "  --long1        help of long1 option\n";
     usage << "  --long3        help of long3 option\n";
     usage << "  --long4        help of long4 option\n";
-    usage << "  --long5        help of long4 option\n";
+    usage << "  --long5        help of long5 option\n";
 
-    EXPECT_EQ(oss.str(), usage.str());
+    EXPECT_EQ(args.getUsage(), usage.str());
 }
 
 GTEST_TEST(getUsage, allTypeArgument) {
@@ -85,8 +83,6 @@ GTEST_TEST(getUsage, allTypeArgument) {
     // MULTI INFINITE NUMBER
     args.addArgument("--multi-infinite-number", "extend", "help of multi-infinite-number option", false, NULL, 2, args.vector("0", "1", "2", "3"));
 
-    std::ostringstream oss("");
-    args.getUsage(oss);
     std::ostringstream usage("");
 
     usage << "usage:  [-b] [-h] [-s ArgOfSimple] [--infinite INFINITE...] [--multi MULTI] [--multi-infinite MULTI-INFINITE] [--multi-infinite-number MULTI-INFINITE-NUMBER MULTI-INFINITE-NUMBER] [--multi-number MULTI-NUMBER MULTI-NUMBER] [--notbool] [--number Arg1 Arg2] -- REQUIRED [NOTREQUIRED]\n";
@@ -111,5 +107,5 @@ GTEST_TEST(getUsage, allTypeArgument) {
     usage << "\n";
     usage << "custom epilog message\n";
 
-    EXPECT_EQ(oss.str(), usage.str());
+    EXPECT_EQ(args.getUsage(), usage.str());
 }
