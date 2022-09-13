@@ -1,27 +1,52 @@
 #include "mblet/argparsor.h"
+#include <stdint.h>
 
 int main(int argc, char* argv[]) {
-    mblet::Argparsor args;
+    using namespace mblet;
+    char s = -1;
+    std::string b = "";
+    std::string c = "";
+    std::vector<std::vector<double> > destD;
+
+    Argparsor args(false);
     args.setDescription("custom description message");
     args.setEpilog("custom epilog message");
-    args.addArgument(args.vector("-h", "--help"), "help", "custom help option message");
-    args.addArgument(args.vector("-v", "--version"), "version", "help of version option", false, NULL, 0, "Version: 0.0.0");
-    args.addArgument("NOTREQUIRED", NULL, "help of positional argument", false);
-    args.addArgument("REQUIRED", NULL, "help of required positional argument", true);
-    args.addArgument("-b", "store_true", "help of boolean option");
-    args.addArgument("-c", "store_false", "help of count option");
-    args.addArgument(args.vector("-s", "--simple"), NULL, "help of simple option", true, "argSimple", 1);
-    args.addArgument(args.vector("-n", "--number"), NULL, "help of number", true, "ARG1 ARG2", 2, args.vector("foo", "bar"));
-    args.addArgument("--infinite", NULL, "help of infinite", false, NULL, '+');
-    args.addArgument(args.vector("-m", "--multi"), "append", "help of multi", false, "MULTI", 1, args.vector("0", "1", "2"));
-    args.addArgument(args.vector("-N", "--multiAppend"), "append", "help of multi", false, "MULTI", 2, args.vector("0", "1", "2", "3"));
-    args.addArgument(args.vector("-e", "--extend"), "extend", "help of extend", false, "EXTEND", 1, args.vector("0", "1", "2", "3"));
-    args.addArgument(args.vector("-E", "--extend-number"), "extend", "help of extend", false, "EXTEND", 2, args.vector("0", "1", "2", "3"));
+    args.addArgument("-h").flag("--help").action(args.HELP).help("custom help option message");
+    args.addArgument("-v").flag("--version").help("help of version option")
+    .action(args.VERSION).defaults("Version: 0.0.0");
+    args.addArgument("NOTREQUIRED").help("help of positional argument").defaults("foo");
+    args.addArgument("REQUIRED").help("help of required positional argument").valid(new Argparsor::ValidPath())
+    .dest(s).required(true);
+    args.addArgument("-b", args.STORE_TRUE, "help of boolean option").dest(b);
+    args.addArgument("-c", args.STORE_FALSE, "help of count option").dest(c);
+    args.addArgument("-s").flag("--simple").help("help of simple option").required(true).metavar("argSimple")
+    .nargs(1).valid(new Argparsor::ValidChoise(args.vector("0", "100", "200")));
+    args.addArgument("-n").flag("--number").help("help of number").required(true).metavar("ARG1 ARG2").nargs(2)
+    .defaults(args.vector("foo", "bar"));
+    args.addArgument("--infinite").help("help of infinite").nargs('+');
+    args.addArgument(args.vector("-m", "--multi"), args.APPEND, "help of multi", false, "MULTI", 1,
+                     args.vector("0", "1", "2"));
+    args.addArgument(args.vector("-N", "--multiAppend"), args.APPEND, "help of multi", false, "MULTI", 2,
+                     args.vector("0", "1", "2", "3"), NULL, destD);
+    args.addArgument(args.vector("-e", "--extend"), args.EXTEND, "help of extend", false, "EXTEND", 1,
+                     args.vector("0", "1", "2", "3"));
+    args.addArgument(args.vector("-E", "--extend-number"), args.EXTEND, "help of extend", false, "EXTEND", 2,
+                     args.vector("0", "1", "2", "3"));
     try {
         args.parseArguments(argc, argv, true);
+        std::cout << +s << std::endl;
+        std::cout << b << std::endl;
+        std::cout << c << std::endl;
+        std::cout << destD[0][0] << std::endl;
+        std::cout << destD[0][1] << std::endl;
+        std::cout << destD[1][0] << std::endl;
+        std::cout << destD[1][1] << std::endl;
+        std::vector<std::string> rg = args["-E"];
+
         std::cout << "-b: " << args["-b"] << std::endl;
         std::cout << "-c: (count) " << args["-c"].count() << std::endl;
         std::cout << "REQUIRED: " << args["REQUIRED"] << std::endl;
+        std::cout << "NOTREQUIRED: " << args["NOTREQUIRED"] << std::endl;
         if (args["-s"]) {
             std::cout << "-s: " << args["-s"] << std::endl;
         }
@@ -56,7 +81,7 @@ int main(int argc, char* argv[]) {
         }
         std::cout << std::endl;
     }
-    catch (const mblet::Argparsor::ParseArgumentException& e) {
+    catch (const Argparsor::ParseArgumentException& e) {
         std::cerr << args.getBynaryName() << ": " << e.what();
         std::cerr << " -- '" << e.argument() << "'" << std::endl;
         return 1; //END

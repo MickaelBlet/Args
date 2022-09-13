@@ -9,6 +9,6 @@ GTEST_TEST(getVersion, empty) {
 
 GTEST_TEST(getVersion, version) {
     mblet::Argparsor argparsor;
-    argparsor.addArgument("-v", "version", "help of version", false, NULL, 0, "Version 0.0.0");
+    argparsor.addArgument("-v", mblet::Argparsor::VERSION, "help of version", false, NULL, 0, "Version 0.0.0");
     EXPECT_EQ(argparsor.getVersion(), "Version 0.0.0\n");
 }

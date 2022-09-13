@@ -32,6 +32,28 @@ Long format
 Define how a single command-line argument should be parsed
 
 ```cpp
+mblet::Argparsor args;
+args.addArgument(
+    {"-E", "--example"}, // nameOrFlags: Either a name or a list of option strings, e.g. foo or -f, --foo
+    mblet::Argparsor::NONE, // action: The basic type of action to be taken when this argument is encountered at the command line
+    "help message", // help: A brief description of what the argument does
+
+mblet::Argparsor::Argument &mblet::Argparsor::addArgument(
+    const mblet::Argparsor::Vector &nameOrFlags,
+    mblet::Argparsor::Action action,
+    const char *help,
+    bool isRequired,
+    const char *metavar,
+    std::size_t nArgs,
+    const mblet::Argparsor::Vector &defaultArgs,
+    mblet::Argparsor::IValid *valid,
+    T &dest)
+Argparsor::Argument& addArgument(
+    const Vector& nameOrFlags,
+    Argparsor::Action action,
+                          const char* help, bool isRequired, const char* metavar,
+                          std::size_t nArgs, const Vector& defaultArgs,
+                          IValid* valid, T& dest)
 void addArgument(
     const Vector& nameOrFlags, // Either a name or a list of option strings, e.g. foo or -f, --foo
     const char* actionOrDefault = NULL, // The basic type of action to be taken when this argument is encountered at the command line
@@ -65,6 +87,7 @@ void parseArguments(
 Vector is a object can be initialize with initialize string list or single string or for c++98 with `vector` method.
 
 ```cpp
+mblet::Argparsor args;
 args.addArgument("--boolean");
 args.addArgument({"-b", "--boolean"});
 args.addArgument(args.vector("-b", "--boolean")); // C++98

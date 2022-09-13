@@ -1,7 +1,7 @@
 #include "mblet/argparsor.h"
 int main(int argc, char* argv[]) {
     mblet::Argparsor args;
-    args.addArgument("ARG", NULL, "custom argument message", false);
+    args.addArgument("ARG", mblet::Argparsor::NONE, "custom argument message", false);
     args.parseArguments(argc, argv);
     if (args["ARG"]) {
         std::cout << args["ARG"] << std::endl;

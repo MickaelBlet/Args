@@ -9,25 +9,25 @@ GTEST_TEST(getUsage, custom) {
 }
 
 GTEST_TEST(getUsage, compareOption) {
-    mblet::Argparsor args;
-    args.addArgument(args.vector("-h", "--help"), "help", "custom help option message");
-    args.addArgument("NOTREQUIRED1", NULL, "help of positional argument", false);
-    args.addArgument("REQUIRED1", NULL, "help of required1 positional argument", true);
-    args.addArgument("REQUIRED2", NULL, "help of required2 positional argument", true);
-    args.addArgument("NOTREQUIRED2", NULL, "help of positional argument", false);
-    args.addArgument("-a", "store_true", "help of a short option", true);
-    args.addArgument("-b", "store_true", "help of b short option", false);
-    args.addArgument("-c", "store_true", "help of c short option", false);
-    args.addArgument("-d", "store_true", "help of d short option", true);
-    args.addArgument("-e", "store_true", "help of e short option", true);
-    args.addArgument("--long1", "store_true", "help of long1 option", false);
-    args.addArgument("--long2", "store_true", "help of long2 option", true);
-    args.addArgument("-f", "store_true", "help of f short option", false);
-    args.addArgument("--long3", "store_true", "help of long3 option", false);
-    args.addArgument("--long6", "store_true", "help of long6 option", true);
-    args.addArgument("--long4", "store_true", "help of long4 option", false);
-    args.addArgument("-g", "store_true", "help of g short option", true);
-    args.addArgument("--long5", "store_true", "help of long5 option", false);
+    mblet::Argparsor args(false);
+    args.addArgument(args.vector("-h", "--help"), mblet::Argparsor::HELP, "custom help option message");
+    args.addArgument("NOTREQUIRED1", mblet::Argparsor::NONE, "help of positional argument", false);
+    args.addArgument("REQUIRED1", mblet::Argparsor::NONE, "help of required1 positional argument", true);
+    args.addArgument("REQUIRED2", mblet::Argparsor::NONE, "help of required2 positional argument", true);
+    args.addArgument("NOTREQUIRED2", mblet::Argparsor::NONE, "help of positional argument", false);
+    args.addArgument("-a", mblet::Argparsor::STORE_TRUE, "help of a short option", true);
+    args.addArgument("-b", mblet::Argparsor::STORE_TRUE, "help of b short option", false);
+    args.addArgument("-c", mblet::Argparsor::STORE_TRUE, "help of c short option", false);
+    args.addArgument("-d", mblet::Argparsor::STORE_TRUE, "help of d short option", true);
+    args.addArgument("--long1", mblet::Argparsor::STORE_TRUE, "help of long1 option", false);
+    args.addArgument("--long2", mblet::Argparsor::STORE_TRUE, "help of long2 option", true);
+    args.addArgument("--long3", mblet::Argparsor::STORE_TRUE, "help of long3 option", false);
+    args.addArgument("--long4", mblet::Argparsor::STORE_TRUE, "help of long4 option", false);
+    args.addArgument("--long5", mblet::Argparsor::STORE_TRUE, "help of long5 option", false);
+    args.addArgument("--long6", mblet::Argparsor::STORE_TRUE, "help of long6 option", true);
+    args.addArgument("-e", mblet::Argparsor::STORE_TRUE, "help of e short option", true);
+    args.addArgument("-f", mblet::Argparsor::STORE_TRUE, "help of f short option", false);
+    args.addArgument("-g", mblet::Argparsor::STORE_TRUE, "help of g short option", true);
 
     std::ostringstream usage("");
 
@@ -63,25 +63,35 @@ GTEST_TEST(getUsage, allTypeArgument) {
     args.setDescription("custom description message");
     args.setEpilog("custom epilog message");
     // POSITIONNAL
-    args.addArgument("REQUIRED", NULL, "help of required positional argument", true);
-    args.addArgument("NOTREQUIRED", "DEFAULT VALUE", "help of positional argument", false);
+    args.addArgument("REQUIRED", mblet::Argparsor::NONE, "help of required positional argument", true);
+    args.addArgument("NOTREQUIRED", mblet::Argparsor::NONE, "help of positional argument", false, NULL, 1, "DEFAULT VALUE");
     // BOOL
-    args.addArgument(args.vector("-b", "--bool"), "store_true", "help of bool option", false);
-    args.addArgument("--notbool", "store_false", "help of notbool option", false);
+    args.addArgument(args.vector("-b", "--bool"), mblet::Argparsor::STORE_TRUE, "help of bool option", false);
+    args.addArgument("--notbool", mblet::Argparsor::STORE_FALSE, "help of notbool option", false);
     // SIMPLE
-    args.addArgument(args.vector("-s", "--simple"), NULL, "help of simple option", false, "ArgOfSimple", 1, "0");
+    args.addArgument(args.vector("-s", "--simple"), mblet::Argparsor::NONE, "help of simple option", false, "ArgOfSimple",
+                     1, "0");
     // NUMBER
-    args.addArgument("--number", NULL, "help of number option", false, "Arg1 Arg2", 2, args.vector("0", "1"));
+    args.addArgument("--number", mblet::Argparsor::NONE, "help of number option", false, "Arg1 Arg2", 2, args.vector("0",
+                                                                                                                     "1"));
     // INFINITE
-    args.addArgument("--infinite", "infinite", "help of infinite option", false, NULL, 1, args.vector("0", "1", "2", "3"));
+    args.addArgument("--infinite", mblet::Argparsor::INFINITE, "help of infinite option", false, NULL, 1, args.vector("0",
+                                                                                                                      "1", "2", "3"));
     // NULTI
-    args.addArgument("--multi", "append", "help of multi option", false, NULL, 1, args.vector("0", "1", "2", "3"));
+    args.addArgument("--multi", mblet::Argparsor::APPEND, "help of multi option", false, NULL, 1, args.vector("0", "1", "2",
+                                                                                                              "3"));
     // MULTI NUMBER
-    args.addArgument("--multi-number", "append", "help of multi number option", false, NULL, 2, args.vector("0", "1", "2", "3"));
+    args.addArgument("--multi-number", mblet::Argparsor::APPEND, "help of multi number option", false, NULL, 2,
+                     args.vector("0", "1", "2",
+                                 "3"));
     // MULTI INFINITE
-    args.addArgument("--multi-infinite", "extend", "help of multi-infinite option", false, NULL, 1, args.vector("0", "1", "2", "3"));
+    args.addArgument("--multi-infinite", mblet::Argparsor::EXTEND, "help of multi-infinite option", false, NULL, 1,
+                     args.vector("0", "1",
+                                 "2", "3"));
     // MULTI INFINITE NUMBER
-    args.addArgument("--multi-infinite-number", "extend", "help of multi-infinite-number option", false, NULL, 2, args.vector("0", "1", "2", "3"));
+    args.addArgument("--multi-infinite-number", mblet::Argparsor::EXTEND, "help of multi-infinite-number option", false,
+                     NULL, 2,
+                     args.vector("0", "1", "2", "3"));
 
     std::ostringstream usage("");
 

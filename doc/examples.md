@@ -22,7 +22,7 @@ All:
 #include "mblet/argparsor.h"
 int main(int argc, char* argv[]) {
     mblet::Argparsor args;
-    args.addArgument("ARG", NULL, "custom argument message", false);
+    args.addArgument("ARG").help("custom argument message");
     args.parseArguments(argc, argv);
     if (args["ARG"]) {
         std::cout << args["ARG"] << std::endl;
@@ -56,7 +56,7 @@ With nbArgs == 1
 #include "mblet/argparsor.h"
 int main(int argc, char* argv[]) {
     mblet::Argparsor args;
-    args.addArgument({"-a", "--append"}, "append", "custom append option message", false, NULL, 1);
+    args.addArgument({"-a", "--append"}).action(mblet::Argparsor::APPEND).help("custom append option message").nargs(1);
     args.parseArguments(argc, argv);
     for (std::size_t i = 0; i < args["--append"].size(); ++i) {
         std::cout << args["--append"][i] << std::endl;
@@ -75,7 +75,7 @@ With nbArgs == 3
 #include "mblet/argparsor.h"
 int main(int argc, char* argv[]) {
     mblet::Argparsor args;
-    args.addArgument({"-a", "--append"}, "append", "custom append option message", false, NULL, 3);
+    args.addArgument({"-a", "--append"}).help("custom append option message").action(mblet::Argparsor::APPEND).nargs(3);
     args.parseArguments(argc, argv);
     for (std::size_t i = 0; i < args["--append"].size(); ++i) {
         for (std::size_t j = 0; j < args["--append"][i].size() ; ++j) {
