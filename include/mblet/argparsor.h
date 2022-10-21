@@ -23,7 +23,6 @@
  * SOFTWARE.
  */
 
-
 #ifndef _MBLET_ARGPARSOR_H_
 #define _MBLET_ARGPARSOR_H_
 
