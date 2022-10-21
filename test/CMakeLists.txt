@@ -21,6 +21,8 @@ foreach(file ${test_files})
 endforeach()
 
 if (BUILD_COVERAGE)
-    add_test(NAME "gcov_argparsor.cpp" COMMAND sh -c "find \"${CMAKE_CURRENT_BINARY_DIR}/..\" -name \"argparsor.cpp.gcda\" -exec sh -c \"gcov -n \\\"{}\\\" | grep -A 1 \\\"argparsor.cpp\\\" | grep \\\":\\\" | sed 's/[^:]\\+[:]\\([0-9]\\+[.][0-9]\\+%\\).*/\\1/g'\" \\;")
-    set_property(TEST "gcov_argparsor.cpp" PROPERTY PASS_REGULAR_EXPRESSION "^100.00%")
+    add_test(NAME "gcov_argparsor-argparsor.cpp" COMMAND sh -c "find \"${CMAKE_CURRENT_BINARY_DIR}/..\" -name \"argparsor-argparsor.cpp.gcda\" -exec sh -c \"gcov -n \\\"{}\\\" | grep -A 1 \\\"argparsor-argparsor.cpp\\\" | grep \\\":\\\" | sed 's/[^:]\\+[:]\\([0-9]\\+[.][0-9]\\+%\\).*/\\1/g'\" \\;")
+    add_test(NAME "gcov_argparsor-argument.cpp" COMMAND sh -c "find \"${CMAKE_CURRENT_BINARY_DIR}/..\" -name \"argparsor-argument.cpp.gcda\" -exec sh -c \"gcov -n \\\"{}\\\" | grep -A 1 \\\"argparsor-argument.cpp\\\" | grep \\\":\\\" | sed 's/[^:]\\+[:]\\([0-9]\\+[.][0-9]\\+%\\).*/\\1/g'\" \\;")
+    set_property(TEST "gcov_argparsor-argparsor.cpp" PROPERTY PASS_REGULAR_EXPRESSION "^100.00%")
+    set_property(TEST "gcov_argparsor-argument.cpp" PROPERTY PASS_REGULAR_EXPRESSION "^100.00%")
 endif() # BUILD_COVERAGE

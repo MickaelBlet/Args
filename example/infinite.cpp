@@ -1,4 +1,6 @@
 #include "mblet/argparsor.h"
+#include <iostream>
+
 int main(int argc, char* argv[]) {
     mblet::Argparsor args;
     args.addArgument(args.vector("-i", "--infinite"), mblet::Argparsor::INFINITE, "custom infinite option message", false,

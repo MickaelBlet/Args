@@ -1,11 +1,13 @@
 #include "mblet/argparsor.h"
 #include <stdint.h>
+#include <iostream>
 
 int main(int argc, char* argv[]) {
     using namespace mblet;
     char s = -1;
     std::string b = "";
     std::string c = "";
+    std::vector<double> destC;
     std::vector<std::vector<double> > destD;
 
     Argparsor args(false);
@@ -27,9 +29,9 @@ int main(int argc, char* argv[]) {
     args.addArgument(args.vector("-m", "--multi"), args.APPEND, "help of multi", false, "MULTI", 1,
                      args.vector("0", "1", "2"));
     args.addArgument(args.vector("-N", "--multiAppend"), args.APPEND, "help of multi", false, "MULTI", 2,
-                     args.vector("0", "1", "2", "3"), NULL, destD);
+                     args.vector("0", "1", "2", "3"), NULL).dest(destD);
     args.addArgument(args.vector("-e", "--extend"), args.EXTEND, "help of extend", false, "EXTEND", 1,
-                     args.vector("0", "1", "2", "3"));
+                     args.vector("0", "1", "2", "3")).dest(destC);
     args.addArgument(args.vector("-E", "--extend-number"), args.EXTEND, "help of extend", false, "EXTEND", 2,
                      args.vector("0", "1", "2", "3"));
     try {

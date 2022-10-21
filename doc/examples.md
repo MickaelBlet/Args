@@ -148,8 +148,8 @@ $ ./a.out -e 1 2 3 4 5 6 --extend 7 8 9
 ```cpp
 #include "mblet/argparsor.h"
 int main(int argc, char* argv[]) {
-    mblet::Argparsor args;
-    args.addArgument({"-h", "--help"}, "help", "custom help option message");
+    mblet::Argparsor args(false);
+    args.addArgument({"-h", "--help"}, mblet::Argparsor::HELP, "custom help option message");
     args.parseArguments(argc, argv);
     std::cout << "do nothing" << std::endl;
     return 0;

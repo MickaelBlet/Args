@@ -1,8 +1,8 @@
 #ifndef _MBLET_ARGPARSOR_VECTOR_H_
 #define _MBLET_ARGPARSOR_VECTOR_H_
 
-#include <vector>
 #include <string>
+#include <vector>
 
 namespace mblet {
 

@@ -1,4 +1,6 @@
 #include "mblet/argparsor.h"
+#include <iostream>
+
 int main(int argc, char* argv[]) {
     mblet::Argparsor args;
     args.addArgument(args.vector("-e", "--extend"), mblet::Argparsor::EXTEND, "custom extend option message", false, NULL,

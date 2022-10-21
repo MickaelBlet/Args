@@ -25,11 +25,11 @@
 
 #include <algorithm>
 #include <iostream>
-#include <cstdlib>
-#include <cstring> // strchr
-#include <cmath>
 
-#include "mblet/argparsor.h"
+#include "mblet/argparsor-argparsor.h"
+#include "mblet/argparsor-argument.h"
+#include "mblet/argparsor-utils.h"
+#include "mblet/argparsor-vector.h"
 
 #define PREFIX_SIZEOF_SHORT_OPTION (sizeof("-") - 1)
 #define PREFIX_SIZEOF_LONG_OPTION (sizeof("--") - 1)
@@ -37,100 +37,6 @@
 namespace mblet {
 
 namespace argparsor {
-
-/**
- * @brief arg is "-[^-].*"
- *
- * @param arg
- * @return true
- * @return false
- */
-static inline bool isShortOption(const char* arg) {
-    if (arg != NULL &&
-        arg[0] == '-' && arg[1] != '-' &&
-        arg[1] != '\0') {
-        return true;
-    }
-    else {
-        return false;
-    }
-}
-
-/**
- * @brief arg is "--.*"
- *
- * @param arg
- * @return true
- * @return false
- */
-static inline bool isLongOption(const char* arg) {
-    if (arg != NULL &&
-        arg[0] == '-' && arg[1] == '-' &&
-        arg[2] != '\0') {
-        return true;
-    }
-    else {
-        return false;
-    }
-}
-
-/**
- * @brief arg is "--"
- *
- * @param arg
- * @return true
- * @return false
- */
-static inline bool isEndOption(const char* arg) {
-    if (arg != NULL &&
-        arg[0] == '-' && arg[1] == '-' &&
-        arg[2] == '\0') {
-        return true;
-    }
-    else {
-        return false;
-    }
-}
-
-/**
- * @brief get index of en option index or argc
- *
- * @param argc
- * @param argv
- * @return int
- */
-static inline int endOptionIndex(int argc, char** argv) {
-    for (int i = 0 ; i < argc ; ++i) {
-        if (isEndOption(argv[i])) {
-            return i;
-        }
-    }
-    return argc;
-}
-
-/**
- * @brief split arg if contain '=' character
- *
- * @param arg
- * @param retOptionName
- * @param retArgument
- * @return true
- * @return false
- */
-static inline bool takeArg(const char* arg, std::string* retOptionName, std::string* retArgument) {
-    char* equal = ::strchr(const_cast<char*>(arg), '=');
-    if (equal) {
-        std::string firstPart(arg, 0, equal - arg);
-        *retOptionName = firstPart;
-        std::string secondPart(arg, equal - arg + 1, std::string::npos);
-        *retArgument = secondPart;
-        return true;
-    }
-    else {
-        *retOptionName = arg;
-        return false;
-    }
-}
 
 Argparsor::Argparsor(bool help) :
     _binaryName(),
@@ -161,264 +67,6 @@ Argparsor::~Argparsor() {
     }
 }
 
-static inline bool compareFlag(const std::string& first, const std::string& second) {
-    if (isShortOption(first.c_str()) && isShortOption(second.c_str())) {
-        return first < second;
-    }
-    else if (isShortOption(first.c_str()) && !isShortOption(second.c_str())) {
-        return true;
-    }
-    else if (!isShortOption(first.c_str()) && isShortOption(second.c_str())) {
-        return false;
-    }
-    else {
-        return first < second;
-    }
-}
-
-void Argparsor::Argument::_sortNameOrFlags(void) {
-    std::sort(_nameOrFlags.begin(), _nameOrFlags.end(), &compareFlag);
-}
-
-bool Argparsor::Argument::compareOption(const Argument* first, const Argument* second) {
-    if (first->_type == Argparsor::Argument::POSITIONAL_ARGUMENT && first->_isRequired
-        && second->_type == Argparsor::Argument::POSITIONAL_ARGUMENT && second->_isRequired) {
-        return false;
-    }
-    else if (first->_type == Argparsor::Argument::POSITIONAL_ARGUMENT && first->_isRequired
-             && second->_type == Argparsor::Argument::POSITIONAL_ARGUMENT) {
-        return true;
-    }
-    else if (first->_type == Argparsor::Argument::POSITIONAL_ARGUMENT
-             && second->_type == Argparsor::Argument::POSITIONAL_ARGUMENT && second->_isRequired) {
-        return false;
-    }
-    else if (first->_type == Argparsor::Argument::POSITIONAL_ARGUMENT
-             && second->_type == Argparsor::Argument::POSITIONAL_ARGUMENT) {
-        return false;
-    }
-    else if (first->_type == Argparsor::Argument::POSITIONAL_ARGUMENT) {
-        return false;
-    }
-    else if (second->_type == Argparsor::Argument::POSITIONAL_ARGUMENT) {
-        return true;
-    }
-    if (isShortOption(first->_nameOrFlags.front().c_str()) && isShortOption(second->_nameOrFlags.front().c_str())) {
-        if (first->_isRequired && !second->_isRequired) {
-            return true;
-        }
-        else if (!first->_isRequired && second->_isRequired) {
-            return false;
-        }
-        else {
-            return first->_nameOrFlags.front() <= second->_nameOrFlags.front();
-        }
-    }
-    else if (isShortOption(first->_nameOrFlags.front().c_str()) && !isShortOption(second->_nameOrFlags.front().c_str())) {
-        if (first->_isRequired && !second->_isRequired) {
-            return true;
-        }
-        else if (!first->_isRequired && second->_isRequired) {
-            return false;
-        }
-        else {
-            return true;
-        }
-    }
-    else if (!isShortOption(first->_nameOrFlags.front().c_str()) && isShortOption(second->_nameOrFlags.front().c_str())) {
-        if (first->_isRequired && !second->_isRequired) {
-            return true;
-        }
-        else if (!first->_isRequired && second->_isRequired) {
-            return false;
-        }
-        else {
-            return false;
-        }
-    }
-    else {
-        if (first->_isRequired && !second->_isRequired) {
-            return true;
-        }
-        else if (!first->_isRequired && second->_isRequired) {
-            return false;
-        }
-        return first->_nameOrFlags.front() < second->_nameOrFlags.front();
-    }
-}
-
-std::string Argparsor::Argument::_metavarDefault() {
-    const char* flag = NULL;
-    // get short or long name
-    for (std::size_t i = 0 ; i < _nameOrFlags.size() ; ++i) {
-        if (_nameOrFlags[i][0] == '-' && _nameOrFlags[i][1] == '-') {
-            flag = _nameOrFlags[i].c_str() + PREFIX_SIZEOF_LONG_OPTION;
-            break;
-        }
-        else if (flag == NULL && _nameOrFlags[i][0] == '-' && _nameOrFlags[i][1] != '-') {
-            flag = _nameOrFlags[i].c_str() + PREFIX_SIZEOF_SHORT_OPTION;
-        }
-    }
-    // create a defaultUsageName from longName or shortName
-    std::string defaultUsageName = flag;
-    for (std::size_t i = 0 ; i < defaultUsageName.size() ; ++i) {
-        defaultUsageName[i] = ::toupper(defaultUsageName[i]);
-    }
-
-    if (_action == INFINITE || _nargs == '+') {
-        return defaultUsageName + "...";
-    }
-    else if (_nargs > 1) {
-        std::string numberDefaultUsageName;
-        for (std::size_t i = 0 ; i < _nargs ; ++i) {
-            if (i > 0) {
-                numberDefaultUsageName += " ";
-            }
-            numberDefaultUsageName += defaultUsageName;
-        }
-        return numberDefaultUsageName;
-    }
-    else {
-        return defaultUsageName;
-    }
-}
-
-void Argparsor::Argument::_typeConstructor() {
-    if (_type == Argparsor::Argument::POSITIONAL_ARGUMENT) {
-        throw ArgumentException(_nameOrFlags.front().c_str(), "positional argument cannot use action or nargs");
-    }
-    if (_action == STORE_TRUE) {
-        _type = Argparsor::Argument::BOOLEAN_OPTION;
-    }
-    else if (_action == STORE_FALSE) {
-        _type = Argparsor::Argument::REVERSE_BOOLEAN_OPTION;
-    }
-    else if (_action == HELP) {
-        if (_argparsor._helpOption == NULL) {
-            _argparsor._helpOption = this;
-        }
-        if (_argparsor._helpOption != NULL && _argparsor._helpOption != this) {
-            throw ArgumentException(_nameOrFlags.front().c_str(), "help action already defined");
-        }
-        _type = Argparsor::Argument::HELP_OPTION;
-    }
-    else if (_action == VERSION) {
-        if (_argparsor._versionOption == NULL) {
-            _argparsor._versionOption = this;
-        }
-        if (_argparsor._versionOption != NULL && _argparsor._versionOption != this) {
-            throw ArgumentException(_nameOrFlags.front().c_str(), "version action already defined");
-        }
-        _type = Argparsor::Argument::VERSION_OPTION;
-    }
-    // is simple
-    else if (_nargs == 1 && _action == Argparsor::NONE) {
-        _type = Argparsor::Argument::SIMPLE_OPTION;
-    }
-    // is infinite
-    else if ((_nargs == '+' && _action == Argparsor::NONE) || _action == Argparsor::INFINITE) {
-        _type = Argparsor::Argument::INFINITE_OPTION;
-    }
-    // is number
-    else if (_nargs > 1 && _action == Argparsor::NONE) {
-        _type = Argparsor::Argument::NUMBER_OPTION;
-    }
-    // is multi
-    else if (_nargs == 1 && _action == APPEND) {
-        _type = Argparsor::Argument::MULTI_OPTION;
-    }
-    // is multi number
-    else if (_nargs > 1 && _action == APPEND) {
-        _type = Argparsor::Argument::MULTI_NUMBER_OPTION;
-    }
-    // is multi infinite
-    else if (_nargs == 1 && _action == EXTEND) {
-        _type = Argparsor::Argument::MULTI_INFINITE_OPTION;
-    }
-    // is multi number infinite
-    else if (_nargs > 1 && _action == EXTEND) {
-        _type = Argparsor::Argument::MULTI_NUMBER_INFINITE_OPTION;
-    }
-}
-
-void Argparsor::Argument::_defaultsConstructor() {
-    // default arguments
-    if (_nargs > 0 && _defaults.size() > 0) {
-        clear();
-        switch (_type) {
-            case Argparsor::Argument::SIMPLE_OPTION:
-            case Argparsor::Argument::POSITIONAL_ARGUMENT:
-                if (_defaults.size() != _nargs) {
-                    throw ArgumentException(_nameOrFlags.front().c_str(), "invalid number of argument with number of default argument");
-                }
-                _argument = _defaults.front();
-                _default = _defaults.front();
-                break;
-            case Argparsor::Argument::NUMBER_OPTION:
-                if (_defaults.size() != _nargs) {
-                    throw ArgumentException(_nameOrFlags.front().c_str(), "invalid number of argument with number of default argument");
-                }
-                _default = "";
-                for (std::size_t i = 0 ; i < _defaults.size() ; ++i) {
-                    if (i > 0) {
-                        _default += ", ";
-                    }
-                    _default += _defaults[i];
-                    push_back(ArgumentElement(_defaults[i].c_str(), _defaults[i].c_str()));
-                }
-                break;
-            case Argparsor::Argument::MULTI_OPTION:
-            case Argparsor::Argument::INFINITE_OPTION:
-            case Argparsor::Argument::MULTI_INFINITE_OPTION:
-                _default = "";
-                for (std::size_t i = 0 ; i < _defaults.size() ; ++i) {
-                    if (i > 0) {
-                        _default += ", ";
-                    }
-                    _default += _defaults[i];
-                    push_back(ArgumentElement(_defaults[i].c_str(), _defaults[i].c_str()));
-                }
-                break;
-            case Argparsor::Argument::MULTI_NUMBER_OPTION:
-            case Argparsor::Argument::MULTI_NUMBER_INFINITE_OPTION:
-                if (_defaults.size() % _nargs != 0) {
-                    throw ArgumentException(_nameOrFlags.front().c_str(), "invalid number of argument with number of default argument");
-                }
-                for (std::size_t i = 0 ; i < _defaults.size() / _nargs; ++i) {
-                    if (i > 0) {
-                        _default += ", ";
-                    }
-                    _default += "(";
-                    ArgumentElement newNumberArgument;
-                    for (std::size_t j = 0 ; j < _nargs ; ++j) {
-                        if (j > 0) {
-                            _default += ", ";
-                            newNumberArgument._default += ", ";
-                        }
-                        _default += _defaults[i * _nargs + j];
-                        newNumberArgument._default += _defaults[i * _nargs + j];
-                        newNumberArgument.push_back(ArgumentElement(_defaults[i * _nargs + j].c_str(), _defaults[i * _nargs + j].c_str()));
-                    }
-                    _default += ")";
-                    push_back(newNumberArgument);
-                }
-                break;
-            default:
-                throw ArgumentException(_nameOrFlags.front().c_str(), "invalid number of argument with number of default argument");
-                break;
-        }
-    }
-    else if (_type == Argparsor::Argument::VERSION_OPTION) {
-        clear();
-        for (std::size_t i = 0 ; i < _defaults.size() ; ++i) {
-            if (i > 0) {
-                _default += "\n";
-            }
-            _default += _defaults[i];
-        }
-    }
-}
-
 std::string Argparsor::getUsage() const {
     std::ostringstream oss("");
     if (!_usage.empty()) {
@@ -431,7 +79,7 @@ std::string Argparsor::getUsage() const {
     oss << "usage: " << _binaryName;
     std::list<Argument*>::const_iterator it;
     for (it = _arguments.begin() ; it != _arguments.end() ; ++it) {
-        if ((*it)->_type == Argparsor::Argument::POSITIONAL_ARGUMENT) {
+        if ((*it)->_type == Argument::POSITIONAL_ARGUMENT) {
             hasPositionnal = true;
             continue;
         }
@@ -442,13 +90,13 @@ std::string Argparsor::getUsage() const {
         }
         oss << (*it)->_nameOrFlags.front();
         switch ((*it)->_type) {
-            case Argparsor::Argument::SIMPLE_OPTION:
-            case Argparsor::Argument::NUMBER_OPTION:
-            case Argparsor::Argument::INFINITE_OPTION:
-            case Argparsor::Argument::MULTI_OPTION:
-            case Argparsor::Argument::MULTI_INFINITE_OPTION:
-            case Argparsor::Argument::MULTI_NUMBER_OPTION:
-            case Argparsor::Argument::MULTI_NUMBER_INFINITE_OPTION:
+            case Argument::SIMPLE_OPTION:
+            case Argument::NUMBER_OPTION:
+            case Argument::INFINITE_OPTION:
+            case Argument::MULTI_OPTION:
+            case Argument::MULTI_INFINITE_OPTION:
+            case Argument::MULTI_NUMBER_OPTION:
+            case Argument::MULTI_NUMBER_INFINITE_OPTION:
                 if ((*it)->_metavar.empty()) {
                     oss << ' ' << (*it)->_metavarDefault();
                 }
@@ -467,7 +115,7 @@ std::string Argparsor::getUsage() const {
         oss << " --";
     }
     for (it = _arguments.begin() ; it != _arguments.end() ; ++it) {
-        if ((*it)->_type != Argparsor::Argument::POSITIONAL_ARGUMENT) {
+        if ((*it)->_type != Argument::POSITIONAL_ARGUMENT) {
             continue;
         }
         oss << ' ';
@@ -490,7 +138,7 @@ std::string Argparsor::getUsage() const {
         std::list<std::pair<std::string, std::string> > optionnals;
         for (it = _arguments.begin() ; it != _arguments.end() ; ++it) {
             std::list<std::pair<std::string, std::string> >* listOption = NULL;
-            if ((*it)->_type == Argparsor::Argument::POSITIONAL_ARGUMENT) {
+            if ((*it)->_type == Argument::POSITIONAL_ARGUMENT) {
                 positionals.push_back(std::pair<std::string, std::string>("", ""));
                 listOption = &positionals;
             }
@@ -508,14 +156,14 @@ std::string Argparsor::getUsage() const {
                 optionStr += (*it)->_nameOrFlags[i];
             }
             switch ((*it)->_type) {
-                case Argparsor::Argument::POSITIONAL_ARGUMENT:
-                case Argparsor::Argument::SIMPLE_OPTION:
-                case Argparsor::Argument::NUMBER_OPTION:
-                case Argparsor::Argument::INFINITE_OPTION:
-                case Argparsor::Argument::MULTI_OPTION:
-                case Argparsor::Argument::MULTI_INFINITE_OPTION:
-                case Argparsor::Argument::MULTI_NUMBER_OPTION:
-                case Argparsor::Argument::MULTI_NUMBER_INFINITE_OPTION:
+                case Argument::POSITIONAL_ARGUMENT:
+                case Argument::SIMPLE_OPTION:
+                case Argument::NUMBER_OPTION:
+                case Argument::INFINITE_OPTION:
+                case Argument::MULTI_OPTION:
+                case Argument::MULTI_INFINITE_OPTION:
+                case Argument::MULTI_NUMBER_OPTION:
+                case Argument::MULTI_NUMBER_INFINITE_OPTION:
                     optionStr += " " + (*it)->_metavar;
                     break;
                 default:
@@ -527,14 +175,14 @@ std::string Argparsor::getUsage() const {
             }
             else {
                 switch ((*it)->_type) {
-                    case Argparsor::Argument::POSITIONAL_ARGUMENT:
-                    case Argparsor::Argument::SIMPLE_OPTION:
-                    case Argparsor::Argument::NUMBER_OPTION:
-                    case Argparsor::Argument::INFINITE_OPTION:
-                    case Argparsor::Argument::MULTI_OPTION:
-                    case Argparsor::Argument::MULTI_INFINITE_OPTION:
-                    case Argparsor::Argument::MULTI_NUMBER_OPTION:
-                    case Argparsor::Argument::MULTI_NUMBER_INFINITE_OPTION:
+                    case Argument::POSITIONAL_ARGUMENT:
+                    case Argument::SIMPLE_OPTION:
+                    case Argument::NUMBER_OPTION:
+                    case Argument::INFINITE_OPTION:
+                    case Argument::MULTI_OPTION:
+                    case Argument::MULTI_INFINITE_OPTION:
+                    case Argument::MULTI_NUMBER_OPTION:
+                    case Argument::MULTI_NUMBER_INFINITE_OPTION:
                         if (!(*it)->_default.empty()) {
                             helpStr += " (default: " + (*it)->_default + ")";
                         }
@@ -636,7 +284,7 @@ void Argparsor::parseArguments(int argc, char* argv[], bool alternative, bool st
     std::list<Argument*>::iterator it;
     for (it = _arguments.begin() ; it != _arguments.end() ; ++it) {
         if ((*it)->_isRequired && (*it)->_isExist == false) {
-            if ((*it)->_type == Argparsor::Argument::POSITIONAL_ARGUMENT) {
+            if ((*it)->_type == Argument::POSITIONAL_ARGUMENT) {
                 throw ParseArgumentRequiredException((*it)->_nameOrFlags.front().c_str(), "argument is required");
             }
             else {
@@ -650,16 +298,16 @@ void Argparsor::parseArguments(int argc, char* argv[], bool alternative, bool st
             try {
                 std::vector<std::string> arguments;
                 switch ((*it)->_type) {
-                    case Argparsor::Argument::POSITIONAL_ARGUMENT:
-                    case Argparsor::Argument::SIMPLE_OPTION:
+                    case Argument::POSITIONAL_ARGUMENT:
+                    case Argument::SIMPLE_OPTION:
                         arguments.push_back((*it)->_argument);
                         break;
-                    case Argparsor::Argument::NUMBER_OPTION:
-                    case Argparsor::Argument::MULTI_OPTION:
-                    case Argparsor::Argument::INFINITE_OPTION:
-                    case Argparsor::Argument::MULTI_INFINITE_OPTION:
-                    case Argparsor::Argument::MULTI_NUMBER_OPTION:
-                    case Argparsor::Argument::MULTI_NUMBER_INFINITE_OPTION: {
+                    case Argument::NUMBER_OPTION:
+                    case Argument::MULTI_OPTION:
+                    case Argument::INFINITE_OPTION:
+                    case Argument::MULTI_INFINITE_OPTION:
+                    case Argument::MULTI_NUMBER_OPTION:
+                    case Argument::MULTI_NUMBER_INFINITE_OPTION: {
                         const Argument& cArg = *(*it);
                         arguments = cArg.operator std::vector<std::string>();
                         break;
@@ -672,22 +320,22 @@ void Argparsor::parseArguments(int argc, char* argv[], bool alternative, bool st
                     throw ParseArgumentValidException("invalid check function");
                 }
                 switch ((*it)->_type) {
-                    case Argparsor::Argument::POSITIONAL_ARGUMENT:
-                    case Argparsor::Argument::SIMPLE_OPTION:
+                    case Argument::POSITIONAL_ARGUMENT:
+                    case Argument::SIMPLE_OPTION:
                         if (!arguments.empty()) {
                             (*it)->_argument = arguments[0];
                         }
                         break;
-                    case Argparsor::Argument::NUMBER_OPTION:
-                    case Argparsor::Argument::MULTI_OPTION:
-                    case Argparsor::Argument::INFINITE_OPTION:
-                    case Argparsor::Argument::MULTI_INFINITE_OPTION:
+                    case Argument::NUMBER_OPTION:
+                    case Argument::MULTI_OPTION:
+                    case Argument::INFINITE_OPTION:
+                    case Argument::MULTI_INFINITE_OPTION:
                         for (std::size_t i = 0 ; i < (*it)->size() && i < arguments.size() ; ++i) {
                             (*it)->at(i)._argument = arguments[i];
                         }
                         break;
-                    case Argparsor::Argument::MULTI_NUMBER_OPTION:
-                    case Argparsor::Argument::MULTI_NUMBER_INFINITE_OPTION: {
+                    case Argument::MULTI_NUMBER_OPTION:
+                    case Argument::MULTI_NUMBER_INFINITE_OPTION: {
                         std::size_t i = 0;
                         for (std::size_t j = 0 ; j < (*it)->size() && i < arguments.size() ; ++j) {
                             for (std::size_t k = 0 ; k < (*it)->at(j).size() && i < arguments.size() ; ++k) {
@@ -713,7 +361,7 @@ void Argparsor::parseArguments(int argc, char* argv[], bool alternative, bool st
     }
 }
 
-Argparsor::Argument& Argparsor::addArgument(const Vector& nameOrFlags) {
+Argument& Argparsor::addArgument(const Vector& nameOrFlags) {
     if (nameOrFlags.empty()) {
         throw ArgumentException("", "invalid empty flag");
     }
@@ -730,7 +378,7 @@ Argparsor::Argument& Argparsor::addArgument(const Vector& nameOrFlags) {
         argument = new Argument(*this);
         argument->_nameOrFlags.push_back(nameOrFlags.front());
         argument->_nargs = 1;
-        argument->_type = Argparsor::Argument::POSITIONAL_ARGUMENT;
+        argument->_type = Argument::POSITIONAL_ARGUMENT;
     }
     else {
         std::vector<std::string> newFlags;
@@ -756,7 +404,7 @@ Argparsor::Argument& Argparsor::addArgument(const Vector& nameOrFlags) {
         argument = new Argument(*this);
         argument->_nameOrFlags = newFlags;
         argument->_sortNameOrFlags();
-        argument->_type = Argparsor::Argument::NONE;
+        argument->_type = Argument::NONE;
     }
 
     _arguments.push_back(argument);
@@ -765,15 +413,15 @@ Argparsor::Argument& Argparsor::addArgument(const Vector& nameOrFlags) {
     for (std::size_t i = 0; i < argument->_nameOrFlags.size(); ++i) {
         _argumentFromName.insert(std::pair<std::string, Argument**>(argument->_nameOrFlags[i], addrNewArgument));
     }
-    _arguments.sort(&Argparsor::Argument::compareOption);
+    _arguments.sort(&Argument::compareOption);
     return **addrNewArgument;
 }
 
-Argparsor::Argument& Argparsor::addArgument(const Vector& nameOrFlags, Action action, const char* help,
-                                            bool isRequired,
-                                            const char* argsHelp, std::size_t nbArgs,
-                                            const Vector& defaultArgs,
-                                            IValid* valid) {
+Argument& Argparsor::addArgument(const Vector& nameOrFlags, Action action, const char* help,
+                                 bool isRequired,
+                                 const char* argsHelp, std::size_t nbArgs,
+                                 const Vector& defaultArgs,
+                                 IValid* valid) {
     // is name
     if (nameOrFlags.size() == 1 && nameOrFlags.front()[0] != '-') {
         if (nameOrFlags.front().empty()) {
@@ -794,7 +442,7 @@ Argparsor::Argument& Argparsor::addArgument(const Vector& nameOrFlags, Action ac
         argument->_isRequired = isRequired;
         argument->_nameOrFlags.push_back(nameOrFlags.front());
         argument->_nargs = 1;
-        argument->_type = Argparsor::Argument::POSITIONAL_ARGUMENT;
+        argument->_type = Argument::POSITIONAL_ARGUMENT;
         argument->_valid = valid;
         if (help != NULL) {
             argument->_help = help;
@@ -808,7 +456,7 @@ Argparsor::Argument& Argparsor::addArgument(const Vector& nameOrFlags, Action ac
         Argument** addrNewArgument = &(_arguments.back());
         argument->_this = addrNewArgument;
         _argumentFromName.insert(std::pair<std::string, Argument**>(nameOrFlags[0], addrNewArgument));
-        _arguments.sort(&Argparsor::Argument::compareOption);
+        _arguments.sort(&Argument::compareOption);
         return *argument;
     }
 
@@ -889,46 +537,46 @@ Argparsor::Argument& Argparsor::addArgument(const Vector& nameOrFlags, Action ac
     argument._nargs = nbArgs;
     // is bool
     if (action == STORE_TRUE) {
-        argument._type = Argparsor::Argument::BOOLEAN_OPTION;
+        argument._type = Argument::BOOLEAN_OPTION;
     }
     else if (action == STORE_FALSE) {
-        argument._type = Argparsor::Argument::REVERSE_BOOLEAN_OPTION;
+        argument._type = Argument::REVERSE_BOOLEAN_OPTION;
     }
     // is simple
     else if (nbArgs == 1 && action == NONE) {
-        argument._type = Argparsor::Argument::SIMPLE_OPTION;
+        argument._type = Argument::SIMPLE_OPTION;
     }
     // is infinite
     else if ((nbArgs == '+' && action == NONE) || action == INFINITE) {
-        argument._type = Argparsor::Argument::INFINITE_OPTION;
+        argument._type = Argument::INFINITE_OPTION;
     }
     // is number
     else if (nbArgs > 1 && action == NONE) {
-        argument._type = Argparsor::Argument::NUMBER_OPTION;
+        argument._type = Argument::NUMBER_OPTION;
     }
     // is multi
     else if (nbArgs == 1 && action == APPEND) {
-        argument._type = Argparsor::Argument::MULTI_OPTION;
+        argument._type = Argument::MULTI_OPTION;
     }
     // is multi number
     else if (nbArgs > 1 && action == APPEND) {
-        argument._type = Argparsor::Argument::MULTI_NUMBER_OPTION;
+        argument._type = Argument::MULTI_NUMBER_OPTION;
     }
     // is multi infinite
     else if (nbArgs == 1 && action == EXTEND) {
-        argument._type = Argparsor::Argument::MULTI_INFINITE_OPTION;
+        argument._type = Argument::MULTI_INFINITE_OPTION;
     }
     // is multi number infinite
     else if (nbArgs > 1 && action == EXTEND) {
-        argument._type = Argparsor::Argument::MULTI_NUMBER_INFINITE_OPTION;
+        argument._type = Argument::MULTI_NUMBER_INFINITE_OPTION;
     }
     else {
-        argument._type = Argparsor::Argument::BOOLEAN_OPTION;
+        argument._type = Argument::BOOLEAN_OPTION;
     }
     // default arguments
     if (defaultArgs.size() > 0) {
         switch (argument._type) {
-            case Argparsor::Argument::SIMPLE_OPTION:
+            case Argument::SIMPLE_OPTION:
                 if (defaultArgs.size() != nbArgs) {
                     if (longFlag != NULL) {
                         if (valid != NULL) {
@@ -946,7 +594,7 @@ Argparsor::Argument& Argparsor::addArgument(const Vector& nameOrFlags, Action ac
                 argument._argument = defaultArgs.front();
                 argument._default = defaultArgs.front();
                 break;
-            case Argparsor::Argument::NUMBER_OPTION:
+            case Argument::NUMBER_OPTION:
                 if (defaultArgs.size() != nbArgs) {
                     if (longFlag != NULL) {
                         if (valid != NULL) {
@@ -969,9 +617,9 @@ Argparsor::Argument& Argparsor::addArgument(const Vector& nameOrFlags, Action ac
                     argument.push_back(ArgumentElement(defaultArgs[i].c_str(), defaultArgs[i].c_str()));
                 }
                 break;
-            case Argparsor::Argument::MULTI_OPTION:
-            case Argparsor::Argument::INFINITE_OPTION:
-            case Argparsor::Argument::MULTI_INFINITE_OPTION:
+            case Argument::MULTI_OPTION:
+            case Argument::INFINITE_OPTION:
+            case Argument::MULTI_INFINITE_OPTION:
                 for (std::size_t i = 0 ; i < defaultArgs.size() ; ++i) {
                     if (i > 0) {
                         argument._default += ", ";
@@ -980,8 +628,8 @@ Argparsor::Argument& Argparsor::addArgument(const Vector& nameOrFlags, Action ac
                     argument.push_back(ArgumentElement(defaultArgs[i].c_str(), defaultArgs[i].c_str()));
                 }
                 break;
-            case Argparsor::Argument::MULTI_NUMBER_OPTION:
-            case Argparsor::Argument::MULTI_NUMBER_INFINITE_OPTION:
+            case Argument::MULTI_NUMBER_OPTION:
+            case Argument::MULTI_NUMBER_INFINITE_OPTION:
                 if (defaultArgs.size() % nbArgs != 0) {
                     if (longFlag != NULL) {
                         if (valid != NULL) {
@@ -1045,7 +693,7 @@ Argparsor::Argument& Argparsor::addArgument(const Vector& nameOrFlags, Action ac
     _arguments.push_back(newArgument);
     Argument** addrNewArgument = &(_arguments.back());
     newArgument->_this = addrNewArgument;
-    _arguments.sort(&Argparsor::Argument::compareOption);
+    _arguments.sort(&Argument::compareOption);
     for (std::size_t i = 0; i < newArgument->_nameOrFlags.size(); ++i) {
         _argumentFromName.insert(std::pair<std::string, Argument**>(newArgument->_nameOrFlags[i], addrNewArgument));
     }
@@ -1103,12 +751,12 @@ void Argparsor::parseShortArgument(int maxIndex, char* argv[], int* index, bool 
             throw ParseArgumentException(charOption.c_str(), "invalid option");
         }
         else if (!hasArg && (
-                     (*(it->second))->_type == Argparsor::Argument::SIMPLE_OPTION ||
-                     (*(it->second))->_type == Argparsor::Argument::NUMBER_OPTION ||
-                     (*(it->second))->_type == Argparsor::Argument::INFINITE_OPTION ||
-                     (*(it->second))->_type == Argparsor::Argument::MULTI_OPTION ||
-                     (*(it->second))->_type == Argparsor::Argument::MULTI_INFINITE_OPTION ||
-                     (*(it->second))->_type == Argparsor::Argument::MULTI_NUMBER_OPTION
+                     (*(it->second))->_type == Argument::SIMPLE_OPTION ||
+                     (*(it->second))->_type == Argument::NUMBER_OPTION ||
+                     (*(it->second))->_type == Argument::INFINITE_OPTION ||
+                     (*(it->second))->_type == Argument::MULTI_OPTION ||
+                     (*(it->second))->_type == Argument::MULTI_INFINITE_OPTION ||
+                     (*(it->second))->_type == Argument::MULTI_NUMBER_OPTION
                  )
                 ) {
             hasArg = true;
@@ -1119,8 +767,8 @@ void Argparsor::parseShortArgument(int maxIndex, char* argv[], int* index, bool 
                           arg.c_str(), *(it->second), alternative);
             return;
         }
-        else if ((*(it->second))->_type != Argparsor::Argument::BOOLEAN_OPTION &&
-                 (*(it->second))->_type != Argparsor::Argument::REVERSE_BOOLEAN_OPTION) {
+        else if ((*(it->second))->_type != Argument::BOOLEAN_OPTION &&
+                 (*(it->second))->_type != Argument::REVERSE_BOOLEAN_OPTION) {
             throw ParseArgumentException(charOption.c_str(), "only last option can be use a parameter");
         }
         (*(it->second))->_isExist = true;
@@ -1153,21 +801,21 @@ void Argparsor::parseArgument(int maxIndex, char* argv[], int* index, bool hasAr
                               Argument* argument, bool alternative) {
     if (hasArg) {
         switch (argument->_type) {
-            case Argparsor::Argument::SIMPLE_OPTION:
+            case Argument::SIMPLE_OPTION:
                 argument->_argument = arg;
                 break;
-            case Argparsor::Argument::NUMBER_OPTION:
-            case Argparsor::Argument::MULTI_NUMBER_OPTION:
-            case Argparsor::Argument::MULTI_NUMBER_INFINITE_OPTION:
+            case Argument::NUMBER_OPTION:
+            case Argument::MULTI_NUMBER_OPTION:
+            case Argument::MULTI_NUMBER_INFINITE_OPTION:
                 throw ParseArgumentException(option, "option cannot use with only 1 argument");
                 break;
-            case Argparsor::Argument::INFINITE_OPTION: {
+            case Argument::INFINITE_OPTION: {
                 argument->clear();
                 argument->push_back(arg);
                 break;
             }
-            case Argparsor::Argument::MULTI_OPTION:
-            case Argparsor::Argument::MULTI_INFINITE_OPTION: {
+            case Argument::MULTI_OPTION:
+            case Argument::MULTI_INFINITE_OPTION: {
                 if (argument->_isExist == false) {
                     argument->clear();
                 }
@@ -1181,14 +829,14 @@ void Argparsor::parseArgument(int maxIndex, char* argv[], int* index, bool hasAr
     }
     else {
         switch (argument->_type) {
-            case Argparsor::Argument::SIMPLE_OPTION:
+            case Argument::SIMPLE_OPTION:
                 if (*index + 1 >= maxIndex) {
                     throw ParseArgumentException(option, "bad number of argument");
                 }
                 ++(*index);
                 argument->_argument = argv[*index];
                 break;
-            case Argparsor::Argument::NUMBER_OPTION:
+            case Argument::NUMBER_OPTION:
                 argument->clear();
                 if (*index + argument->_nargs >= static_cast<unsigned int>(maxIndex)) {
                     throw ParseArgumentException(option, "bad number of argument");
@@ -1198,7 +846,7 @@ void Argparsor::parseArgument(int maxIndex, char* argv[], int* index, bool hasAr
                 }
                 *index += argument->_nargs;
                 break;
-            case Argparsor::Argument::INFINITE_OPTION: {
+            case Argument::INFINITE_OPTION: {
                 argument->clear();
                 std::size_t countArg = 0;
                 for (int i = *index + 1 ; i < maxIndex ; ++i) {
@@ -1211,7 +859,7 @@ void Argparsor::parseArgument(int maxIndex, char* argv[], int* index, bool hasAr
                 *index += countArg;
                 break;
             }
-            case Argparsor::Argument::MULTI_OPTION: {
+            case Argument::MULTI_OPTION: {
                 if (argument->_isExist == false) {
                     argument->clear();
                 }
@@ -1222,7 +870,7 @@ void Argparsor::parseArgument(int maxIndex, char* argv[], int* index, bool hasAr
                 argument->push_back(argv[*index]);
                 break;
             }
-            case Argparsor::Argument::MULTI_INFINITE_OPTION: {
+            case Argument::MULTI_INFINITE_OPTION: {
                 if (argument->_isExist == false) {
                     argument->clear();
                 }
@@ -1237,7 +885,7 @@ void Argparsor::parseArgument(int maxIndex, char* argv[], int* index, bool hasAr
                 *index += countArg;
                 break;
             }
-            case Argparsor::Argument::MULTI_NUMBER_OPTION: {
+            case Argument::MULTI_NUMBER_OPTION: {
                 if (argument->_isExist == false) {
                     argument->clear();
                 }
@@ -1252,7 +900,7 @@ void Argparsor::parseArgument(int maxIndex, char* argv[], int* index, bool hasAr
                 *index += argument->_nargs;
                 break;
             }
-            case Argparsor::Argument::MULTI_NUMBER_INFINITE_OPTION: {
+            case Argument::MULTI_NUMBER_INFINITE_OPTION: {
                 if (argument->_isExist == false) {
                     argument->clear();
                 }
@@ -1302,18 +950,18 @@ bool Argparsor::endOfInfiniteArgument(const char* argument, bool alternative) {
                 return false;
             }
             else if (!hasArg && (
-                         (*(it->second))->_type == Argparsor::Argument::SIMPLE_OPTION ||
-                         (*(it->second))->_type == Argparsor::Argument::NUMBER_OPTION ||
-                         (*(it->second))->_type == Argparsor::Argument::INFINITE_OPTION ||
-                         (*(it->second))->_type == Argparsor::Argument::MULTI_OPTION ||
-                         (*(it->second))->_type == Argparsor::Argument::MULTI_INFINITE_OPTION ||
-                         (*(it->second))->_type == Argparsor::Argument::MULTI_NUMBER_OPTION
+                         (*(it->second))->_type == Argument::SIMPLE_OPTION ||
+                         (*(it->second))->_type == Argument::NUMBER_OPTION ||
+                         (*(it->second))->_type == Argument::INFINITE_OPTION ||
+                         (*(it->second))->_type == Argument::MULTI_OPTION ||
+                         (*(it->second))->_type == Argument::MULTI_INFINITE_OPTION ||
+                         (*(it->second))->_type == Argument::MULTI_NUMBER_OPTION
                      )
                     ) {
                 return true;
             }
-            else if ((*(it->second))->_type == Argparsor::Argument::BOOLEAN_OPTION ||
-                     (*(it->second))->_type == Argparsor::Argument::REVERSE_BOOLEAN_OPTION) {
+            else if ((*(it->second))->_type == Argument::BOOLEAN_OPTION ||
+                     (*(it->second))->_type == Argument::REVERSE_BOOLEAN_OPTION) {
                 return true;
             }
         }
@@ -1338,7 +986,7 @@ void Argparsor::parsePositionnalArgument(char* argv[], int* index, bool strict) 
     std::list<Argument*>::iterator it;
     for (it = _arguments.begin() ; it != _arguments.end() ; ++it) {
         // assign to first not used positional argument
-        if ((*it)->_type == Argparsor::Argument::POSITIONAL_ARGUMENT && (*it)->_isExist == false) {
+        if ((*it)->_type == Argument::POSITIONAL_ARGUMENT && (*it)->_isExist == false) {
             (*it)->_argument = argv[*index];
             (*it)->_isExist = true;
             break;
