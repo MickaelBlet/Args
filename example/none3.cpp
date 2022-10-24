@@ -3,7 +3,7 @@
 
 int main(int argc, char* argv[]) {
     mblet::Argparsor args;
-    args.addArgument(args.vector("-n", "--none"), mblet::Argparsor::NONE, "custom none option message", false, NULL, 3);
+    args.addArgument(args.vector("-n", "--none")).help("custom none option message").nargs(3);
     args.parseArguments(argc, argv);
     for (std::size_t i = 0; i < args["--none"].size(); ++i) {
         std::cout << args["--none"][i] << std::endl;

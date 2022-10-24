@@ -26,10 +26,12 @@
 #ifndef _MBLET_ARGPARSOR_ARGUMENT_H_
 #define _MBLET_ARGPARSOR_ARGUMENT_H_
 
+#include <sstream>
 #include <string>
 #include <vector>
 
-#include "mblet/argparsor-argparsor.h"
+#include "mblet/argparsor-action.h"
+#include "mblet/argparsor-exception.h"
 #include "mblet/argparsor-valid.h"
 #include "mblet/argparsor-vector.h"
 
@@ -39,63 +41,31 @@ class Argparsor;
 
 namespace argparsor {
 
-class ArgumentElement : public std::vector<ArgumentElement> {
+class Argparsor;
 
+class ArgumentElement : public std::vector<ArgumentElement> {
     friend class ::mblet::Argparsor;
     friend class Argparsor;
     friend class Argument;
 
   public:
+    ArgumentElement();
+    ArgumentElement(const ArgumentElement& rhs);
+    ArgumentElement(const char* arg_, const char* default_);
+    ArgumentElement(const char* arg);
+    ~ArgumentElement();
 
-    ArgumentElement() :
-        std::vector<ArgumentElement>(),
-        _argument(),
-        _default(),
-        _isNumber(false),
-        _number(0.0)
-    {}
-    ArgumentElement(const ArgumentElement& rhs) :
-        std::vector<ArgumentElement>(rhs),
-        _argument(rhs._argument),
-        _default(rhs._default),
-        _isNumber(rhs._isNumber),
-        _number(rhs._number)
-    {}
-    ArgumentElement(const char* arg_, const char* default_) :
-        std::vector<ArgumentElement>(),
-        _argument(arg_),
-        _default(default_),
-        _isNumber(false),
-        _number(0.0)
-    {}
-    ArgumentElement(const char* arg) :
-        std::vector<ArgumentElement>(),
-        _argument(arg),
-        _default(),
-        _isNumber(false),
-        _number(0.0)
-    {}
-    ~ArgumentElement() {};
+    const std::string& getString() const { return _argument; }
 
-    const std::string& getString() const {
-        return _argument;
-    }
+    const std::string& getDefault() const { return _default; }
 
-    const std::string& getDefault() const {
-        return _default;
-    }
-
-    bool isNumber() const {
-        return _isNumber;
-    }
+    bool isNumber() const { return _isNumber; }
 
     double getNumber() const {
-        if (!_isNumber) {
-            throw Exception("is not a number");
-        }
-        else {
+        if (_isNumber) {
             return _number;
         }
+        throw Exception("is not a number");
     }
 
     /**
@@ -103,18 +73,7 @@ class ArgumentElement : public std::vector<ArgumentElement> {
      *
      * @return std::vector<std::string>
      */
-    inline operator std::vector<std::string>() const {
-        if (!empty() && front().empty()) {
-            std::vector<std::string> ret;
-            for (std::size_t i = 0 ; i < size() ; ++i) {
-                ret.push_back(at(i)._argument);
-            }
-            return ret;
-        }
-        else {
-            throw Exception("convertion to vector of string not authorized");
-        }
-    }
+    inline operator std::vector<std::string>() const;
 
     /**
      * @brief Friend function for convert Argument object to ostream
@@ -129,139 +88,63 @@ class ArgumentElement : public std::vector<ArgumentElement> {
     }
 
   protected:
-
     std::string _argument;
     std::string _default;
     bool _isNumber;
     double _number;
-
 };
 
-template<typename T>
+template <typename T>
 class ArgumentType;
 
-template<typename T>
+template <typename T>
 class ArgumentVectorType;
 
-template<typename T>
+template <typename T>
 class ArgumentVectorVectorType;
 
 /**
  * @brief Argument object
  */
 class Argument : public ArgumentElement {
-
     friend class ::mblet::Argparsor;
     friend class Argparsor;
 
   public:
-
     /**
      * @brief Construct a new Argument object
      */
-    Argument(Argparsor& argparsor) :
-        ArgumentElement(),
-        _argparsor(argparsor),
-        _nameOrFlags(),
-        _type(NONE),
-        _isExist(false),
-        _isRequired(false),
-        _count(0),
-        _nargs(0),
-        _help(),
-        _metavar(),
-        _valid(NULL),
-        _this(NULL),
-        _action(Argparsor::NONE),
-        _defaults()
-    {}
+    Argument(Argparsor& argparsor);
 
     /**
      * @brief Copy a Argument object
      *
      * @param rhs
      */
-    Argument(const Argument& rhs) :
-        ArgumentElement(rhs),
-        _argparsor(rhs._argparsor),
-        _nameOrFlags(rhs._nameOrFlags),
-        _type(rhs._type),
-        _isExist(rhs._isExist),
-        _isRequired(rhs._isRequired),
-        _count(rhs._count),
-        _nargs(rhs._nargs),
-        _help(rhs._help),
-        _metavar(rhs._metavar),
-        _valid(rhs._valid),
-        _this(rhs._this),
-        _action(rhs._action),
-        _defaults()
-    {}
+    Argument(const Argument& rhs);
 
     /**
      * @brief Destroy the Argument object
      */
-    virtual ~Argument() {}
+    virtual ~Argument();
 
-    inline bool isExist() const {
-        return _isExist;
-    }
+    inline bool isExist() const { return _isExist; }
 
-    inline bool isRequired() const {
-        return _isRequired;
-    }
+    inline bool isRequired() const { return _isRequired; }
 
-    inline std::size_t count() const {
-        return _count;
-    }
+    inline std::size_t count() const { return _count; }
 
-    inline std::size_t getNargs() const {
-        return _nargs;
-    }
+    inline std::size_t getNargs() const { return _nargs; }
 
-    inline const std::string& getHelp() const {
-        return _help;
-    }
+    inline const std::string& getHelp() const { return _help; }
 
-    inline const std::string& getMetavar() const {
-        return _metavar;
-    }
+    inline const std::string& getMetavar() const { return _metavar; }
 
-    inline std::string getString() const {
-        if (_type == BOOLEAN_OPTION) {
-            return ((_isExist) ? "true" : "false");
-        }
-        else if (_type == REVERSE_BOOLEAN_OPTION) {
-            return ((_isExist) ? "false" : "true");
-        }
-        else {
-            std::ostringstream oss("");
-            if (!empty()) {
-                for (std::size_t i = 0 ; i < size() ; ++i) {
-                    if (i > 0) {
-                        oss << ", ";
-                    }
-                    if (!at(i).empty()) {
-                        oss << "(";
-                        for (std::size_t j = 0 ; j < at(i).size() ; ++j) {
-                            if (j > 0) {
-                                oss << ", ";
-                            }
-                            oss << at(i).at(j)._argument;
-                        }
-                        oss << ")";
-                    }
-                    else {
-                        oss << at(i)._argument;
-                    }
-                }
-            }
-            else {
-                oss << _argument;
-            }
-            return oss.str();
-        }
-    }
+    inline const std::vector<std::string>& getNameOrFlags() const { return _nameOrFlags; }
+
+    inline const std::vector<std::string>& getDefaults() const { return _defaults; }
+
+    std::string getString() const;
 
     /**
      * @brief Override bool operator
@@ -282,60 +165,23 @@ class Argument : public ArgumentElement {
      *
      * @return std::string
      */
-    inline operator std::string() const {
-        return getString();
-    }
+    inline operator std::string() const { return getString(); }
 
     /**
      * @brief tranform to vector of string
      *
      * @return std::vector<std::string>
      */
-    inline operator std::vector<std::string>() const {
-        if (_type == NUMBER_OPTION || _type == MULTI_OPTION ||
-            _type == INFINITE_OPTION || _type == MULTI_INFINITE_OPTION) {
-            std::vector<std::string> ret;
-            for (std::size_t i = 0 ; i < size() ; ++i) {
-                ret.push_back(at(i)._argument);
-            }
-            return ret;
-        }
-        else if (_type == MULTI_NUMBER_OPTION || _type == MULTI_NUMBER_INFINITE_OPTION) {
-            std::vector<std::string> ret;
-            for (std::size_t i = 0 ; i < size() ; ++i) {
-                for (std::size_t j = 0 ; j < at(i).size() ; ++j) {
-                    ret.push_back(at(i).at(j)._argument);
-                }
-            }
-            return ret;
-        }
-        else {
-            throw Exception("convertion to vector of string not authorized");
-        }
-    }
+    operator std::vector<std::string>() const;
 
     /**
      * @brief tranform to vector of vector of string
      *
      * @return std::vector<std::vector<std::string> >
      */
-    inline operator std::vector<std::vector<std::string> >() const {
-        if (_type == MULTI_NUMBER_OPTION || _type == MULTI_NUMBER_INFINITE_OPTION) {
-            std::vector<std::vector<std::string> > ret;
-            for (std::size_t i = 0 ; i < size() ; ++i) {
-                ret.push_back(std::vector<std::string>());
-                for (std::size_t j = 0 ; j < at(i).size() ; ++j) {
-                    ret[i].push_back(at(i).at(j)._argument);
-                }
-            }
-            return ret;
-        }
-        else {
-            throw Exception("convertion to vector of vector of string not authorized");
-        }
-    }
+    operator std::vector<std::vector<std::string> >() const;
 
-    template<typename T>
+    template <typename T>
     inline operator T() const {
         return getNumber();
     }
@@ -346,33 +192,21 @@ class Argument : public ArgumentElement {
      * @param index
      * @return const Argument&
      */
-    inline const ArgumentElement& operator[](unsigned long index) const {
-        return at(index);
-    }
+    inline const ArgumentElement& operator[](unsigned long index) const { return at(index); }
 
     /**
      * @brief Option strings, e.g. -f, --foo
      * @param flag_
      * @return this reference
      */
-    inline Argument& flag(const char* flag_) {
-        if (_type == POSITIONAL_ARGUMENT) {
-            throw ArgumentException(flag_, "can't add flag in positionnal argument");
-        }
-        _argparsor.validFlag(flag_);
-        _nameOrFlags.push_back(flag_);
-        _sortNameOrFlags();
-        _argparsor._argumentFromName.insert(std::pair<std::string, Argument**>(flag_, _this));
-        _argparsor._arguments.sort(&Argument::compareOption);
-        return *this;
-    }
+    Argument& flag(const char* flag_);
 
     /**
      * @brief The basic type of action to be taken when this argument is encountered at the command line
      * @param action_
      * @return this reference
      */
-    inline Argument& action(enum Argparsor::Action action_) {
+    inline Argument& action(enum Action::eAction action_) {
         _action = action_;
         _typeConstructor();
         _defaultsConstructor();
@@ -394,10 +228,7 @@ class Argument : public ArgumentElement {
      * @param required_
      * @return this reference
      */
-    inline Argument& required(bool required_) {
-        _isRequired = required_;
-        return *this;
-    }
+    Argument& required(bool required_);
 
     /**
      * @brief A name for the argument in usage messages
@@ -452,13 +283,20 @@ class Argument : public ArgumentElement {
      * @param dest
      * @return reference of new argument
      */
-    template<typename T>
+    template <typename T>
     inline Argument& dest(std::vector<T>& dest) {
         Argument* argumentType = new ArgumentVectorType<T>(this, dest);
         return *argumentType;
     }
 
-    template<typename T>
+    /**
+     * @brief define a reference of object for insert the value after parseArguments method
+     *
+     * @tparam T
+     * @param dest
+     * @return reference of new argument
+     */
+    template <typename T>
     inline Argument& dest(std::vector<std::vector<T> >& dest) {
         Argument* argumentType = new ArgumentVectorVectorType<T>(this, dest);
         return *argumentType;
@@ -471,7 +309,7 @@ class Argument : public ArgumentElement {
      * @param dest
      * @return reference of new argument
      */
-    template<typename T>
+    template <typename T>
     inline Argument& dest(T& dest) {
         Argument* argumentType = new ArgumentType<T>(this, dest);
         return *argumentType;
@@ -490,7 +328,6 @@ class Argument : public ArgumentElement {
     }
 
   protected:
-
     enum Type {
         NONE = 0,
         HELP_OPTION,
@@ -507,35 +344,10 @@ class Argument : public ArgumentElement {
         POSITIONAL_ARGUMENT
     };
 
-    virtual inline void _toDest() {
-        /* do nothing */
+    virtual inline void _toDest() { /* do nothing */
     }
 
-    inline void _toNumber() {
-        if (_type == BOOLEAN_OPTION || _type == REVERSE_BOOLEAN_OPTION) {
-            return ;
-        }
-        else {
-            if (!empty()) {
-                for (std::size_t i = 0 ; i < size() ; ++i) {
-                    if (!at(i).empty()) {
-                        for (std::size_t j = 0 ; j < at(i).size() ; ++j) {
-                            std::stringstream ss(at(i).at(j)._argument);
-                            at(i).at(j)._isNumber = static_cast<bool>(ss >> at(i).at(j)._number);
-                        }
-                    }
-                    else {
-                        std::stringstream ss(at(i)._argument);
-                        at(i)._isNumber = static_cast<bool>(ss >> at(i)._number);
-                    }
-                }
-            }
-            else {
-                std::stringstream ss(_argument);
-                _isNumber = static_cast<bool>(ss >> _number);
-            }
-        }
-    }
+    void _toNumber();
 
     std::string _metavarDefault();
 
@@ -543,7 +355,9 @@ class Argument : public ArgumentElement {
 
     void _defaultsConstructor();
 
-    void _sortNameOrFlags(void);
+    void _sortNameOrFlags();
+
+    static void validFormatFlag(const char* flag);
 
     static bool compareOption(const Argument* first, const Argument* second);
 
@@ -560,24 +374,22 @@ class Argument : public ArgumentElement {
     IValid* _valid;
 
     Argument** _this;
-    enum Argparsor::Action _action;
+    enum Action::eAction _action;
     std::vector<std::string> _defaults;
-
 };
 
-template<typename T>
+template <typename T>
 class ArgumentType : public Argument {
-
   public:
-
-    ArgumentType(Argument* argument, T& dest) : Argument(*argument), _dest(dest) {
+    ArgumentType(Argument* argument, T& dest) :
+        Argument(*argument),
+        _dest(dest) {
         delete argument;
         *_this = this;
     }
     virtual ~ArgumentType() {}
 
   private:
-
     void _toDest() {
         std::stringstream ss("");
         if (_type == BOOLEAN_OPTION) {
@@ -598,24 +410,23 @@ class ArgumentType : public Argument {
     T& _dest;
 };
 
-template<typename T>
+template <typename T>
 class ArgumentVectorType : public Argument {
-
   public:
-
-    ArgumentVectorType(Argument* argument, std::vector<T>& dest) : Argument(*argument), _dest(dest) {
+    ArgumentVectorType(Argument* argument, std::vector<T>& dest) :
+        Argument(*argument),
+        _dest(dest) {
         delete argument;
         *_this = this;
     }
     virtual ~ArgumentVectorType() {}
 
   private:
-
     void _toDest() {
         if (!empty()) {
-            for (std::size_t i = 0 ; i < size() ; ++i) {
+            for (std::size_t i = 0; i < size(); ++i) {
                 if (!at(i).empty()) {
-                    for (std::size_t j = 0 ; j < at(i).size() ; ++j) {
+                    for (std::size_t j = 0; j < at(i).size(); ++j) {
                         T dest;
                         std::stringstream ss("");
                         if (at(i).at(j).isNumber()) {
@@ -660,31 +471,29 @@ class ArgumentVectorType : public Argument {
             ss >> dest;
             _dest.push_back(dest);
         }
-
     }
 
     std::vector<T>& _dest;
 };
 
-template<typename T>
+template <typename T>
 class ArgumentVectorVectorType : public Argument {
-
   public:
-
-    ArgumentVectorVectorType(Argument* argument, std::vector<std::vector<T> >& dest) : Argument(*argument), _dest(dest) {
+    ArgumentVectorVectorType(Argument* argument, std::vector<std::vector<T> >& dest) :
+        Argument(*argument),
+        _dest(dest) {
         delete argument;
         *_this = this;
     }
     virtual ~ArgumentVectorVectorType() {}
 
   private:
-
     void _toDest() {
         if (!empty()) {
-            for (std::size_t i = 0 ; i < size() ; ++i) {
+            for (std::size_t i = 0; i < size(); ++i) {
                 std::vector<T> vectorDest;
                 if (!at(i).empty()) {
-                    for (std::size_t j = 0 ; j < at(i).size() ; ++j) {
+                    for (std::size_t j = 0; j < at(i).size(); ++j) {
                         T dest;
                         std::stringstream ss("");
                         if (at(i).at(j).isNumber()) {
@@ -696,7 +505,6 @@ class ArgumentVectorVectorType : public Argument {
                         ss >> dest;
                         vectorDest.push_back(dest);
                     }
-
                 }
                 else {
                     T dest;
@@ -733,14 +541,13 @@ class ArgumentVectorVectorType : public Argument {
             vectorDest.push_back(dest);
             _dest.push_back(vectorDest);
         }
-
     }
 
     std::vector<std::vector<T> >& _dest;
 };
 
-} // namespace argparsor
+}  // namespace argparsor
 
-} // namespace mblet
+}  // namespace mblet
 
-#endif // _MBLET_ARGPARSOR_ARGUMENT_H_
+#endif  // _MBLET_ARGPARSOR_ARGUMENT_H_

@@ -32,38 +32,18 @@ Long format
 Define how a single command-line argument should be parsed
 
 ```cpp
+double doubleFromArg;
 mblet::Argparsor args;
-args.addArgument(
-    {"-E", "--example"}, // nameOrFlags: Either a name or a list of option strings, e.g. foo or -f, --foo
-    mblet::Argparsor::NONE, // action: The basic type of action to be taken when this argument is encountered at the command line
-    "help message", // help: A brief description of what the argument does
-
-mblet::Argparsor::Argument &mblet::Argparsor::addArgument(
-    const mblet::Argparsor::Vector &nameOrFlags,
-    mblet::Argparsor::Action action,
-    const char *help,
-    bool isRequired,
-    const char *metavar,
-    std::size_t nArgs,
-    const mblet::Argparsor::Vector &defaultArgs,
-    mblet::Argparsor::IValid *valid,
-    T &dest)
-Argparsor::Argument& addArgument(
-    const Vector& nameOrFlags,
-    Argparsor::Action action,
-                          const char* help, bool isRequired, const char* metavar,
-                          std::size_t nArgs, const Vector& defaultArgs,
-                          IValid* valid, T& dest)
-void addArgument(
-    const Vector& nameOrFlags, // Either a name or a list of option strings, e.g. foo or -f, --foo
-    const char* actionOrDefault = NULL, // The basic type of action to be taken when this argument is encountered at the command line
-    // action list: store_true, store_false, infinite, append, extend, version, help
-    const char* help = NULL, // A brief description of what the argument does
-    bool isRequired = false, // Whether or not the command-line option may be omitted (optionals only)
-    const char* argsHelp = NULL, // A name for the argument in usage messages
-    std::size_t nbArgs = 0, // The number of command-line arguments that should be consumed
-    const Vector& defaultArgs = Vector() // The value produced if the argument is absent from the command line
-);
+args.addArgument({"-E", "--example"})   // Either a name or a list of option strings, e.g. foo or -f, --foo
+    .flag("--new-example")              // Add option strings e.g. -f, --foo
+    .action(mblet::Argparsor::INFINITE) // The basic type of action to be taken when this argument is encountered at the command line
+    .help("help message")               // A brief description of what the argument does
+    .required(true)                     // Whether or not the command-line option may be omitted(optionals only)
+    .metavar("ARGUMENT")                // A name for the argument in usage messages
+    .nargs(1)                           // The number of command-line arguments that should be consumed
+    .defaults({"0"})                    // A list of default strings argument value
+    .valid(new mblet::Argparsor::ValidMinMax(0, 100)) // Validate class from IValid interface
+    .dest(doubleFromArg)                // Fill argument in destination from << operator
 ```
 
 ### parseArguments
@@ -84,12 +64,13 @@ void parseArguments(
 
 ## Vector
 
-Vector is a object can be initialize with initialize string list or single string or for c++98 with `vector` method.
+Vector is a object can be initialize with initialize string list or single string or for C++98 with `vector` method.
 
 ```cpp
 mblet::Argparsor args;
 args.addArgument("--boolean");
 args.addArgument({"-b", "--boolean"});
+args.addArgument("-b").flag("--boolean");
 args.addArgument(args.vector("-b", "--boolean")); // C++98
 ```
 

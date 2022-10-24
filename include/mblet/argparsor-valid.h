@@ -26,12 +26,8 @@
 #ifndef _MBLET_ARGPARSOR_VALID_H_
 #define _MBLET_ARGPARSOR_VALID_H_
 
-#include <sstream>
 #include <string>
-#include <sys/stat.h>
 #include <vector>
-
-#include "mblet/argparsor-exception.h"
 
 namespace mblet {
 
@@ -65,37 +61,20 @@ class ValidMinMax : public IValid {
      * @param min
      * @param max
      */
-    ValidMinMax(double min, double max) : _min(min), _max(max) {
-        // bad initialized reverse value
-        if (min > max) {
-            _min = max;
-            _max = min;
-        }
-    }
+    ValidMinMax(double min, double max);
 
     /**
      * @brief Destroy the Valid Min Max object
      */
-    ~ValidMinMax() {}
+    ~ValidMinMax();
 
-    bool isValid(std::vector<std::string>& args) {
-        for (std::size_t i = 0 ; i < args.size() ; ++i) {
-            std::stringstream ssArg("");
-            ssArg << args[i];
-            double number;
-            if (!(ssArg >> number)) {
-                std::ostringstream oss("");
-                oss << "\"" << args[i] << "\" is not a number";
-                throw ParseArgumentValidException(oss.str().c_str());
-            }
-            if (number < _min || number > _max) {
-                std::ostringstream oss("");
-                oss << args[i] << " is not between " << _min << " and " << _max;
-                throw ParseArgumentValidException(oss.str().c_str());
-            }
-        }
-        return true;
-    }
+    /**
+     * @brief check if arguments are valid
+     *
+     * @param arguments
+     * @return [true] arguments are valid, [false] arguments are not valid
+     */
+    bool isValid(std::vector<std::string>& args);
 
   private:
     double _min;
@@ -104,63 +83,59 @@ class ValidMinMax : public IValid {
 
 class ValidChoise : public IValid {
   public:
-    ValidChoise(const std::vector<std::string>& choises) : _choises(choises) {}
-    ~ValidChoise() {}
-    bool isValid(std::vector<std::string>& args) {
-        std::ostringstream ossChoise("");
-        for (std::size_t i = 0; i < _choises.size(); ++i) {
-            if (i > 0) {
-                ossChoise << ", ";
-            }
-            ossChoise << '\"' << _choises[i] << '\"';
-        }
-        for (std::size_t i = 0 ; i < args.size() ; ++i) {
-            std::size_t j;
-            for (j = 0 ; j < _choises.size() ; ++j) {
-                if (args[i] == _choises[j]) {
-                    break;
-                }
-            }
-            if (j == _choises.size()) {
-                std::ostringstream oss("");
-                oss << '\"' << args[i] << "\" is not a choise value (" << ossChoise.str() << ')';
-                throw ParseArgumentValidException(oss.str().c_str());
-            }
-        }
-        return true;
-    }
+    /**
+     * @brief
+     *
+     * @param choises
+     */
+    ValidChoise(const std::vector<std::string>& choises);
+
+    /**
+     * @brief Destroy the Valid Choise object
+     */
+    ~ValidChoise();
+
+    /**
+     * @brief check if arguments are valid
+     *
+     * @param arguments
+     * @return [true] arguments are valid, [false] arguments are not valid
+     */
+    bool isValid(std::vector<std::string>& args);
+
   private:
     std::vector<std::string> _choises;
 };
 
 class ValidPath : public IValid {
   public:
+    enum eMode { ALL = 0, IS_FILE, IS_DIR };
+
     /**
      * @brief Construct a new Valid Path Exist object
      * at call self @c isValid it check if argument is a exist path
      */
-    ValidPath() {}
+    ValidPath(enum eMode mode = ValidPath::ALL);
 
     /**
      * @brief Destroy the Valid Path Exist object
      */
-    ~ValidPath() {}
+    ~ValidPath();
 
-    bool isValid(std::vector<std::string>& args) {
-        struct stat statBuff;
-        for (std::size_t i = 0 ; i < args.size() ; ++i) {
-            if (::stat(args[i].c_str(), &statBuff) == -1) {
-                std::ostringstream oss("");
-                oss << '\"' << args[i] << "\" is not a valid path";
-                throw ParseArgumentValidException(oss.str().c_str());
-            }
-        }
-        return true;
-    }
+    /**
+     * @brief check if arguments are valid
+     *
+     * @param arguments
+     * @return [true] arguments are valid, [false] arguments are not valid
+     */
+    bool isValid(std::vector<std::string>& args);
+
+  private:
+    enum eMode _mode;
 };
 
-} // namespace argparsor
+}  // namespace argparsor
 
-} // namespace mblet
+}  // namespace mblet
 
-#endif // _MBLET_ARGPARSOR_VALID_H_
+#endif  // _MBLET_ARGPARSOR_VALID_H_

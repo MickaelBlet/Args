@@ -3,7 +3,7 @@
 
 int main(int argc, char* argv[]) {
     mblet::Argparsor args;
-    args.addArgument("--no-boolean", mblet::Argparsor::STORE_FALSE, "custom not booblean option message", false);
+    args.addArgument("--no-boolean").action(mblet::Argparsor::STORE_FALSE).help("custom not booblean option message");
     args.parseArguments(argc, argv);
     if (args["--no-boolean"]) {
         std::cout << "true" << std::endl;

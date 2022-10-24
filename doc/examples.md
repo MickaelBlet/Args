@@ -19,7 +19,9 @@ All:
 
 ## Argument
 ```cpp
+#include <iostream>
 #include "mblet/argparsor.h"
+
 int main(int argc, char* argv[]) {
     mblet::Argparsor args;
     args.addArgument("ARG").help("custom argument message");
@@ -53,7 +55,9 @@ Additionnal argument(s):
 ## Append
 With nbArgs == 1
 ```cpp
+#include <iostream>
 #include "mblet/argparsor.h"
+
 int main(int argc, char* argv[]) {
     mblet::Argparsor args;
     args.addArgument({"-a", "--append"}).action(mblet::Argparsor::APPEND).help("custom append option message").nargs(1);
@@ -72,7 +76,9 @@ $ ./a.out -a1 --append=2 -a=3
 ```
 With nbArgs == 3
 ```cpp
+#include <iostream>
 #include "mblet/argparsor.h"
+
 int main(int argc, char* argv[]) {
     mblet::Argparsor args;
     args.addArgument({"-a", "--append"}).help("custom append option message").action(mblet::Argparsor::APPEND).nargs(3);
@@ -96,12 +102,14 @@ $ ./a.out -a 1 2 3 --append 4 5 6
 ```
 
 ## Extend
-With nbArgs == 1
+With nargs == 1
 ```cpp
+#include <iostream>
 #include "mblet/argparsor.h"
+
 int main(int argc, char* argv[]) {
     mblet::Argparsor args;
-    args.addArgument({"-e", "--extend"}, "extend", "custom extend option message", false, NULL, 1);
+    args.addArgument({"-e", "--extend"}).action(args.EXTEND).help("custom extend option message").nargs(1)
     args.parseArguments(argc, argv);
     for (std::size_t i = 0; i < args["--extend"].size(); ++i) {
         std::cout << args["--extend"][i] << std::endl;
@@ -118,12 +126,14 @@ $ ./a.out -e1 --extend=2 -e=3 --extend 4 5 6
 5
 6
 ```
-With nbArgs == 3
+With nargs == 3
 ```cpp
+#include <iostream>
 #include "mblet/argparsor.h"
+
 int main(int argc, char* argv[]) {
     mblet::Argparsor args;
-    args.addArgument({"-e", "--extend"}, "extend", "custom extend option message", false, NULL, 3);
+    args.addArgument({"-e", "--extend"}).action(args.EXTEND).help("custom extend option message").nargs(3)
     args.parseArguments(argc, argv);
     for (std::size_t i = 0; i < args["--extend"].size(); ++i) {
         for (std::size_t j = 0; j < args["--extend"][i].size() ; ++j) {
@@ -146,10 +156,12 @@ $ ./a.out -e 1 2 3 4 5 6 --extend 7 8 9
 
 ## Help
 ```cpp
+#include <iostream>
 #include "mblet/argparsor.h"
+
 int main(int argc, char* argv[]) {
-    mblet::Argparsor args(false);
-    args.addArgument({"-h", "--help"}, mblet::Argparsor::HELP, "custom help option message");
+    mblet::Argparsor args(false); // disable auto construct help argument
+    args.addArgument({"-h", "--help"}).action(args.HELP).help("custom help option message");
     args.parseArguments(argc, argv);
     std::cout << "do nothing" << std::endl;
     return 0;
@@ -167,7 +179,9 @@ optional arguments:
 
 ## Infinite
 ```cpp
+#include <iostream>
 #include "mblet/argparsor.h"
+
 int main(int argc, char* argv[]) {
     mblet::Argparsor args;
     args.addArgument({"-i", "--infinite"}, "infinite", "custom infinite option message", false, NULL, 1);

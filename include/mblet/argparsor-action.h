@@ -1,5 +1,5 @@
 /**
- * argparsor.h
+ * argparsor-action.h
  *
  * Licensed under the MIT License <http://opensource.org/licenses/MIT>.
  * Copyright (c) 2022 BLET Mickaël.
@@ -23,40 +23,28 @@
  * SOFTWARE.
  */
 
-#ifndef _MBLET_ARGPARSOR_H_
-#define _MBLET_ARGPARSOR_H_
-
-#include "mblet/argparsor-action.h"
-#include "mblet/argparsor-argparsor.h"
-#include "mblet/argparsor-argument.h"
-#include "mblet/argparsor-valid.h"
-#include "mblet/argparsor-vector.h"
+#ifndef _MBLET_ARGPARSOR_ACTION_H_
+#define _MBLET_ARGPARSOR_ACTION_H_
 
 namespace mblet {
 
-// simply use argparsor
-class Argparsor : public argparsor::Argparsor, public argparsor::Action {
-  public:
-    Argparsor(bool help = true) : argparsor::Argparsor(help) {}
-    ~Argparsor() {}
+namespace argparsor {
 
-    typedef argparsor::Exception Exception;
-    typedef argparsor::ArgumentException ArgumentException;
-    typedef argparsor::ParseArgumentException ParseArgumentException;
-    typedef argparsor::ParseArgumentRequiredException ParseArgumentRequiredException;
-    typedef argparsor::ParseArgumentValidException ParseArgumentValidException;
-    typedef argparsor::AccessDeniedException AccessDeniedException;
-
-    typedef argparsor::IValid IValid;
-    typedef argparsor::ValidChoise ValidChoise;
-    typedef argparsor::ValidMinMax ValidMinMax;
-    typedef argparsor::ValidPath ValidPath;
-
-  private:
-    typedef argparsor::Vector Vector;
-
+struct Action {
+    enum eAction {
+        NONE = 0,
+        HELP,
+        VERSION,
+        STORE_TRUE,
+        STORE_FALSE,
+        APPEND,
+        EXTEND,
+        INFINITE
+    };
 };
 
-} // namespace mblet
+}  // namespace argparsor
 
-#endif // _MBLET_ARGPARSOR_H_
+}  // namespace mblet
+
+#endif  // _MBLET_ARGPARSOR_ACTION_H_

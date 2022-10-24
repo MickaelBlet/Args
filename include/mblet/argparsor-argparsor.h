@@ -26,11 +26,13 @@
 #ifndef _MBLET_ARGPARSOR_ARGPARSOR_H_
 #define _MBLET_ARGPARSOR_ARGPARSOR_H_
 
-#include <map>
 #include <list>
+#include <map>
 #include <string>
 #include <vector>
 
+#include "mblet/argparsor-action.h"
+#include "mblet/argparsor-argument.h"
 #include "mblet/argparsor-exception.h"
 #include "mblet/argparsor-valid.h"
 #include "mblet/argparsor-vector.h"
@@ -45,22 +47,9 @@ class Argument;
  * @brief Object for parse the main arguments
  */
 class Argparsor {
-
     friend class Argument;
 
   public:
-
-    enum Action {
-        NONE,
-        HELP,
-        VERSION,
-        STORE_TRUE,
-        STORE_FALSE,
-        APPEND,
-        EXTEND,
-        INFINITE
-    };
-
     /**
      * @brief Construct a new Argparsor object
      */
@@ -76,9 +65,7 @@ class Argparsor {
      *
      * @return const std::string&
      */
-    inline const std::string& getBynaryName() const {
-        return _binaryName;
-    }
+    inline const std::string& getBynaryName() const { return _binaryName; }
 
     /**
      * @brief Get the Usage
@@ -95,14 +82,30 @@ class Argparsor {
     std::string getVersion() const;
 
     /**
+     * @brief Check if argument exist
+     *
+     * @param str
+     * @return [true] argument is in map, [false] argument is not in map
+     */
+    inline bool argumentExist(const char* str) const { return argumentExist(std::string(str)); }
+
+    /**
+     * @brief Check if argument exist
+     *
+     * @param str
+     * @return [true] argument is in map, [false] argument is not in map
+     */
+    inline bool argumentExist(const std::string& str) const {
+        return (_argumentFromName.find(str) != _argumentFromName.end());
+    }
+
+    /**
      * @brief Get the argument object
      *
      * @param str
      * @return const Argument&
      */
-    inline const Argument& getArgument(const char* str) const {
-        return getArgument(std::string(str));
-    }
+    inline const Argument& getArgument(const char* str) const { return getArgument(std::string(str)); }
 
     /**
      * @brief Get the argument object
@@ -124,9 +127,7 @@ class Argparsor {
      * @param str
      * @return const Argument&
      */
-    inline const Argument& operator[](const char* str) const {
-        return getArgument(str);
-    }
+    inline const Argument& operator[](const char* str) const { return getArgument(str); }
 
     /**
      * @brief Override bracket operator with getArgument
@@ -134,45 +135,35 @@ class Argparsor {
      * @param str
      * @return const Argument&
      */
-    inline const Argument& operator[](const std::string& str) const {
-        return getArgument(str);
-    }
+    inline const Argument& operator[](const std::string& str) const { return getArgument(str); }
 
     /**
      * @brief Get the vector of additional argument
      *
      * @return const std::vector<std::string>&
      */
-    inline const std::vector<std::string>& getAdditionalArguments() const {
-        return _additionalArguments;
-    }
+    inline const std::vector<std::string>& getAdditionalArguments() const { return _additionalArguments; }
 
     /**
      * @brief Set the usage message
      *
      * @param usage
      */
-    inline void setUsage(const char* usage) {
-        _usage = usage;
-    }
+    inline void setUsage(const char* usage) { _usage = usage; }
 
     /**
      * @brief Set the description in usage message
      *
      * @param description
      */
-    inline void setDescription(const char* description) {
-        _description = description;
-    }
+    inline void setDescription(const char* description) { _description = description; }
 
     /**
      * @brief Set the epilog in usage message
      *
      * @param epilog
      */
-    inline void setEpilog(const char* epilog) {
-        _epilog = epilog;
-    }
+    inline void setEpilog(const char* epilog) { _epilog = epilog; }
 
     /**
      * @brief Convert argument strings to objects and assign them as attributes of the argparsor map.
@@ -189,63 +180,20 @@ class Argparsor {
      * @brief Define how a single command-line argument should be parsed
      *
      * @param nameOrFlags Either a name or a list of option strings, e.g. foo or -f, --foo
-     * @param actionOrDefault The basic type of action to be taken when this argument is encountered at the command line
-     * @param help A brief description of what the argument does
-     * @param isRequired Whether or not the command-line option may be omitted (optionals only)
-     * @param metavar A name for the argument in usage messages
-     * @param nArgs The number of command-line arguments that should be consumed
-     * @param defaultArgs The value produced if the argument is absent from the command line
-     * @param valid New object from IValid interface
-     *
-     * @return ref of new argument object
-     */
-    Argument& addArgument(const Vector& nameOrFlags, Action action,
-                          const char* help = NULL, bool isRequired = false, const char* metavar = NULL,
-                          std::size_t nArgs = 0, const Vector& defaultArgs = Vector(),
-                          IValid* valid = NULL);
-
-    /**
-     * @brief Define how a single command-line argument should be parsed
-     *
-     * @param nameOrFlags Either a name or a list of option strings, e.g. foo or -f, --foo
      *
      * @return ref of new argument object
      */
     Argument& addArgument(const Vector& nameOrFlags);
 
-    /**
-     * @brief Define how a single command-line argument should be parsed
-     *
-     * @param nameOrFlags Either a name or a list of option strings, e.g. foo or -f, --foo
-     * @param actionOrDefault The basic type of action to be taken when this argument is encountered at the command line
-     * @param help A brief description of what the argument does
-     * @param isRequired Whether or not the command-line option may be omitted (optionals only)
-     * @param metavar A name for the argument in usage messages
-     * @param nArgs The number of command-line arguments that should be consumed
-     * @param defaultArgs The value produced if the argument is absent from the command line
-     * @param valid New object from IValid interface
-     * @param dest Reference of destination object
-     */
-    // template<typename T>
-    // Argument& addArgument(const Vector& nameOrFlags, Action action,
-    //                       const char* help, bool isRequired, const char* metavar,
-    //                       std::size_t nArgs, const Vector& defaultArgs,
-    //                       IValid* valid, T& dest) {
-    //     return addArgument(nameOrFlags, action, help, isRequired,
-    //                        metavar, nArgs, defaultArgs, valid).dest(dest);
-    // }
-
-    inline static Vector vector(const char* v1 = NULL, const char* v2 = NULL, const char* v3 = NULL, const char* v4 = NULL,
-                                const char* v5 = NULL, const char* v6 = NULL, const char* v7 = NULL, const char* v8 = NULL,
-                                const char* v9 = NULL, const char* v10 = NULL) {
+    inline static Vector vector(const char* v1 = NULL, const char* v2 = NULL, const char* v3 = NULL,
+                                const char* v4 = NULL, const char* v5 = NULL, const char* v6 = NULL,
+                                const char* v7 = NULL, const char* v8 = NULL, const char* v9 = NULL,
+                                const char* v10 = NULL) {
         const char* args[] = {v1, v2, v3, v4, v5, v6, v7, v8, v9, v10};
         return args;
     }
 
   private:
-
-    void validFlag(const char* flag) const;
-
     /**
      * @brief Get the short argument decompose multi short argument
      *
@@ -315,8 +263,8 @@ class Argparsor {
     std::vector<std::string> _additionalArguments;
 };
 
-} // namespace argparsor
+}  // namespace argparsor
 
-} // namespace mblet
+}  // namespace mblet
 
-#endif // _MBLET_ARGPARSOR_ARGPARSOR_H_
+#endif  // _MBLET_ARGPARSOR_ARGPARSOR_H_

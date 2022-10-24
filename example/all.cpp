@@ -1,6 +1,8 @@
-#include "mblet/argparsor.h"
 #include <stdint.h>
+
 #include <iostream>
+
+#include "mblet/argparsor.h"
 
 int main(int argc, char* argv[]) {
     using namespace mblet;
@@ -14,26 +16,60 @@ int main(int argc, char* argv[]) {
     args.setDescription("custom description message");
     args.setEpilog("custom epilog message");
     args.addArgument("-h").flag("--help").action(args.HELP).help("custom help option message");
-    args.addArgument("-v").flag("--version").help("help of version option")
-    .action(args.VERSION).defaults("Version: 0.0.0");
+    args.addArgument("-v")
+        .flag("--version")
+        .help("help of version option")
+        .action(args.VERSION)
+        .defaults("Version: 0.0.0");
     args.addArgument("NOTREQUIRED").help("help of positional argument").defaults("foo");
-    args.addArgument("REQUIRED").help("help of required positional argument").valid(new Argparsor::ValidPath())
-    .dest(s).required(true);
-    args.addArgument("-b", args.STORE_TRUE, "help of boolean option").dest(b);
-    args.addArgument("-c", args.STORE_FALSE, "help of count option").dest(c);
-    args.addArgument("-s").flag("--simple").help("help of simple option").required(true).metavar("argSimple")
-    .nargs(1).valid(new Argparsor::ValidChoise(args.vector("0", "100", "200")));
-    args.addArgument("-n").flag("--number").help("help of number").required(true).metavar("ARG1 ARG2").nargs(2)
-    .defaults(args.vector("foo", "bar"));
+    args.addArgument("REQUIRED")
+        .help("help of required positional argument")
+        .valid(new Argparsor::ValidPath(Argparsor::ValidPath::IS_FILE))
+        .dest(s)
+        .required(true);
+    args.addArgument("-b").action(args.STORE_TRUE).help("help of boolean option").dest(b);
+    args.addArgument("-c").action(args.STORE_FALSE).help("help of count option").dest(c);
+    args.addArgument("-s")
+        .flag("--simple")
+        .help("help of simple option")
+        .required(true)
+        .metavar("argSimple")
+        .nargs(1)
+        .valid(new Argparsor::ValidChoise(args.vector("0", "100", "200")));
+    args.addArgument("-n")
+        .flag("--number")
+        .help("help of number")
+        .required(true)
+        .metavar("ARG1 ARG2")
+        .nargs(2)
+        .defaults(args.vector("foo", "bar"));
     args.addArgument("--infinite").help("help of infinite").nargs('+');
-    args.addArgument(args.vector("-m", "--multi"), args.APPEND, "help of multi", false, "MULTI", 1,
-                     args.vector("0", "1", "2"));
-    args.addArgument(args.vector("-N", "--multiAppend"), args.APPEND, "help of multi", false, "MULTI", 2,
-                     args.vector("0", "1", "2", "3"), NULL).dest(destD);
-    args.addArgument(args.vector("-e", "--extend"), args.EXTEND, "help of extend", false, "EXTEND", 1,
-                     args.vector("0", "1", "2", "3")).dest(destC);
-    args.addArgument(args.vector("-E", "--extend-number"), args.EXTEND, "help of extend", false, "EXTEND", 2,
-                     args.vector("0", "1", "2", "3"));
+    args.addArgument(args.vector("-m", "--multi"))
+        .action(args.APPEND)
+        .help("help of multi")
+        .metavar("MULTI")
+        .nargs(1)
+        .defaults(args.vector("0", "1", "2"));
+    args.addArgument(args.vector("-N", "--multiAppend"))
+        .action(args.APPEND)
+        .help("help of multi")
+        .metavar("MULTI")
+        .nargs(2)
+        .defaults(args.vector("0", "1", "2", "3"))
+        .dest(destD);
+    args.addArgument(args.vector("-e", "--extend"))
+        .action(args.EXTEND)
+        .help("help of extend")
+        .metavar("EXTEND")
+        .nargs(1)
+        .defaults(args.vector("0", "1", "2", "3"))
+        .dest(destC);
+    args.addArgument(args.vector("-E", "--extend-number"))
+        .action(args.EXTEND)
+        .help("help of extend")
+        .metavar("EXTEND")
+        .nargs(2)
+        .defaults(args.vector("0", "1", "2", "3"));
     try {
         args.parseArguments(argc, argv, true);
         std::cout << +s << std::endl;
@@ -52,8 +88,8 @@ int main(int argc, char* argv[]) {
         if (args["-s"]) {
             std::cout << "-s: " << args["-s"] << std::endl;
         }
-        std::cout << "-n: [0]: " << args["-n"][0] << ", [1]: " << args["-n"][1] << " (" << args["-n"] << ")" <<
-                  std::endl;
+        std::cout << "-n: [0]: " << args["-n"][0] << ", [1]: " << args["-n"][1] << " (" << args["-n"] << ")"
+                  << std::endl;
         if (args["--infinite"]) {
             std::cout << "--infinite: " << args["--infinite"] << std::endl;
         }
@@ -86,7 +122,7 @@ int main(int argc, char* argv[]) {
     catch (const Argparsor::ParseArgumentException& e) {
         std::cerr << args.getBynaryName() << ": " << e.what();
         std::cerr << " -- '" << e.argument() << "'" << std::endl;
-        return 1; //END
+        return 1;  // END
     }
     return 0;
 }
