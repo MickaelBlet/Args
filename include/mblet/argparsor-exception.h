@@ -38,11 +38,13 @@ namespace argparsor {
  */
 class Exception : public std::exception {
   public:
-    Exception(const char* str) : _str(str) {}
+    Exception(const char* str) :
+        _str(str) {}
     virtual ~Exception() throw() {}
     const char* what() const throw() {
         return _str.c_str();
     }
+
   protected:
     std::string _str;
 };
@@ -52,12 +54,17 @@ class Exception : public std::exception {
  */
 class ArgumentException : public Exception {
   public:
-    ArgumentException(const char* message) : Exception(message), _argument() {}
-    ArgumentException(const char* argument, const char* message) : Exception(message), _argument(argument) {}
+    ArgumentException(const char* message) :
+        Exception(message),
+        _argument() {}
+    ArgumentException(const char* argument, const char* message) :
+        Exception(message),
+        _argument(argument) {}
     virtual ~ArgumentException() throw() {}
     const char* argument() const throw() {
         return _argument.c_str();
     }
+
   protected:
     std::string _argument;
 };

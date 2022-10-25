@@ -55,11 +55,17 @@ class ArgumentElement : public std::vector<ArgumentElement> {
     ArgumentElement(const char* arg);
     ~ArgumentElement();
 
-    const std::string& getString() const { return _argument; }
+    const std::string& getString() const {
+        return _argument;
+    }
 
-    const std::string& getDefault() const { return _default; }
+    const std::string& getDefault() const {
+        return _default;
+    }
 
-    bool isNumber() const { return _isNumber; }
+    bool isNumber() const {
+        return _isNumber;
+    }
 
     double getNumber() const {
         if (_isNumber) {
@@ -94,13 +100,13 @@ class ArgumentElement : public std::vector<ArgumentElement> {
     double _number;
 };
 
-template <typename T>
+template<typename T>
 class ArgumentType;
 
-template <typename T>
+template<typename T>
 class ArgumentVectorType;
 
-template <typename T>
+template<typename T>
 class ArgumentVectorVectorType;
 
 /**
@@ -128,21 +134,37 @@ class Argument : public ArgumentElement {
      */
     virtual ~Argument();
 
-    inline bool isExist() const { return _isExist; }
+    inline bool isExist() const {
+        return _isExist;
+    }
 
-    inline bool isRequired() const { return _isRequired; }
+    inline bool isRequired() const {
+        return _isRequired;
+    }
 
-    inline std::size_t count() const { return _count; }
+    inline std::size_t count() const {
+        return _count;
+    }
 
-    inline std::size_t getNargs() const { return _nargs; }
+    inline std::size_t getNargs() const {
+        return _nargs;
+    }
 
-    inline const std::string& getHelp() const { return _help; }
+    inline const std::string& getHelp() const {
+        return _help;
+    }
 
-    inline const std::string& getMetavar() const { return _metavar; }
+    inline const std::string& getMetavar() const {
+        return _metavar;
+    }
 
-    inline const std::vector<std::string>& getNameOrFlags() const { return _nameOrFlags; }
+    inline const std::vector<std::string>& getNameOrFlags() const {
+        return _nameOrFlags;
+    }
 
-    inline const std::vector<std::string>& getDefaults() const { return _defaults; }
+    inline const std::vector<std::string>& getDefaults() const {
+        return _defaults;
+    }
 
     std::string getString() const;
 
@@ -165,7 +187,9 @@ class Argument : public ArgumentElement {
      *
      * @return std::string
      */
-    inline operator std::string() const { return getString(); }
+    inline operator std::string() const {
+        return getString();
+    }
 
     /**
      * @brief tranform to vector of string
@@ -181,7 +205,7 @@ class Argument : public ArgumentElement {
      */
     operator std::vector<std::vector<std::string> >() const;
 
-    template <typename T>
+    template<typename T>
     inline operator T() const {
         return getNumber();
     }
@@ -192,7 +216,9 @@ class Argument : public ArgumentElement {
      * @param index
      * @return const Argument&
      */
-    inline const ArgumentElement& operator[](unsigned long index) const { return at(index); }
+    inline const ArgumentElement& operator[](unsigned long index) const {
+        return at(index);
+    }
 
     /**
      * @brief Option strings, e.g. -f, --foo
@@ -283,7 +309,7 @@ class Argument : public ArgumentElement {
      * @param dest
      * @return reference of new argument
      */
-    template <typename T>
+    template<typename T>
     inline Argument& dest(std::vector<T>& dest) {
         Argument* argumentType = new ArgumentVectorType<T>(this, dest);
         return *argumentType;
@@ -296,7 +322,7 @@ class Argument : public ArgumentElement {
      * @param dest
      * @return reference of new argument
      */
-    template <typename T>
+    template<typename T>
     inline Argument& dest(std::vector<std::vector<T> >& dest) {
         Argument* argumentType = new ArgumentVectorVectorType<T>(this, dest);
         return *argumentType;
@@ -309,7 +335,7 @@ class Argument : public ArgumentElement {
      * @param dest
      * @return reference of new argument
      */
-    template <typename T>
+    template<typename T>
     inline Argument& dest(T& dest) {
         Argument* argumentType = new ArgumentType<T>(this, dest);
         return *argumentType;
@@ -344,7 +370,8 @@ class Argument : public ArgumentElement {
         POSITIONAL_ARGUMENT
     };
 
-    virtual inline void _toDest() { /* do nothing */
+    virtual inline void _toDest() {
+        /* do nothing */
     }
 
     void _toNumber();
@@ -378,7 +405,7 @@ class Argument : public ArgumentElement {
     std::vector<std::string> _defaults;
 };
 
-template <typename T>
+template<typename T>
 class ArgumentType : public Argument {
   public:
     ArgumentType(Argument* argument, T& dest) :
@@ -410,7 +437,7 @@ class ArgumentType : public Argument {
     T& _dest;
 };
 
-template <typename T>
+template<typename T>
 class ArgumentVectorType : public Argument {
   public:
     ArgumentVectorType(Argument* argument, std::vector<T>& dest) :
@@ -476,7 +503,7 @@ class ArgumentVectorType : public Argument {
     std::vector<T>& _dest;
 };
 
-template <typename T>
+template<typename T>
 class ArgumentVectorVectorType : public Argument {
   public:
     ArgumentVectorVectorType(Argument* argument, std::vector<std::vector<T> >& dest) :
@@ -546,8 +573,8 @@ class ArgumentVectorVectorType : public Argument {
     std::vector<std::vector<T> >& _dest;
 };
 
-}  // namespace argparsor
+} // namespace argparsor
 
-}  // namespace mblet
+} // namespace mblet
 
-#endif  // _MBLET_ARGPARSOR_ARGUMENT_H_
+#endif // _MBLET_ARGPARSOR_ARGUMENT_H_

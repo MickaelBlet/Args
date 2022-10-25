@@ -1,0 +1,28 @@
+BasedOnStyle: Google
+AccessModifierOffset: -2
+UseTab: Never
+IndentWidth: 4
+TabWidth: 4
+AllowShortIfStatementsOnASingleLine: false
+IndentCaseLabels: true
+ColumnLimit: 120
+CompactNamespaces: false
+NamespaceIndentation: None
+FixNamespaceComments: false
+BreakBeforeBraces: Custom
+BraceWrapping:
+  AfterCaseLabel: false
+  BeforeElse: true
+  BeforeCatch: true
+PackConstructorInitializers: Never
+BreakConstructorInitializers: AfterColon
+AllowShortEnumsOnASingleLine: false
+AllowShortBlocksOnASingleLine: Empty
+AllowShortFunctionsOnASingleLine: Empty
+SpacesBeforeTrailingComments: 1
+SpaceAfterTemplateKeyword: false
+Standard: c++03
+PointerAlignment: Left
+ReferenceAlignment: Left
+SpaceAroundPointerQualifiers: Before
+DerivePointerAlignment: false

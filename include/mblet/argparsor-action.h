@@ -43,8 +43,8 @@ struct Action {
     };
 };
 
-}  // namespace argparsor
+} // namespace argparsor
 
-}  // namespace mblet
+} // namespace mblet
 
-#endif  // _MBLET_ARGPARSOR_ACTION_H_
+#endif // _MBLET_ARGPARSOR_ACTION_H_

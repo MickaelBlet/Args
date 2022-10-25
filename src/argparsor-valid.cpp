@@ -17,7 +17,9 @@ namespace argparsor {
 ################################################################################
 */
 
-ValidMinMax::ValidMinMax(double min, double max) : _min(min), _max(max) {
+ValidMinMax::ValidMinMax(double min, double max) :
+    _min(min),
+    _max(max) {
     // bad initialized reverse value
     if (min > max) {
         _min = max;
@@ -52,7 +54,8 @@ bool ValidMinMax::isValid(std::vector<std::string>& args) {
 ################################################################################
 */
 
-ValidChoise::ValidChoise(const std::vector<std::string>& choises) : _choises(choises) {}
+ValidChoise::ValidChoise(const std::vector<std::string>& choises) :
+    _choises(choises) {}
 
 ValidChoise::~ValidChoise() {}
 
@@ -86,7 +89,8 @@ bool ValidChoise::isValid(std::vector<std::string>& args) {
 ################################################################################
 */
 
-ValidPath::ValidPath(enum eMode mode) : _mode(mode) {}
+ValidPath::ValidPath(enum eMode mode) :
+    _mode(mode) {}
 
 ValidPath::~ValidPath() {}
 
@@ -112,6 +116,6 @@ bool ValidPath::isValid(std::vector<std::string>& args) {
     return true;
 }
 
-}  // namespace argparsor
+} // namespace argparsor
 
-}  // namespace mblet
+} // namespace mblet

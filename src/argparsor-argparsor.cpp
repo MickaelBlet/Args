@@ -676,6 +676,6 @@ void Argparsor::parsePositionnalArgument(char* argv[], int* index, bool strict) 
     }
 }
 
-}  // namespace argparsor
+} // namespace argparsor
 
-}  // namespace mblet
+} // namespace mblet

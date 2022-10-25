@@ -41,9 +41,7 @@ namespace argparsor {
  * @return false
  */
 inline bool isShortOption(const char* arg) {
-    if (arg != NULL &&
-        arg[0] == '-' && arg[1] != '-' &&
-        arg[1] != '\0') {
+    if (arg != NULL && arg[0] == '-' && arg[1] != '-' && arg[1] != '\0') {
         return true;
     }
     else {
@@ -59,9 +57,7 @@ inline bool isShortOption(const char* arg) {
  * @return false
  */
 inline bool isLongOption(const char* arg) {
-    if (arg != NULL &&
-        arg[0] == '-' && arg[1] == '-' &&
-        arg[2] != '\0') {
+    if (arg != NULL && arg[0] == '-' && arg[1] == '-' && arg[2] != '\0') {
         return true;
     }
     else {
@@ -77,9 +73,7 @@ inline bool isLongOption(const char* arg) {
  * @return false
  */
 inline bool isEndOption(const char* arg) {
-    if (arg != NULL &&
-        arg[0] == '-' && arg[1] == '-' &&
-        arg[2] == '\0') {
+    if (arg != NULL && arg[0] == '-' && arg[1] == '-' && arg[2] == '\0') {
         return true;
     }
     else {
@@ -95,7 +89,7 @@ inline bool isEndOption(const char* arg) {
  * @return int
  */
 inline int endOptionIndex(int argc, char** argv) {
-    for (int i = 0 ; i < argc ; ++i) {
+    for (int i = 0; i < argc; ++i) {
         if (isEndOption(argv[i])) {
             return i;
         }

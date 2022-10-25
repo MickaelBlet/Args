@@ -122,7 +122,7 @@ int main(int argc, char* argv[]) {
     catch (const Argparsor::ParseArgumentException& e) {
         std::cerr << args.getBynaryName() << ": " << e.what();
         std::cerr << " -- '" << e.argument() << "'" << std::endl;
-        return 1;  // END
+        return 1; // END
     }
     return 0;
 }

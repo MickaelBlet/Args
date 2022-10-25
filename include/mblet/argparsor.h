@@ -37,7 +37,8 @@ namespace mblet {
 // simply use argparsor
 class Argparsor : public argparsor::Argparsor, public argparsor::Action {
   public:
-    Argparsor(bool help = true) : argparsor::Argparsor(help) {}
+    Argparsor(bool help = true) :
+        argparsor::Argparsor(help) {}
     ~Argparsor() {}
 
     typedef argparsor::Exception Exception;
@@ -54,7 +55,6 @@ class Argparsor : public argparsor::Argparsor, public argparsor::Action {
 
   private:
     typedef argparsor::Vector Vector;
-
 };
 
 } // namespace mblet

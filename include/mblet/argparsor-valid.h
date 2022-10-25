@@ -109,7 +109,11 @@ class ValidChoise : public IValid {
 
 class ValidPath : public IValid {
   public:
-    enum eMode { ALL = 0, IS_FILE, IS_DIR };
+    enum eMode {
+        ALL = 0,
+        IS_FILE,
+        IS_DIR
+    };
 
     /**
      * @brief Construct a new Valid Path Exist object
@@ -134,8 +138,8 @@ class ValidPath : public IValid {
     enum eMode _mode;
 };
 
-}  // namespace argparsor
+} // namespace argparsor
 
-}  // namespace mblet
+} // namespace mblet
 
-#endif  // _MBLET_ARGPARSOR_VALID_H_
+#endif // _MBLET_ARGPARSOR_VALID_H_

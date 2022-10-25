@@ -1,5 +1,6 @@
-#include "mblet/argparsor.h"
 #include <iostream>
+
+#include "mblet/argparsor.h"
 
 int main(int argc, char* argv[]) {
     mblet::Argparsor args;

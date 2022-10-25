@@ -65,7 +65,9 @@ class Argparsor {
      *
      * @return const std::string&
      */
-    inline const std::string& getBynaryName() const { return _binaryName; }
+    inline const std::string& getBynaryName() const {
+        return _binaryName;
+    }
 
     /**
      * @brief Get the Usage
@@ -87,7 +89,9 @@ class Argparsor {
      * @param str
      * @return [true] argument is in map, [false] argument is not in map
      */
-    inline bool argumentExist(const char* str) const { return argumentExist(std::string(str)); }
+    inline bool argumentExist(const char* str) const {
+        return argumentExist(std::string(str));
+    }
 
     /**
      * @brief Check if argument exist
@@ -105,7 +109,9 @@ class Argparsor {
      * @param str
      * @return const Argument&
      */
-    inline const Argument& getArgument(const char* str) const { return getArgument(std::string(str)); }
+    inline const Argument& getArgument(const char* str) const {
+        return getArgument(std::string(str));
+    }
 
     /**
      * @brief Get the argument object
@@ -127,7 +133,9 @@ class Argparsor {
      * @param str
      * @return const Argument&
      */
-    inline const Argument& operator[](const char* str) const { return getArgument(str); }
+    inline const Argument& operator[](const char* str) const {
+        return getArgument(str);
+    }
 
     /**
      * @brief Override bracket operator with getArgument
@@ -135,35 +143,45 @@ class Argparsor {
      * @param str
      * @return const Argument&
      */
-    inline const Argument& operator[](const std::string& str) const { return getArgument(str); }
+    inline const Argument& operator[](const std::string& str) const {
+        return getArgument(str);
+    }
 
     /**
      * @brief Get the vector of additional argument
      *
      * @return const std::vector<std::string>&
      */
-    inline const std::vector<std::string>& getAdditionalArguments() const { return _additionalArguments; }
+    inline const std::vector<std::string>& getAdditionalArguments() const {
+        return _additionalArguments;
+    }
 
     /**
      * @brief Set the usage message
      *
      * @param usage
      */
-    inline void setUsage(const char* usage) { _usage = usage; }
+    inline void setUsage(const char* usage) {
+        _usage = usage;
+    }
 
     /**
      * @brief Set the description in usage message
      *
      * @param description
      */
-    inline void setDescription(const char* description) { _description = description; }
+    inline void setDescription(const char* description) {
+        _description = description;
+    }
 
     /**
      * @brief Set the epilog in usage message
      *
      * @param epilog
      */
-    inline void setEpilog(const char* epilog) { _epilog = epilog; }
+    inline void setEpilog(const char* epilog) {
+        _epilog = epilog;
+    }
 
     /**
      * @brief Convert argument strings to objects and assign them as attributes of the argparsor map.
@@ -263,8 +281,8 @@ class Argparsor {
     std::vector<std::string> _additionalArguments;
 };
 
-}  // namespace argparsor
+} // namespace argparsor
 
-}  // namespace mblet
+} // namespace mblet
 
-#endif  // _MBLET_ARGPARSOR_ARGPARSOR_H_
+#endif // _MBLET_ARGPARSOR_ARGPARSOR_H_

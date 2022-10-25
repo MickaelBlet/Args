@@ -8,7 +8,8 @@ GTEST_TEST(addArgument, argumentException) {
         {
             try {
                 args.addArgument("");
-            } catch (const mblet::Argparsor::ArgumentException& e) {
+            }
+            catch (const mblet::Argparsor::ArgumentException& e) {
                 EXPECT_STREQ(e.what(), "bad name argument");
                 EXPECT_STREQ(e.argument(), "");
                 throw;
@@ -20,7 +21,8 @@ GTEST_TEST(addArgument, argumentException) {
             try {
                 args.addArgument("foo");
                 args.addArgument("foo");
-            } catch (const mblet::Argparsor::ArgumentException& e) {
+            }
+            catch (const mblet::Argparsor::ArgumentException& e) {
                 EXPECT_STREQ(e.what(), "bad name argument already exist");
                 EXPECT_STREQ(e.argument(), "foo");
                 throw;
@@ -31,7 +33,8 @@ GTEST_TEST(addArgument, argumentException) {
         {
             try {
                 args.addArgument(args.vector());
-            } catch (const mblet::Argparsor::ArgumentException& e) {
+            }
+            catch (const mblet::Argparsor::ArgumentException& e) {
                 EXPECT_STREQ(e.what(), "invalid empty flag");
                 EXPECT_STREQ(e.argument(), "");
                 throw;
@@ -42,7 +45,8 @@ GTEST_TEST(addArgument, argumentException) {
         {
             try {
                 args.addArgument("-1").flag("1");
-            } catch (const mblet::Argparsor::ArgumentException& e) {
+            }
+            catch (const mblet::Argparsor::ArgumentException& e) {
                 EXPECT_STREQ(e.what(), "invalid flag not start by '-' character");
                 EXPECT_STREQ(e.argument(), "1");
                 throw;
@@ -53,7 +57,8 @@ GTEST_TEST(addArgument, argumentException) {
         {
             try {
                 args.addArgument("-2").flag("-");
-            } catch (const mblet::Argparsor::ArgumentException& e) {
+            }
+            catch (const mblet::Argparsor::ArgumentException& e) {
                 EXPECT_STREQ(e.what(), "invalid flag not be only '-' character");
                 EXPECT_STREQ(e.argument(), "-");
                 throw;
@@ -64,7 +69,8 @@ GTEST_TEST(addArgument, argumentException) {
         {
             try {
                 args.addArgument("-3").flag("--");
-            } catch (const mblet::Argparsor::ArgumentException& e) {
+            }
+            catch (const mblet::Argparsor::ArgumentException& e) {
                 EXPECT_STREQ(e.what(), "invalid flag not be only '--' characters");
                 EXPECT_STREQ(e.argument(), "--");
                 throw;
@@ -75,7 +81,8 @@ GTEST_TEST(addArgument, argumentException) {
         {
             try {
                 args.addArgument("-4").flag("-no");
-            } catch (const mblet::Argparsor::ArgumentException& e) {
+            }
+            catch (const mblet::Argparsor::ArgumentException& e) {
                 EXPECT_STREQ(e.what(), "invalid short flag has not only one character");
                 EXPECT_STREQ(e.argument(), "-no");
                 throw;
@@ -87,7 +94,8 @@ GTEST_TEST(addArgument, argumentException) {
             try {
                 args.addArgument("-n");
                 args.addArgument("-a").flag("-n");
-            } catch (const mblet::Argparsor::ArgumentException& e) {
+            }
+            catch (const mblet::Argparsor::ArgumentException& e) {
                 EXPECT_STREQ(e.what(), "invalid flag already exist");
                 EXPECT_STREQ(e.argument(), "-n");
                 throw;
@@ -98,7 +106,8 @@ GTEST_TEST(addArgument, argumentException) {
         {
             try {
                 args.addArgument("--long").nargs(1).defaults(args.vector("1", "2"));
-            } catch (const mblet::Argparsor::ArgumentException& e) {
+            }
+            catch (const mblet::Argparsor::ArgumentException& e) {
                 EXPECT_STREQ(e.what(), "invalid number of argument with number of default argument");
                 EXPECT_STREQ(e.argument(), "--long");
                 throw;
@@ -109,7 +118,8 @@ GTEST_TEST(addArgument, argumentException) {
         {
             try {
                 args.addArgument("-s").nargs(1).defaults(args.vector("1", "2"));
-            } catch (const mblet::Argparsor::ArgumentException& e) {
+            }
+            catch (const mblet::Argparsor::ArgumentException& e) {
                 EXPECT_STREQ(e.what(), "invalid number of argument with number of default argument");
                 EXPECT_STREQ(e.argument(), "-s");
                 throw;
@@ -120,7 +130,8 @@ GTEST_TEST(addArgument, argumentException) {
         {
             try {
                 args.addArgument("-t").nargs(2).defaults(args.vector("1"));
-            } catch (const mblet::Argparsor::ArgumentException& e) {
+            }
+            catch (const mblet::Argparsor::ArgumentException& e) {
                 EXPECT_STREQ(e.what(), "invalid number of argument with number of default argument");
                 EXPECT_STREQ(e.argument(), "-t");
                 throw;
@@ -131,7 +142,8 @@ GTEST_TEST(addArgument, argumentException) {
         {
             try {
                 args.addArgument("-u").action(mblet::Argparsor::APPEND).nargs(2).defaults(args.vector("1"));
-            } catch (const mblet::Argparsor::ArgumentException& e) {
+            }
+            catch (const mblet::Argparsor::ArgumentException& e) {
                 EXPECT_STREQ(e.what(), "invalid number of argument with number of default argument");
                 EXPECT_STREQ(e.argument(), "-u");
                 throw;
@@ -142,7 +154,8 @@ GTEST_TEST(addArgument, argumentException) {
         {
             try {
                 args.addArgument("-v").action(mblet::Argparsor::STORE_TRUE).nargs(1).defaults(args.vector("1"));
-            } catch (const mblet::Argparsor::ArgumentException& e) {
+            }
+            catch (const mblet::Argparsor::ArgumentException& e) {
                 EXPECT_STREQ(e.what(), "invalid number of argument with number of default argument");
                 EXPECT_STREQ(e.argument(), "-v");
                 throw;

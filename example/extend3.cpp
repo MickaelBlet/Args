@@ -2,7 +2,7 @@
 
 #include "mblet/argparsor.h"
 
-int main(int argc, char *argv[]) {
+int main(int argc, char* argv[]) {
     mblet::Argparsor args;
     args.addArgument(args.vector("-e", "--extend"))
         .action(mblet::Argparsor::EXTEND)

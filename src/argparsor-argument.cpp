@@ -59,18 +59,30 @@ static inline bool compareFlag(const std::string& first, const std::string& seco
 ################################################################################
 */
 
-ArgumentElement::ArgumentElement()
-    : std::vector<ArgumentElement>(), _argument(), _default(), _isNumber(false), _number(0.0) {}
-ArgumentElement::ArgumentElement(const ArgumentElement& rhs)
-    : std::vector<ArgumentElement>(rhs),
-      _argument(rhs._argument),
-      _default(rhs._default),
-      _isNumber(rhs._isNumber),
-      _number(rhs._number) {}
-ArgumentElement::ArgumentElement(const char* arg_, const char* default_)
-    : std::vector<ArgumentElement>(), _argument(arg_), _default(default_), _isNumber(false), _number(0.0) {}
-ArgumentElement::ArgumentElement(const char* arg)
-    : std::vector<ArgumentElement>(), _argument(arg), _default(), _isNumber(false), _number(0.0) {}
+ArgumentElement::ArgumentElement() :
+    std::vector<ArgumentElement>(),
+    _argument(),
+    _default(),
+    _isNumber(false),
+    _number(0.0) {}
+ArgumentElement::ArgumentElement(const ArgumentElement& rhs) :
+    std::vector<ArgumentElement>(rhs),
+    _argument(rhs._argument),
+    _default(rhs._default),
+    _isNumber(rhs._isNumber),
+    _number(rhs._number) {}
+ArgumentElement::ArgumentElement(const char* arg_, const char* default_) :
+    std::vector<ArgumentElement>(),
+    _argument(arg_),
+    _default(default_),
+    _isNumber(false),
+    _number(0.0) {}
+ArgumentElement::ArgumentElement(const char* arg) :
+    std::vector<ArgumentElement>(),
+    _argument(arg),
+    _default(),
+    _isNumber(false),
+    _number(0.0) {}
 ArgumentElement::~ArgumentElement() {}
 
 ArgumentElement::operator std::vector<std::string>() const {
@@ -90,37 +102,37 @@ ArgumentElement::operator std::vector<std::string>() const {
 ################################################################################
 */
 
-Argument::Argument(Argparsor& argparsor)
-    : ArgumentElement(),
-      _argparsor(argparsor),
-      _nameOrFlags(),
-      _type(NONE),
-      _isExist(false),
-      _isRequired(false),
-      _count(0),
-      _nargs(0),
-      _help(),
-      _metavar(),
-      _valid(NULL),
-      _this(NULL),
-      _action(Action::NONE),
-      _defaults() {}
+Argument::Argument(Argparsor& argparsor) :
+    ArgumentElement(),
+    _argparsor(argparsor),
+    _nameOrFlags(),
+    _type(NONE),
+    _isExist(false),
+    _isRequired(false),
+    _count(0),
+    _nargs(0),
+    _help(),
+    _metavar(),
+    _valid(NULL),
+    _this(NULL),
+    _action(Action::NONE),
+    _defaults() {}
 
-Argument::Argument(const Argument& rhs)
-    : ArgumentElement(rhs),
-      _argparsor(rhs._argparsor),
-      _nameOrFlags(rhs._nameOrFlags),
-      _type(rhs._type),
-      _isExist(rhs._isExist),
-      _isRequired(rhs._isRequired),
-      _count(rhs._count),
-      _nargs(rhs._nargs),
-      _help(rhs._help),
-      _metavar(rhs._metavar),
-      _valid(rhs._valid),
-      _this(rhs._this),
-      _action(rhs._action),
-      _defaults() {}
+Argument::Argument(const Argument& rhs) :
+    ArgumentElement(rhs),
+    _argparsor(rhs._argparsor),
+    _nameOrFlags(rhs._nameOrFlags),
+    _type(rhs._type),
+    _isExist(rhs._isExist),
+    _isRequired(rhs._isRequired),
+    _count(rhs._count),
+    _nargs(rhs._nargs),
+    _help(rhs._help),
+    _metavar(rhs._metavar),
+    _valid(rhs._valid),
+    _this(rhs._this),
+    _action(rhs._action),
+    _defaults() {}
 
 Argument::~Argument() {}
 
@@ -163,29 +175,29 @@ std::string Argument::getString() const {
 Argument::operator std::vector<std::string>() const {
     std::vector<std::string> ret;
     switch (_type) {
-    case POSITIONAL_ARGUMENT:
-    case SIMPLE_OPTION:
-        ret.push_back(_argument);
-        break;
-    case NUMBER_OPTION:
-    case MULTI_OPTION:
-    case INFINITE_OPTION:
-    case MULTI_INFINITE_OPTION:
-        for (std::size_t i = 0; i < size(); ++i) {
-            ret.push_back(at(i)._argument);
-        }
-        break;
-    case MULTI_NUMBER_OPTION:
-    case MULTI_NUMBER_INFINITE_OPTION:
-        for (std::size_t i = 0; i < size(); ++i) {
-            for (std::size_t j = 0; j < at(i).size(); ++j) {
-                ret.push_back(at(i).at(j)._argument);
+        case POSITIONAL_ARGUMENT:
+        case SIMPLE_OPTION:
+            ret.push_back(_argument);
+            break;
+        case NUMBER_OPTION:
+        case MULTI_OPTION:
+        case INFINITE_OPTION:
+        case MULTI_INFINITE_OPTION:
+            for (std::size_t i = 0; i < size(); ++i) {
+                ret.push_back(at(i)._argument);
             }
-        }
-        break;
-    default:
-        throw Exception("convertion to vector of string not authorized");
-        break;
+            break;
+        case MULTI_NUMBER_OPTION:
+        case MULTI_NUMBER_INFINITE_OPTION:
+            for (std::size_t i = 0; i < size(); ++i) {
+                for (std::size_t j = 0; j < at(i).size(); ++j) {
+                    ret.push_back(at(i).at(j)._argument);
+                }
+            }
+            break;
+        default:
+            throw Exception("convertion to vector of string not authorized");
+            break;
     }
     return ret;
 }
@@ -193,18 +205,18 @@ Argument::operator std::vector<std::string>() const {
 Argument::operator std::vector<std::vector<std::string> >() const {
     std::vector<std::vector<std::string> > ret;
     switch (_type) {
-    case MULTI_NUMBER_OPTION:
-    case MULTI_NUMBER_INFINITE_OPTION:
-        for (std::size_t i = 0; i < size(); ++i) {
-            ret.push_back(std::vector<std::string>());
-            for (std::size_t j = 0; j < at(i).size(); ++j) {
-                ret[i].push_back(at(i).at(j)._argument);
+        case MULTI_NUMBER_OPTION:
+        case MULTI_NUMBER_INFINITE_OPTION:
+            for (std::size_t i = 0; i < size(); ++i) {
+                ret.push_back(std::vector<std::string>());
+                for (std::size_t j = 0; j < at(i).size(); ++j) {
+                    ret[i].push_back(at(i).at(j)._argument);
+                }
             }
-        }
-        break;
-    default:
-        throw Exception("convertion to vector of vector of string not authorized");
-        break;
+            break;
+        default:
+            throw Exception("convertion to vector of vector of string not authorized");
+            break;
     }
     return ret;
 }
@@ -230,7 +242,9 @@ Argument& Argument::required(bool required_) {
     return *this;
 }
 
-void Argument::_sortNameOrFlags() { std::sort(_nameOrFlags.begin(), _nameOrFlags.end(), &compareFlag); }
+void Argument::_sortNameOrFlags() {
+    std::sort(_nameOrFlags.begin(), _nameOrFlags.end(), &compareFlag);
+}
 
 void Argument::validFormatFlag(const char* flag) {
     if (flag[0] != '-') {
@@ -440,71 +454,71 @@ void Argument::_defaultsConstructor() {
     if (_nargs > 0 && _defaults.size() > 0) {
         clear();
         switch (_type) {
-        case Argument::SIMPLE_OPTION:
-        case Argument::POSITIONAL_ARGUMENT:
-            if (_defaults.size() != _nargs) {
-                throw ArgumentException(_nameOrFlags.front().c_str(),
-                                        "invalid number of argument with number of default argument");
-            }
-            _argument = _defaults.front();
-            _default = _defaults.front();
-            break;
-        case Argument::NUMBER_OPTION:
-            if (_defaults.size() != _nargs) {
-                throw ArgumentException(_nameOrFlags.front().c_str(),
-                                        "invalid number of argument with number of default argument");
-            }
-            _default = "";
-            for (std::size_t i = 0; i < _defaults.size(); ++i) {
-                if (i > 0) {
-                    _default += ", ";
+            case Argument::SIMPLE_OPTION:
+            case Argument::POSITIONAL_ARGUMENT:
+                if (_defaults.size() != _nargs) {
+                    throw ArgumentException(_nameOrFlags.front().c_str(),
+                                            "invalid number of argument with number of default argument");
                 }
-                _default += _defaults[i];
-                push_back(ArgumentElement(_defaults[i].c_str(), _defaults[i].c_str()));
-            }
-            break;
-        case Argument::MULTI_OPTION:
-        case Argument::INFINITE_OPTION:
-        case Argument::MULTI_INFINITE_OPTION:
-            _default = "";
-            for (std::size_t i = 0; i < _defaults.size(); ++i) {
-                if (i > 0) {
-                    _default += ", ";
+                _argument = _defaults.front();
+                _default = _defaults.front();
+                break;
+            case Argument::NUMBER_OPTION:
+                if (_defaults.size() != _nargs) {
+                    throw ArgumentException(_nameOrFlags.front().c_str(),
+                                            "invalid number of argument with number of default argument");
                 }
-                _default += _defaults[i];
-                push_back(ArgumentElement(_defaults[i].c_str(), _defaults[i].c_str()));
-            }
-            break;
-        case Argument::MULTI_NUMBER_OPTION:
-        case Argument::MULTI_NUMBER_INFINITE_OPTION:
-            if (_defaults.size() % _nargs != 0) {
-                throw ArgumentException(_nameOrFlags.front().c_str(),
-                                        "invalid number of argument with number of default argument");
-            }
-            for (std::size_t i = 0; i < _defaults.size() / _nargs; ++i) {
-                if (i > 0) {
-                    _default += ", ";
-                }
-                _default += "(";
-                ArgumentElement newNumberArgument;
-                for (std::size_t j = 0; j < _nargs; ++j) {
-                    if (j > 0) {
+                _default = "";
+                for (std::size_t i = 0; i < _defaults.size(); ++i) {
+                    if (i > 0) {
                         _default += ", ";
-                        newNumberArgument._default += ", ";
                     }
-                    _default += _defaults[i * _nargs + j];
-                    newNumberArgument._default += _defaults[i * _nargs + j];
-                    newNumberArgument.push_back(
-                        ArgumentElement(_defaults[i * _nargs + j].c_str(), _defaults[i * _nargs + j].c_str()));
+                    _default += _defaults[i];
+                    push_back(ArgumentElement(_defaults[i].c_str(), _defaults[i].c_str()));
                 }
-                _default += ")";
-                push_back(newNumberArgument);
-            }
-            break;
-        default:
-            throw ArgumentException(_nameOrFlags.front().c_str(),
-                                    "invalid number of argument with number of default argument");
-            break;
+                break;
+            case Argument::MULTI_OPTION:
+            case Argument::INFINITE_OPTION:
+            case Argument::MULTI_INFINITE_OPTION:
+                _default = "";
+                for (std::size_t i = 0; i < _defaults.size(); ++i) {
+                    if (i > 0) {
+                        _default += ", ";
+                    }
+                    _default += _defaults[i];
+                    push_back(ArgumentElement(_defaults[i].c_str(), _defaults[i].c_str()));
+                }
+                break;
+            case Argument::MULTI_NUMBER_OPTION:
+            case Argument::MULTI_NUMBER_INFINITE_OPTION:
+                if (_defaults.size() % _nargs != 0) {
+                    throw ArgumentException(_nameOrFlags.front().c_str(),
+                                            "invalid number of argument with number of default argument");
+                }
+                for (std::size_t i = 0; i < _defaults.size() / _nargs; ++i) {
+                    if (i > 0) {
+                        _default += ", ";
+                    }
+                    _default += "(";
+                    ArgumentElement newNumberArgument;
+                    for (std::size_t j = 0; j < _nargs; ++j) {
+                        if (j > 0) {
+                            _default += ", ";
+                            newNumberArgument._default += ", ";
+                        }
+                        _default += _defaults[i * _nargs + j];
+                        newNumberArgument._default += _defaults[i * _nargs + j];
+                        newNumberArgument.push_back(
+                            ArgumentElement(_defaults[i * _nargs + j].c_str(), _defaults[i * _nargs + j].c_str()));
+                    }
+                    _default += ")";
+                    push_back(newNumberArgument);
+                }
+                break;
+            default:
+                throw ArgumentException(_nameOrFlags.front().c_str(),
+                                        "invalid number of argument with number of default argument");
+                break;
         }
     }
     else if (_type == Argument::VERSION_OPTION) {
@@ -518,6 +532,6 @@ void Argument::_defaultsConstructor() {
     }
 }
 
-}  // namespace argparsor
+} // namespace argparsor
 
-}  // namespace mblet
+} // namespace mblet

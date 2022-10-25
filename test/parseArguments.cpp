@@ -13,7 +13,8 @@ GTEST_TEST(parseArguments, parseException) {
             {
                 try {
                     args.parseArguments(argc, const_cast<char**>(argv), true, true);
-                } catch (const mblet::Argparsor::ParseArgumentException& e) {
+                }
+                catch (const mblet::Argparsor::ParseArgumentException& e) {
                     EXPECT_STREQ(e.what(), "invalid option");
                     EXPECT_STREQ(e.argument(), "b");
                     throw;
@@ -32,7 +33,8 @@ GTEST_TEST(parseArguments, parseException) {
             {
                 try {
                     args.parseArguments(argc, const_cast<char**>(argv), true, true);
-                } catch (const mblet::Argparsor::ParseArgumentException& e) {
+                }
+                catch (const mblet::Argparsor::ParseArgumentException& e) {
                     EXPECT_STREQ(e.what(), "only last option can be use a parameter");
                     EXPECT_STREQ(e.argument(), "b");
                     throw;
@@ -49,7 +51,8 @@ GTEST_TEST(parseArguments, parseException) {
             {
                 try {
                     args.parseArguments(argc, const_cast<char**>(argv), true, true);
-                } catch (const mblet::Argparsor::ParseArgumentException& e) {
+                }
+                catch (const mblet::Argparsor::ParseArgumentException& e) {
                     EXPECT_STREQ(e.what(), "invalid option");
                     EXPECT_STREQ(e.argument(), "a");
                     throw;
@@ -66,7 +69,8 @@ GTEST_TEST(parseArguments, parseException) {
             {
                 try {
                     args.parseArguments(argc, const_cast<char**>(argv), true, true);
-                } catch (const mblet::Argparsor::ParseArgumentException& e) {
+                }
+                catch (const mblet::Argparsor::ParseArgumentException& e) {
                     EXPECT_STREQ(e.what(), "invalid option");
                     EXPECT_STREQ(e.argument(), "long");
                     throw;
@@ -84,7 +88,8 @@ GTEST_TEST(parseArguments, parseException) {
             {
                 try {
                     args.parseArguments(argc, const_cast<char**>(argv), true, true);
-                } catch (const mblet::Argparsor::ParseArgumentException& e) {
+                }
+                catch (const mblet::Argparsor::ParseArgumentException& e) {
                     EXPECT_STREQ(e.what(), "option cannot use with argument");
                     EXPECT_STREQ(e.argument(), "boolean");
                     throw;
@@ -102,7 +107,8 @@ GTEST_TEST(parseArguments, parseException) {
             {
                 try {
                     args.parseArguments(argc, const_cast<char**>(argv), true, true);
-                } catch (const mblet::Argparsor::ParseArgumentException& e) {
+                }
+                catch (const mblet::Argparsor::ParseArgumentException& e) {
                     EXPECT_STREQ(e.what(), "option cannot use with only 1 argument");
                     EXPECT_STREQ(e.argument(), "number");
                     throw;
@@ -120,7 +126,8 @@ GTEST_TEST(parseArguments, parseException) {
             {
                 try {
                     args.parseArguments(argc, const_cast<char**>(argv), true, true);
-                } catch (const mblet::Argparsor::ParseArgumentException& e) {
+                }
+                catch (const mblet::Argparsor::ParseArgumentException& e) {
                     EXPECT_STREQ(e.what(), "bad number of argument");
                     EXPECT_STREQ(e.argument(), "simple");
                     throw;
@@ -138,7 +145,8 @@ GTEST_TEST(parseArguments, parseException) {
             {
                 try {
                     args.parseArguments(argc, const_cast<char**>(argv), true, true);
-                } catch (const mblet::Argparsor::ParseArgumentException& e) {
+                }
+                catch (const mblet::Argparsor::ParseArgumentException& e) {
                     EXPECT_STREQ(e.what(), "bad number of argument");
                     EXPECT_STREQ(e.argument(), "number");
                     throw;
@@ -156,7 +164,8 @@ GTEST_TEST(parseArguments, parseException) {
             {
                 try {
                     args.parseArguments(argc, const_cast<char**>(argv), true, true);
-                } catch (const mblet::Argparsor::ParseArgumentException& e) {
+                }
+                catch (const mblet::Argparsor::ParseArgumentException& e) {
                     EXPECT_STREQ(e.what(), "bad number of argument");
                     EXPECT_STREQ(e.argument(), "multi");
                     throw;
@@ -174,7 +183,8 @@ GTEST_TEST(parseArguments, parseException) {
             {
                 try {
                     args.parseArguments(argc, const_cast<char**>(argv), true, true);
-                } catch (const mblet::Argparsor::ParseArgumentException& e) {
+                }
+                catch (const mblet::Argparsor::ParseArgumentException& e) {
                     EXPECT_STREQ(e.what(), "bad number of argument");
                     EXPECT_STREQ(e.argument(), "multi-number");
                     throw;
@@ -192,7 +202,8 @@ GTEST_TEST(parseArguments, parseException) {
             {
                 try {
                     args.parseArguments(argc, const_cast<char**>(argv), true, true);
-                } catch (const mblet::Argparsor::ParseArgumentException& e) {
+                }
+                catch (const mblet::Argparsor::ParseArgumentException& e) {
                     EXPECT_STREQ(e.what(), "bad number of argument");
                     EXPECT_STREQ(e.argument(), "multi-number-infinite");
                     throw;
@@ -209,7 +220,8 @@ GTEST_TEST(parseArguments, parseException) {
             {
                 try {
                     args.parseArguments(argc, const_cast<char**>(argv), true, true);
-                } catch (const mblet::Argparsor::ParseArgumentException& e) {
+                }
+                catch (const mblet::Argparsor::ParseArgumentException& e) {
                     EXPECT_STREQ(e.what(), "invalid additional argument");
                     EXPECT_STREQ(e.argument(), "arg");
                     throw;
@@ -220,13 +232,15 @@ GTEST_TEST(parseArguments, parseException) {
 }
 
 GTEST_TEST(parseArguments, endOfInfiniteArgument) {
+    // clang-format off
     const char* argv[] = {
-        "binaryName", "--infinite", "-infinite",  // alternative stop
-        "--infinite", "-ok",                      // unknown option OK
-        "--infinite", "-rb",                      // boolean option
-        "--infinite", "-sSimple",                 // simple option
-        "--infinite", "-o",                       // unknown option OK
+        "binaryName", "--infinite", "-infinite", // alternative stop
+        "--infinite", "-ok",                     // unknown option OK
+        "--infinite", "-rb",                     // boolean option
+        "--infinite", "-sSimple",                // simple option
+        "--infinite", "-o",                      // unknown option OK
     };
+    // clang-format on
     const int argc = sizeof(argv) / sizeof(*argv);
 
     mblet::Argparsor args;
@@ -242,52 +256,31 @@ GTEST_TEST(parseArguments, endOfInfiniteArgument) {
 }
 
 GTEST_TEST(parseArguments, allType) {
-    const char* argv[] = {"binaryName",
-                          "--notbool",
-                          "-bsSIMPLE",
-                          "--simple",
-                          "SIMPLE",
-                          "--number",
-                          "FOO",
-                          "BAR",
-                          "--infinite=A",
-                          "--infinite",
-                          "A",
-                          "B",
-                          "C",
-                          "D",
-                          "E",
-                          "-m=A",
-                          "-multi",
-                          "B",
-                          "--multi",
-                          "C",
-                          "-multi2",
-                          "A",
-                          "--multi-number",
-                          "A",
-                          "B",
-                          "--multi-number",
-                          "C",
-                          "D",
-                          "--multi-infinite",
-                          "A",
-                          "B",
-                          "C",
-                          "--multi-infinite",
-                          "D",
-                          "E",
-                          "--multi-infinite-number",
-                          "A",
-                          "B",
-                          "--multi-infinite-number",
-                          "C",
-                          "D",
-                          "E",
-                          "F",
-                          "--",
-                          "ISREQUIRED",
-                          "ADDITIONNAL"};
+    // clang-format off
+    const char* argv[] = {
+        "binaryName",
+        "--notbool",
+        "-bsSIMPLE",
+        "--simple", "SIMPLE",
+        "--number", "FOO", "BAR",
+        "--infinite=A",
+        "--infinite", "A", "B", "C", "D", "E",
+        "-m=A",
+        "-multi", "B",
+        "--multi", "C",
+        "-multi2", "A",
+        "--multi-number", "A", "B",
+        "--multi-number", "C", "D",
+        "--multi-infinite", "A", "B", "C",
+        "--multi-infinite", "D", "E",
+        "--multi-infinite-number", "A", "B",
+        "--multi-infinite-number", "C", "D", "E", "F",
+        "--",
+        "ISREQUIRED",
+        "ADDITIONNAL"
+    };
+    // clang-format on
+
     const int argc = sizeof(argv) / sizeof(*argv);
 
     mblet::Argparsor args;
@@ -396,7 +389,8 @@ GTEST_TEST(parseArguments, argumentRequired) {
         {
             try {
                 args.parseArguments(argc, const_cast<char**>(argv));
-            } catch (const mblet::Argparsor::ParseArgumentRequiredException& e) {
+            }
+            catch (const mblet::Argparsor::ParseArgumentRequiredException& e) {
                 EXPECT_STREQ(e.what(), "argument is required");
                 EXPECT_STREQ(e.argument(), "argument");
                 throw;
@@ -415,7 +409,8 @@ GTEST_TEST(parseArguments, optionRequired) {
         {
             try {
                 args.parseArguments(argc, const_cast<char**>(argv));
-            } catch (const mblet::Argparsor::ParseArgumentRequiredException& e) {
+            }
+            catch (const mblet::Argparsor::ParseArgumentRequiredException& e) {
                 EXPECT_STREQ(e.what(), "option is required");
                 EXPECT_STREQ(e.argument(), "--option");
                 throw;
@@ -429,7 +424,9 @@ GTEST_TEST(parseArguments, validException) {
     const int argc = sizeof(argv) / sizeof(*argv);
 
     struct FailedTest : public mblet::Argparsor::IValid {
-        bool isValid(std::vector<std::string>& /*argument*/) { return false; }
+        bool isValid(std::vector<std::string>& /*argument*/) {
+            return false;
+        }
     };
     {
         mblet::Argparsor args;
@@ -438,7 +435,8 @@ GTEST_TEST(parseArguments, validException) {
             {
                 try {
                     args.parseArguments(argc, const_cast<char**>(argv));
-                } catch (const mblet::Argparsor::ParseArgumentValidException& e) {
+                }
+                catch (const mblet::Argparsor::ParseArgumentValidException& e) {
                     EXPECT_STREQ(e.what(), "invalid type option for use valid");
                     EXPECT_STREQ(e.argument(), "--option");
                     throw;
@@ -453,7 +451,8 @@ GTEST_TEST(parseArguments, validException) {
             {
                 try {
                     args.parseArguments(argc, const_cast<char**>(argv));
-                } catch (const mblet::Argparsor::ParseArgumentValidException& e) {
+                }
+                catch (const mblet::Argparsor::ParseArgumentValidException& e) {
                     EXPECT_STREQ(e.what(), "invalid check function");
                     EXPECT_STREQ(e.argument(), "--option");
                     throw;
@@ -468,7 +467,8 @@ GTEST_TEST(parseArguments, validException) {
             {
                 try {
                     args.parseArguments(argc, const_cast<char**>(argv));
-                } catch (const mblet::Argparsor::ParseArgumentValidException& e) {
+                }
+                catch (const mblet::Argparsor::ParseArgumentValidException& e) {
                     EXPECT_STREQ(e.what(), "invalid check function");
                     EXPECT_STREQ(e.argument(), "--option");
                     throw;
