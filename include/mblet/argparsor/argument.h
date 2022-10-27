@@ -30,10 +30,10 @@
 #include <string>
 #include <vector>
 
-#include "mblet/argparsor-action.h"
-#include "mblet/argparsor-exception.h"
-#include "mblet/argparsor-valid.h"
-#include "mblet/argparsor-vector.h"
+#include "mblet/argparsor/action.h"
+#include "mblet/argparsor/exception.h"
+#include "mblet/argparsor/valid.h"
+#include "mblet/argparsor/vector.h"
 
 namespace mblet {
 

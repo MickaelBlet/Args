@@ -23,13 +23,12 @@
  * SOFTWARE.
  */
 
-#include "mblet/argparsor-argument.h"
-
 #include <algorithm>
 
-#include "mblet/argparsor-action.h"
-#include "mblet/argparsor-argparsor.h"
-#include "mblet/argparsor-utils.h"
+#include "mblet/argparsor/action.h"
+#include "mblet/argparsor/argparsor.h"
+#include "mblet/argparsor/argument.h"
+#include "mblet/argparsor/utils.h"
 
 #define PREFIX_SIZEOF_SHORT_OPTION (sizeof("-") - 1)
 #define PREFIX_SIZEOF_LONG_OPTION (sizeof("--") - 1)
@@ -106,11 +105,11 @@ Argument::Argument(Argparsor& argparsor) :
     ArgumentElement(),
     _argparsor(argparsor),
     _nameOrFlags(),
-    _type(NONE),
+    _type(SIMPLE_OPTION),
     _isExist(false),
     _isRequired(false),
     _count(0),
-    _nargs(0),
+    _nargs(1),
     _help(),
     _metavar(),
     _valid(NULL),
@@ -291,15 +290,18 @@ bool Argument::compareOption(const Argument* first, const Argument* second) {
             return false;
         }
         else {
-            return first->_nameOrFlags.front() <= second->_nameOrFlags.front();
+            return first->_nameOrFlags.front() < second->_nameOrFlags.front();
         }
     }
     else if (isShortOption(first->_nameOrFlags.front().c_str()) &&
              !isShortOption(second->_nameOrFlags.front().c_str())) {
+        /*
         if (first->_isRequired && !second->_isRequired) {
             return true;
         }
-        else if (!first->_isRequired && second->_isRequired) {
+        else
+        */
+        if (!first->_isRequired && second->_isRequired) {
             return false;
         }
         else {
@@ -395,10 +397,12 @@ void Argument::_typeConstructor() {
     if (_type == Argument::POSITIONAL_ARGUMENT) {
         throw ArgumentException(_nameOrFlags.front().c_str(), "positional argument cannot use action or nargs");
     }
-    if (_action == Action::STORE_TRUE) {
+    if (_nargs == 0 || _action == Action::STORE_TRUE) {
+        _nargs = 0;
         _type = Argument::BOOLEAN_OPTION;
     }
     else if (_action == Action::STORE_FALSE) {
+        _nargs = 0;
         _type = Argument::REVERSE_BOOLEAN_OPTION;
     }
     else if (_action == Action::HELP) {
@@ -408,6 +412,7 @@ void Argument::_typeConstructor() {
         if (_argparsor._helpOption != NULL && _argparsor._helpOption != this) {
             throw ArgumentException(_nameOrFlags.front().c_str(), "help action already defined");
         }
+        _nargs = 0;
         _type = Argument::HELP_OPTION;
     }
     else if (_action == Action::VERSION) {
@@ -417,6 +422,7 @@ void Argument::_typeConstructor() {
         if (_argparsor._versionOption != NULL && _argparsor._versionOption != this) {
             throw ArgumentException(_nameOrFlags.front().c_str(), "version action already defined");
         }
+        _nargs = 0;
         _type = Argument::VERSION_OPTION;
     }
     // is simple
@@ -425,6 +431,8 @@ void Argument::_typeConstructor() {
     }
     // is infinite
     else if ((_nargs == '+' && _action == Action::NONE) || _action == Action::INFINITE) {
+        _nargs = 1;
+        _action = Action::INFINITE;
         _type = Argument::INFINITE_OPTION;
     }
     // is number
@@ -453,72 +461,63 @@ void Argument::_defaultsConstructor() {
     // default arguments
     if (_nargs > 0 && _defaults.size() > 0) {
         clear();
-        switch (_type) {
-            case Argument::SIMPLE_OPTION:
-            case Argument::POSITIONAL_ARGUMENT:
-                if (_defaults.size() != _nargs) {
-                    throw ArgumentException(_nameOrFlags.front().c_str(),
-                                            "invalid number of argument with number of default argument");
-                }
-                _argument = _defaults.front();
-                _default = _defaults.front();
-                break;
-            case Argument::NUMBER_OPTION:
-                if (_defaults.size() != _nargs) {
-                    throw ArgumentException(_nameOrFlags.front().c_str(),
-                                            "invalid number of argument with number of default argument");
-                }
-                _default = "";
-                for (std::size_t i = 0; i < _defaults.size(); ++i) {
-                    if (i > 0) {
-                        _default += ", ";
-                    }
-                    _default += _defaults[i];
-                    push_back(ArgumentElement(_defaults[i].c_str(), _defaults[i].c_str()));
-                }
-                break;
-            case Argument::MULTI_OPTION:
-            case Argument::INFINITE_OPTION:
-            case Argument::MULTI_INFINITE_OPTION:
-                _default = "";
-                for (std::size_t i = 0; i < _defaults.size(); ++i) {
-                    if (i > 0) {
-                        _default += ", ";
-                    }
-                    _default += _defaults[i];
-                    push_back(ArgumentElement(_defaults[i].c_str(), _defaults[i].c_str()));
-                }
-                break;
-            case Argument::MULTI_NUMBER_OPTION:
-            case Argument::MULTI_NUMBER_INFINITE_OPTION:
-                if (_defaults.size() % _nargs != 0) {
-                    throw ArgumentException(_nameOrFlags.front().c_str(),
-                                            "invalid number of argument with number of default argument");
-                }
-                for (std::size_t i = 0; i < _defaults.size() / _nargs; ++i) {
-                    if (i > 0) {
-                        _default += ", ";
-                    }
-                    _default += "(";
-                    ArgumentElement newNumberArgument;
-                    for (std::size_t j = 0; j < _nargs; ++j) {
-                        if (j > 0) {
-                            _default += ", ";
-                            newNumberArgument._default += ", ";
-                        }
-                        _default += _defaults[i * _nargs + j];
-                        newNumberArgument._default += _defaults[i * _nargs + j];
-                        newNumberArgument.push_back(
-                            ArgumentElement(_defaults[i * _nargs + j].c_str(), _defaults[i * _nargs + j].c_str()));
-                    }
-                    _default += ")";
-                    push_back(newNumberArgument);
-                }
-                break;
-            default:
+        if (_type == Argument::POSITIONAL_ARGUMENT || _type == Argument::SIMPLE_OPTION) {
+            if (_defaults.size() != _nargs) {
                 throw ArgumentException(_nameOrFlags.front().c_str(),
                                         "invalid number of argument with number of default argument");
-                break;
+            }
+            _argument = _defaults.front();
+            _default = _defaults.front();
+        }
+        if (_type == Argument::NUMBER_OPTION) {
+            if (_defaults.size() != _nargs) {
+                throw ArgumentException(_nameOrFlags.front().c_str(),
+                                        "invalid number of argument with number of default argument");
+            }
+            _default = "";
+            for (std::size_t i = 0; i < _defaults.size(); ++i) {
+                if (i > 0) {
+                    _default += ", ";
+                }
+                _default += _defaults[i];
+                push_back(ArgumentElement(_defaults[i].c_str(), _defaults[i].c_str()));
+            }
+        }
+        if (_type == Argument::MULTI_OPTION || _type == Argument::INFINITE_OPTION ||
+            _type == Argument::MULTI_INFINITE_OPTION) {
+            _default = "";
+            for (std::size_t i = 0; i < _defaults.size(); ++i) {
+                if (i > 0) {
+                    _default += ", ";
+                }
+                _default += _defaults[i];
+                push_back(ArgumentElement(_defaults[i].c_str(), _defaults[i].c_str()));
+            }
+        }
+        if (_type == Argument::MULTI_NUMBER_OPTION || _type == Argument::MULTI_NUMBER_INFINITE_OPTION) {
+            if (_defaults.size() % _nargs != 0) {
+                throw ArgumentException(_nameOrFlags.front().c_str(),
+                                        "invalid number of argument with number of default argument");
+            }
+            for (std::size_t i = 0; i < _defaults.size() / _nargs; ++i) {
+                if (i > 0) {
+                    _default += ", ";
+                }
+                _default += "(";
+                ArgumentElement newNumberArgument;
+                for (std::size_t j = 0; j < _nargs; ++j) {
+                    if (j > 0) {
+                        _default += ", ";
+                        newNumberArgument._default += ", ";
+                    }
+                    _default += _defaults[i * _nargs + j];
+                    newNumberArgument._default += _defaults[i * _nargs + j];
+                    newNumberArgument.push_back(
+                        ArgumentElement(_defaults[i * _nargs + j].c_str(), _defaults[i * _nargs + j].c_str()));
+                }
+                _default += ")";
+                push_back(newNumberArgument);
+            }
         }
     }
     else if (_type == Argument::VERSION_OPTION) {

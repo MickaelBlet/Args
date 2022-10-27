@@ -83,6 +83,7 @@ GTEST_TEST(getUsage, allTypeArgument) {
         .defaults(args.vector("0", "1"));
     // INFINITE
     args.addArgument("--infinite")
+        .flag("-i")
         .action(mblet::Argparsor::INFINITE)
         .help("help of infinite option")
         .nargs(1)
@@ -114,7 +115,7 @@ GTEST_TEST(getUsage, allTypeArgument) {
 
     std::ostringstream usage("");
 
-    usage << "usage:  [-b] [-h] [-s ArgOfSimple] [--infinite INFINITE...] [--multi MULTI] [--multi-infinite "
+    usage << "usage:  [-b] [-h] [-i INFINITE...] [-s ArgOfSimple] [--multi MULTI] [--multi-infinite "
              "MULTI-INFINITE] [--multi-infinite-number MULTI-INFINITE-NUMBER MULTI-INFINITE-NUMBER] [--multi-number "
              "MULTI-NUMBER MULTI-NUMBER] [--notbool] [--number Arg1 Arg2] -- REQUIRED [NOTREQUIRED]\n";
     usage << "\n";
@@ -129,10 +130,10 @@ GTEST_TEST(getUsage, allTypeArgument) {
     usage << "optional arguments:\n";
     usage << "  -b, --bool                                                           help of bool option\n";
     usage << "  -h, --help                                                           show this help message and exit\n";
+    usage << "  -i, --infinite INFINITE...                                           help of infinite option (default: "
+             "0, 1, 2, 3)\n";
     usage << "  -s, --simple ArgOfSimple                                             help of simple option (default: "
              "0)\n";
-    usage << "  --infinite INFINITE...                                               help of infinite option (default: "
-             "0, 1, 2, 3)\n";
     usage << "  --multi MULTI                                                        help of multi option (default: 0, "
              "1, 2, 3)\n";
     usage << "  --multi-infinite MULTI-INFINITE                                      help of multi-infinite option "

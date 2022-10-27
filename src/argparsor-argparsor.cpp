@@ -23,14 +23,14 @@
  * SOFTWARE.
  */
 
-#include "mblet/argparsor-argparsor.h"
+#include "mblet/argparsor/argparsor.h"
 
 #include <algorithm>
 #include <iostream>
 
-#include "mblet/argparsor-argument.h"
-#include "mblet/argparsor-utils.h"
-#include "mblet/argparsor-vector.h"
+#include "mblet/argparsor/argument.h"
+#include "mblet/argparsor/utils.h"
+#include "mblet/argparsor/vector.h"
 
 #define PREFIX_SIZEOF_SHORT_OPTION (sizeof("-") - 1)
 #define PREFIX_SIZEOF_LONG_OPTION (sizeof("--") - 1)
@@ -312,7 +312,6 @@ void Argparsor::parseArguments(int argc, char* argv[], bool alternative, bool st
                         break;
                     }
                     default:
-                        throw ParseArgumentValidException("invalid type option for use valid");
                         break;
                 }
                 if ((*it)->_valid->isValid(arguments) == false) {
@@ -322,7 +321,7 @@ void Argparsor::parseArguments(int argc, char* argv[], bool alternative, bool st
                     case Argument::POSITIONAL_ARGUMENT:
                     case Argument::SIMPLE_OPTION:
                         if (!arguments.empty()) {
-                            (*it)->_argument = arguments[0];
+                            (*it)->_argument = arguments.front();
                         }
                         break;
                     case Argument::NUMBER_OPTION:
@@ -345,6 +344,7 @@ void Argparsor::parseArguments(int argc, char* argv[], bool alternative, bool st
                         break;
                     }
                     default:
+                        throw ParseArgumentValidException("invalid type option for use valid");
                         break;
                 }
             }

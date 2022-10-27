@@ -26,11 +26,11 @@
 #ifndef _MBLET_ARGPARSOR_H_
 #define _MBLET_ARGPARSOR_H_
 
-#include "mblet/argparsor-action.h"
-#include "mblet/argparsor-argparsor.h"
-#include "mblet/argparsor-argument.h"
-#include "mblet/argparsor-valid.h"
-#include "mblet/argparsor-vector.h"
+#include "mblet/argparsor/action.h"
+#include "mblet/argparsor/argparsor.h"
+#include "mblet/argparsor/exception.h"
+#include "mblet/argparsor/valid.h"
+#include "mblet/argparsor/vector.h"
 
 namespace mblet {
 

@@ -93,11 +93,73 @@ GTEST_TEST(addArgument, argumentException) {
         {
             try {
                 args.addArgument("-n");
-                args.addArgument("-a").flag("-n");
+                args.addArgument("-n");
             }
             catch (const mblet::Argparsor::ArgumentException& e) {
                 EXPECT_STREQ(e.what(), "invalid flag already exist");
                 EXPECT_STREQ(e.argument(), "-n");
+                throw;
+            }
+        },
+        mblet::Argparsor::ArgumentException);
+    EXPECT_THROW(
+        {
+            try {
+                args.addArgument("-m");
+                args.addArgument("-a").flag("-m");
+            }
+            catch (const mblet::Argparsor::ArgumentException& e) {
+                EXPECT_STREQ(e.what(), "invalid flag already exist");
+                EXPECT_STREQ(e.argument(), "-m");
+                throw;
+            }
+        },
+        mblet::Argparsor::ArgumentException);
+    EXPECT_THROW(
+        {
+            try {
+                args.addArgument("A").flag("nop");
+            }
+            catch (const mblet::Argparsor::ArgumentException& e) {
+                EXPECT_STREQ(e.what(), "can't add flag in positionnal argument");
+                EXPECT_STREQ(e.argument(), "nop");
+                throw;
+            }
+        },
+        mblet::Argparsor::ArgumentException);
+    EXPECT_THROW(
+        {
+            try {
+                args.addArgument("B").action(mblet::Argparsor::NONE);
+            }
+            catch (const mblet::Argparsor::ArgumentException& e) {
+                EXPECT_STREQ(e.what(), "positional argument cannot use action or nargs");
+                EXPECT_STREQ(e.argument(), "B");
+                throw;
+            }
+        },
+        mblet::Argparsor::ArgumentException);
+    EXPECT_THROW(
+        {
+            try {
+                args.addArgument("-b").action(mblet::Argparsor::HELP);
+            }
+            catch (const mblet::Argparsor::ArgumentException& e) {
+                EXPECT_STREQ(e.what(), "help action already defined");
+                EXPECT_STREQ(e.argument(), "-b");
+                throw;
+            }
+        },
+        mblet::Argparsor::ArgumentException);
+    EXPECT_THROW(
+        {
+            try {
+                args.addArgument("--version").action(mblet::Argparsor::VERSION);
+                args.addArgument("--bad-version").action(mblet::Argparsor::VERSION);
+            }
+            catch (const mblet::Argparsor::ArgumentException& e) {
+                EXPECT_STREQ(e.what(), "version action already defined");
+                EXPECT_STREQ(e.argument(), "--bad-version");
                 throw;
             }
         },
@@ -146,18 +208,6 @@ GTEST_TEST(addArgument, argumentException) {
             catch (const mblet::Argparsor::ArgumentException& e) {
                 EXPECT_STREQ(e.what(), "invalid number of argument with number of default argument");
                 EXPECT_STREQ(e.argument(), "-u");
-                throw;
-            }
-        },
-        mblet::Argparsor::ArgumentException);
-    EXPECT_THROW(
-        {
-            try {
-                args.addArgument("-v").action(mblet::Argparsor::STORE_TRUE).nargs(1).defaults(args.vector("1"));
-            }
-            catch (const mblet::Argparsor::ArgumentException& e) {
-                EXPECT_STREQ(e.what(), "invalid number of argument with number of default argument");
-                EXPECT_STREQ(e.argument(), "-v");
                 throw;
             }
         },

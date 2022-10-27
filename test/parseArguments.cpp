@@ -1,5 +1,7 @@
 #include <gtest/gtest.h>
 
+#include <fstream>
+
 #include "mblet/argparsor.h"
 
 GTEST_TEST(parseArguments, parseException) {
@@ -283,16 +285,27 @@ GTEST_TEST(parseArguments, allType) {
 
     const int argc = sizeof(argv) / sizeof(*argv);
 
+    struct ValidTest : public mblet::Argparsor::IValid {
+        bool isValid(std::vector<std::string>& /*argument*/) {
+            return true;
+        }
+    };
+
+    std::string retSimple;
     mblet::Argparsor args;
     // POSITIONNAL
-    args.addArgument("REQUIRED").required(true).valid(new mblet::Argparsor::ValidChoise(args.vector("ISREQUIRED")));
+    args.addArgument("REQUIRED").required(true).valid(new ValidTest());
     // BOOL
     args.addArgument(args.vector("-b", "--bool")).action(mblet::Argparsor::STORE_TRUE);
     args.addArgument("--notbool").action(mblet::Argparsor::STORE_FALSE);
     // SIMPLE
-    args.addArgument(args.vector("-s", "--simple")).metavar("ArgOfSimple").nargs(1).defaults(args.vector("0"));
+    args.addArgument(args.vector("-s", "--simple"))
+        .metavar("ArgOfSimple")
+        .nargs(1)
+        .defaults(args.vector("0"))
+        .dest(retSimple);
     // NUMBER
-    args.addArgument("--number").metavar("Arg1 Arg2").nargs(2).defaults(args.vector("0", "1"));
+    args.addArgument("--number").metavar("Arg1 Arg2").nargs(2).defaults(args.vector("0", "1")).valid(new ValidTest());
     // INFINITE
     args.addArgument("--infinite").nargs('+').defaults(args.vector("0", "1", "2", "3"));
     // MULTI
@@ -319,15 +332,18 @@ GTEST_TEST(parseArguments, allType) {
     args.addArgument("--multi-infinite-number")
         .action(mblet::Argparsor::EXTEND)
         .nargs(2)
-        .defaults(args.vector("0", "1", "2", "3"));
+        .defaults(args.vector("0", "1", "2", "3"))
+        .valid(new ValidTest());
 
     args.parseArguments(argc, const_cast<char**>(argv), true, false);
     EXPECT_EQ(args["REQUIRED"].getString(), "ISREQUIRED");
     EXPECT_EQ(args["-b"].getString(), "true");
     EXPECT_EQ(args["--notbool"].getString(), "false");
     EXPECT_EQ(args["--simple"].getString(), "SIMPLE");
+    EXPECT_EQ(retSimple, "SIMPLE");
     EXPECT_EQ(args["--number"][0].getString(), "FOO");
     EXPECT_EQ(args["--number"][1].getString(), "BAR");
+    EXPECT_EQ(args["--infinite"].getString(), "A, B, C, D, E");
     EXPECT_EQ(args["--infinite"][0].getString(), "A");
     EXPECT_EQ(args["--infinite"][1].getString(), "B");
     EXPECT_EQ(args["--infinite"][2].getString(), "C");
@@ -337,6 +353,7 @@ GTEST_TEST(parseArguments, allType) {
     EXPECT_EQ(args["-m"][1].getString(), "B");
     EXPECT_EQ(args["-m"][2].getString(), "C");
     EXPECT_EQ(args["--multi2"][0].getString(), "A");
+    EXPECT_EQ(args["--multi-number"].getString(), "(A, B), (C, D)");
     EXPECT_EQ(args["--multi-number"][0][0].getString(), "A");
     EXPECT_EQ(args["--multi-number"][0][1].getString(), "B");
     EXPECT_EQ(args["--multi-number"][1][0].getString(), "C");
@@ -352,6 +369,32 @@ GTEST_TEST(parseArguments, allType) {
     EXPECT_EQ(args["--multi-infinite-number"][1][1].getString(), "D");
     EXPECT_EQ(args["--multi-infinite-number"][2][0].getString(), "E");
     EXPECT_EQ(args["--multi-infinite-number"][2][1].getString(), "F");
+
+    EXPECT_THROW(
+        {
+            try {
+                std::vector<std::string> v = args["--bool"];
+            }
+            catch (const mblet::Argparsor::Exception& e) {
+                EXPECT_STREQ(e.what(), "convertion to vector of string not authorized");
+                throw;
+            }
+        },
+        mblet::Argparsor::Exception);
+    EXPECT_THROW(
+        {
+            try {
+                std::vector<std::vector<std::string> > v = args["--bool"];
+            }
+            catch (const mblet::Argparsor::Exception& e) {
+                EXPECT_STREQ(e.what(), "convertion to vector of vector of string not authorized");
+                throw;
+            }
+        },
+        mblet::Argparsor::Exception);
+    std::vector<std::vector<std::string> > vv = args["--multi-infinite-number"];
+    EXPECT_EQ(vv.size(), 3);
+    EXPECT_EQ(vv.front().size(), 2);
 }
 
 GTEST_TEST(parseArguments, help) {
@@ -423,6 +466,11 @@ GTEST_TEST(parseArguments, validException) {
     const char* argv[] = {"binaryName", "--option", "foo"};
     const int argc = sizeof(argv) / sizeof(*argv);
 
+    struct ValidTest : public mblet::Argparsor::IValid {
+        bool isValid(std::vector<std::string>& /*argument*/) {
+            return true;
+        }
+    };
     struct FailedTest : public mblet::Argparsor::IValid {
         bool isValid(std::vector<std::string>& /*argument*/) {
             return false;
@@ -430,7 +478,7 @@ GTEST_TEST(parseArguments, validException) {
     };
     {
         mblet::Argparsor args;
-        args.addArgument("--option").action(mblet::Argparsor::STORE_TRUE).valid(new FailedTest());
+        args.addArgument("--option").action(mblet::Argparsor::STORE_TRUE).valid(new ValidTest());
         EXPECT_THROW(
             {
                 try {
@@ -475,5 +523,156 @@ GTEST_TEST(parseArguments, validException) {
                 }
             },
             mblet::Argparsor::ParseArgumentValidException);
+    }
+}
+
+GTEST_TEST(parseArguments, standartValid) {
+    {
+        const char* argv[] = {"binaryName", "--option", "A", "100"};
+        const int argc = sizeof(argv) / sizeof(*argv);
+        mblet::Argparsor args;
+        args.addArgument("--option").nargs(2).valid(new mblet::Argparsor::ValidMinMax(0, 100));
+        EXPECT_THROW(
+            {
+                try {
+                    args.parseArguments(argc, const_cast<char**>(argv));
+                }
+                catch (const mblet::Argparsor::ParseArgumentValidException& e) {
+                    EXPECT_STREQ(e.what(), "\"A\" is not a number");
+                    EXPECT_STREQ(e.argument(), "--option");
+                    throw;
+                }
+            },
+            mblet::Argparsor::ParseArgumentValidException);
+    }
+    {
+        const char* argv[] = {"binaryName", "--option", "-1", "100"};
+        const int argc = sizeof(argv) / sizeof(*argv);
+        mblet::Argparsor args;
+        args.addArgument("--option").nargs(2).valid(new mblet::Argparsor::ValidMinMax(100, 0));
+        EXPECT_THROW(
+            {
+                try {
+                    args.parseArguments(argc, const_cast<char**>(argv));
+                }
+                catch (const mblet::Argparsor::ParseArgumentValidException& e) {
+                    EXPECT_STREQ(e.what(), "-1 is not between 0 and 100");
+                    EXPECT_STREQ(e.argument(), "--option");
+                    throw;
+                }
+            },
+            mblet::Argparsor::ParseArgumentValidException);
+    }
+    {
+        const char* argv[] = {"binaryName", "--option", "0", "100"};
+        const int argc = sizeof(argv) / sizeof(*argv);
+        mblet::Argparsor args;
+        args.addArgument("--option").nargs(2).valid(new mblet::Argparsor::ValidMinMax(0, 100));
+        args.parseArguments(argc, const_cast<char**>(argv));
+        EXPECT_EQ(args["--option"][0].getNumber(), 0);
+        EXPECT_EQ(args["--option"][1].getNumber(), 100);
+    }
+    {
+        const char* argv[] = {"binaryName", "--option", "-1", "100"};
+        const int argc = sizeof(argv) / sizeof(*argv);
+        mblet::Argparsor args;
+        args.addArgument("--option").nargs(2).valid(new mblet::Argparsor::ValidChoise(args.vector("0", "100")));
+        EXPECT_THROW(
+            {
+                try {
+                    args.parseArguments(argc, const_cast<char**>(argv));
+                }
+                catch (const mblet::Argparsor::ParseArgumentValidException& e) {
+                    EXPECT_STREQ(e.what(), "\"-1\" is not a choise value (\"0\", \"100\")");
+                    EXPECT_STREQ(e.argument(), "--option");
+                    throw;
+                }
+            },
+            mblet::Argparsor::ParseArgumentValidException);
+    }
+    {
+        const char* argv[] = {"binaryName", "--option", "0", "100"};
+        const int argc = sizeof(argv) / sizeof(*argv);
+        mblet::Argparsor args;
+        args.addArgument("--option").nargs(2).valid(new mblet::Argparsor::ValidChoise(args.vector("0", "100")));
+        args.parseArguments(argc, const_cast<char**>(argv));
+        EXPECT_EQ(args["--option"][0].getString(), "0");
+        EXPECT_EQ(args["--option"][1].getString(), "100");
+    }
+    {
+        const char* argv[] = {"binaryName", "--option", "/unknownFolder/unknownPath"};
+        const int argc = sizeof(argv) / sizeof(*argv);
+        mblet::Argparsor args;
+        args.addArgument("--option").nargs(1).valid(new mblet::Argparsor::ValidPath());
+        EXPECT_THROW(
+            {
+                try {
+                    args.parseArguments(argc, const_cast<char**>(argv));
+                }
+                catch (const mblet::Argparsor::ParseArgumentValidException& e) {
+                    EXPECT_STREQ(e.what(), "\"/unknownFolder/unknownPath\" is not a valid path");
+                    EXPECT_STREQ(e.argument(), "--option");
+                    throw;
+                }
+            },
+            mblet::Argparsor::ParseArgumentValidException);
+    }
+    {
+        std::ofstream newFile("./argparsorTestFile");
+        const char* argv[] = {"binaryName", "--option", "./argparsorTestFile"};
+        const int argc = sizeof(argv) / sizeof(*argv);
+        mblet::Argparsor args;
+        args.addArgument("--option")
+            .nargs(1)
+            .valid(new mblet::Argparsor::ValidPath(mblet::Argparsor::ValidPath::IS_DIR));
+        EXPECT_THROW(
+            {
+                try {
+                    args.parseArguments(argc, const_cast<char**>(argv));
+                }
+                catch (const mblet::Argparsor::ParseArgumentValidException& e) {
+                    EXPECT_STREQ(e.what(), "\"./argparsorTestFile\" is not a valid directory");
+                    EXPECT_STREQ(e.argument(), "--option");
+                    throw;
+                }
+            },
+            mblet::Argparsor::ParseArgumentValidException);
+        newFile.close();
+        ::remove("./argparsorTestFile");
+    }
+    {
+        ::mkdir("./argparsorTestDir", 0);
+        const char* argv[] = {"binaryName", "--option", "./argparsorTestDir"};
+        const int argc = sizeof(argv) / sizeof(*argv);
+        mblet::Argparsor args;
+        args.addArgument("--option")
+            .nargs(1)
+            .valid(new mblet::Argparsor::ValidPath(mblet::Argparsor::ValidPath::IS_FILE));
+        EXPECT_THROW(
+            {
+                try {
+                    args.parseArguments(argc, const_cast<char**>(argv));
+                }
+                catch (const mblet::Argparsor::ParseArgumentValidException& e) {
+                    EXPECT_STREQ(e.what(), "\"./argparsorTestDir\" is not a valid file");
+                    EXPECT_STREQ(e.argument(), "--option");
+                    throw;
+                }
+            },
+            mblet::Argparsor::ParseArgumentValidException);
+        ::remove("./argparsorTestDir");
+    }
+    {
+        std::ofstream newFile("./argparsorTestFile");
+        const char* argv[] = {"binaryName", "--option", "./argparsorTestFile"};
+        const int argc = sizeof(argv) / sizeof(*argv);
+        mblet::Argparsor args;
+        args.addArgument("--option")
+            .nargs(1)
+            .valid(new mblet::Argparsor::ValidPath(mblet::Argparsor::ValidPath::IS_FILE));
+        args.parseArguments(argc, const_cast<char**>(argv));
+        EXPECT_EQ(args["--option"].getString(), "./argparsorTestFile");
+        newFile.close();
+        ::remove("./argparsorTestFile");
     }
 }
