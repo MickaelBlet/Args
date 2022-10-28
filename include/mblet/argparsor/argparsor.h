@@ -1,5 +1,5 @@
 /**
- * argparsor-argparsor.h
+ * argparsor/argparsor.h
  *
  * Licensed under the MIT License <http://opensource.org/licenses/MIT>.
  * Copyright (c) 2022 BLET Mickaël.
@@ -34,7 +34,6 @@
 #include "mblet/argparsor/action.h"
 #include "mblet/argparsor/argument.h"
 #include "mblet/argparsor/exception.h"
-#include "mblet/argparsor/valid.h"
 #include "mblet/argparsor/vector.h"
 
 namespace mblet {
@@ -61,11 +60,29 @@ class Argparsor {
     virtual ~Argparsor();
 
     /**
+     * @brief Get the status of alternative
+     *
+     * @return [true] at alternative
+     */
+    bool isAlternative() const {
+        return _isAlternative;
+    }
+
+    /**
+     * @brief Get the status of strict
+     *
+     * @return [true] at strict
+     */
+    bool isStrict() const {
+        return _isStrict;
+    }
+
+    /**
      * @brief Get the bynary name
      *
      * @return const std::string&
      */
-    inline const std::string& getBynaryName() const {
+    const std::string& getBynaryName() const {
         return _binaryName;
     }
 
@@ -89,7 +106,7 @@ class Argparsor {
      * @param str
      * @return [true] argument is in map, [false] argument is not in map
      */
-    inline bool argumentExist(const char* str) const {
+    bool argumentExist(const char* str) const {
         return argumentExist(std::string(str));
     }
 
@@ -99,7 +116,7 @@ class Argparsor {
      * @param str
      * @return [true] argument is in map, [false] argument is not in map
      */
-    inline bool argumentExist(const std::string& str) const {
+    bool argumentExist(const std::string& str) const {
         return (_argumentFromName.find(str) != _argumentFromName.end());
     }
 
@@ -109,7 +126,7 @@ class Argparsor {
      * @param str
      * @return const Argument&
      */
-    inline const Argument& getArgument(const char* str) const {
+    const Argument& getArgument(const char* str) const {
         return getArgument(std::string(str));
     }
 
@@ -119,7 +136,7 @@ class Argparsor {
      * @param str
      * @return const Argument&
      */
-    inline const Argument& getArgument(const std::string& str) const {
+    const Argument& getArgument(const std::string& str) const {
         std::map<std::string, Argument**>::const_iterator cit = _argumentFromName.find(str);
         if (cit == _argumentFromName.end()) {
             throw AccessDeniedException(str.c_str(), "argument not found");
@@ -133,7 +150,7 @@ class Argparsor {
      * @param str
      * @return const Argument&
      */
-    inline const Argument& operator[](const char* str) const {
+    const Argument& operator[](const char* str) const {
         return getArgument(str);
     }
 
@@ -143,7 +160,7 @@ class Argparsor {
      * @param str
      * @return const Argument&
      */
-    inline const Argument& operator[](const std::string& str) const {
+    const Argument& operator[](const std::string& str) const {
         return getArgument(str);
     }
 
@@ -152,7 +169,7 @@ class Argparsor {
      *
      * @return const std::vector<std::string>&
      */
-    inline const std::vector<std::string>& getAdditionalArguments() const {
+    const std::vector<std::string>& getAdditionalArguments() const {
         return _additionalArguments;
     }
 
@@ -161,7 +178,7 @@ class Argparsor {
      *
      * @param usage
      */
-    inline void setUsage(const char* usage) {
+    void setUsage(const char* usage) {
         _usage = usage;
     }
 
@@ -170,7 +187,7 @@ class Argparsor {
      *
      * @param description
      */
-    inline void setDescription(const char* description) {
+    void setDescription(const char* description) {
         _description = description;
     }
 
@@ -179,7 +196,7 @@ class Argparsor {
      *
      * @param epilog
      */
-    inline void setEpilog(const char* epilog) {
+    void setEpilog(const char* epilog) {
         _epilog = epilog;
     }
 
@@ -203,24 +220,25 @@ class Argparsor {
      */
     Argument& addArgument(const Vector& nameOrFlags);
 
-    inline static Vector vector(const char* v1 = NULL, const char* v2 = NULL, const char* v3 = NULL,
-                                const char* v4 = NULL, const char* v5 = NULL, const char* v6 = NULL,
-                                const char* v7 = NULL, const char* v8 = NULL, const char* v9 = NULL,
-                                const char* v10 = NULL) {
+    static Vector vector(const char* v1 = NULL, const char* v2 = NULL, const char* v3 = NULL, const char* v4 = NULL,
+                         const char* v5 = NULL, const char* v6 = NULL, const char* v7 = NULL, const char* v8 = NULL,
+                         const char* v9 = NULL, const char* v10 = NULL) {
         const char* args[] = {v1, v2, v3, v4, v5, v6, v7, v8, v9, v10};
         return args;
     }
 
   private:
+    Argparsor(const Argparsor&);            // disable copy constructor
+    Argparsor& operator=(Argparsor const&); // disable copy operator
+
     /**
      * @brief Get the short argument decompose multi short argument
      *
      * @param maxIndex
      * @param argv
      * @param index
-     * @param alternative
      */
-    void parseShortArgument(int maxIndex, char* argv[], int* index, bool alternative);
+    void parseShortArgument(int maxIndex, char* argv[], int* index);
 
     /**
      * @brief Get the long argument
@@ -228,9 +246,8 @@ class Argparsor {
      * @param maxIndex
      * @param argv
      * @param index
-     * @param alternative
      */
-    void parseLongArgument(int maxIndex, char* argv[], int* index, bool alternative);
+    void parseLongArgument(int maxIndex, char* argv[], int* index);
 
     /**
      * @brief Get the argument
@@ -245,7 +262,7 @@ class Argparsor {
      * @param alternative
      */
     void parseArgument(int maxIndex, char* argv[], int* index, bool hasArg, const char* option, const char* arg,
-                       Argument* argument, bool alternative);
+                       Argument* argument);
 
     /**
      * @brief Get the positionnal argument
@@ -254,7 +271,7 @@ class Argparsor {
      * @param index
      * @param strict
      */
-    void parsePositionnalArgument(char* argv[], int* index, bool strict);
+    void parsePositionnalArgument(char* argv[], int* index);
 
     /**
      * @brief Check end of infinite parsing
@@ -264,7 +281,7 @@ class Argparsor {
      * @return true
      * @return false
      */
-    bool endOfInfiniteArgument(const char* argument, bool alternative);
+    bool endOfInfiniteArgument(const char* argument);
 
     std::string _binaryName;
 
@@ -278,6 +295,8 @@ class Argparsor {
     std::string _description;
     std::string _epilog;
 
+    bool _isAlternative;
+    bool _isStrict;
     std::vector<std::string> _additionalArguments;
 };
 

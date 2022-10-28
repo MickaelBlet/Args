@@ -1,5 +1,5 @@
 /**
- * argparsor-valid.h
+ * argparsor/valid.h
  *
  * Licensed under the MIT License <http://opensource.org/licenses/MIT>.
  * Copyright (c) 2022 BLET Mickaël.
@@ -50,6 +50,27 @@ class IValid {
      * @return [true] arguments are valid, [false] arguments are not valid
      */
     virtual bool isValid(std::vector<std::string>& arguments) = 0;
+};
+
+class ValidNumber : public IValid {
+  public:
+    /**
+     * @brief Construct a new Valid Number object
+     */
+    ValidNumber();
+
+    /**
+     * @brief Destroy the Valid Number object
+     */
+    ~ValidNumber();
+
+    /**
+     * @brief check if arguments are valid
+     *
+     * @param arguments
+     * @return [true] arguments are valid, [false] arguments are not valid
+     */
+    bool isValid(std::vector<std::string>& args);
 };
 
 class ValidMinMax : public IValid {

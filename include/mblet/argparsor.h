@@ -49,6 +49,7 @@ class Argparsor : public argparsor::Argparsor, public argparsor::Action {
     typedef argparsor::AccessDeniedException AccessDeniedException;
 
     typedef argparsor::IValid IValid;
+    typedef argparsor::ValidNumber ValidNumber;
     typedef argparsor::ValidChoise ValidChoise;
     typedef argparsor::ValidMinMax ValidMinMax;
     typedef argparsor::ValidPath ValidPath;

@@ -1,5 +1,5 @@
 /**
- * argparsor-exception.h
+ * argparsor/exception.h
  *
  * Licensed under the MIT License <http://opensource.org/licenses/MIT>.
  * Copyright (c) 2022 BLET Mickaël.

@@ -113,6 +113,7 @@ Argument::Argument(Argparsor& argparsor) :
     _help(),
     _metavar(),
     _valid(NULL),
+    _validDeletable(true),
     _this(NULL),
     _action(Action::NONE),
     _defaults() {}
@@ -129,11 +130,16 @@ Argument::Argument(const Argument& rhs) :
     _help(rhs._help),
     _metavar(rhs._metavar),
     _valid(rhs._valid),
+    _validDeletable(rhs._validDeletable),
     _this(rhs._this),
     _action(rhs._action),
     _defaults() {}
 
-Argument::~Argument() {}
+Argument::~Argument() {
+    if (_valid != NULL && _validDeletable) {
+        delete _valid;
+    }
+}
 
 std::string Argument::getString() const {
     if (_type == BOOLEAN_OPTION) {

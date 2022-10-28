@@ -5,7 +5,7 @@
 int main(int argc, char* argv[]) {
     mblet::Argparsor args;
     args.addArgument(args.vector("-v", "--version"))
-        .action(mblet::Argparsor::VERSION)
+        .action(args.VERSION)
         .help("custom help option message")
         .defaults(args.vector("multi line", "Version: 0.0.0"));
     args.parseArguments(argc, argv);

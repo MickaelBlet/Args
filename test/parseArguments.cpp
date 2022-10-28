@@ -369,7 +369,21 @@ GTEST_TEST(parseArguments, allType) {
     EXPECT_EQ(args["--multi-infinite-number"][1][1].getString(), "D");
     EXPECT_EQ(args["--multi-infinite-number"][2][0].getString(), "E");
     EXPECT_EQ(args["--multi-infinite-number"][2][1].getString(), "F");
+    std::vector<std::string> partOfInfiniteNumber = args["--multi-infinite-number"][0];
+    EXPECT_EQ(partOfInfiniteNumber[0], "A");
+    EXPECT_EQ(partOfInfiniteNumber[1], "B");
 
+    EXPECT_THROW(
+        {
+            try {
+                std::vector<std::string> v = args["--multi-infinite"][0];
+            }
+            catch (const mblet::Argparsor::Exception& e) {
+                EXPECT_STREQ(e.what(), "convertion to vector of string not authorized");
+                throw;
+            }
+        },
+        mblet::Argparsor::Exception);
     EXPECT_THROW(
         {
             try {
@@ -527,6 +541,33 @@ GTEST_TEST(parseArguments, validException) {
 }
 
 GTEST_TEST(parseArguments, standartValid) {
+    {
+        const char* argv[] = {"binaryName", "--option", "A", "100"};
+        const int argc = sizeof(argv) / sizeof(*argv);
+        mblet::Argparsor args;
+        args.addArgument("--option").nargs(2).valid(new mblet::Argparsor::ValidNumber());
+        EXPECT_THROW(
+            {
+                try {
+                    args.parseArguments(argc, const_cast<char**>(argv));
+                }
+                catch (const mblet::Argparsor::ParseArgumentValidException& e) {
+                    EXPECT_STREQ(e.what(), "\"A\" is not a number");
+                    EXPECT_STREQ(e.argument(), "--option");
+                    throw;
+                }
+            },
+            mblet::Argparsor::ParseArgumentValidException);
+    }
+    {
+        const char* argv[] = {"binaryName", "--option", "0", "100"};
+        const int argc = sizeof(argv) / sizeof(*argv);
+        mblet::Argparsor args;
+        args.addArgument("--option").nargs(2).valid(new mblet::Argparsor::ValidNumber());
+        args.parseArguments(argc, const_cast<char**>(argv));
+        EXPECT_EQ(args["--option"][0].getNumber(), 0);
+        EXPECT_EQ(args["--option"][1].getNumber(), 100);
+    }
     {
         const char* argv[] = {"binaryName", "--option", "A", "100"};
         const int argc = sizeof(argv) / sizeof(*argv);

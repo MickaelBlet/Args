@@ -1,5 +1,5 @@
 /**
- * argparsor-argument.h
+ * argparsor/argument.h
  *
  * Licensed under the MIT License <http://opensource.org/licenses/MIT>.
  * Copyright (c) 2022 BLET Mickaël.
@@ -79,7 +79,7 @@ class ArgumentElement : public std::vector<ArgumentElement> {
      *
      * @return std::vector<std::string>
      */
-    inline operator std::vector<std::string>() const;
+    operator std::vector<std::string>() const;
 
     /**
      * @brief Friend function for convert Argument object to ostream
@@ -88,7 +88,7 @@ class ArgumentElement : public std::vector<ArgumentElement> {
      * @param argument
      * @return std::ostream&
      */
-    inline friend std::ostream& operator<<(std::ostream& os, const ArgumentElement& argument) {
+    friend std::ostream& operator<<(std::ostream& os, const ArgumentElement& argument) {
         os << argument.getString();
         return os;
     }
@@ -134,36 +134,40 @@ class Argument : public ArgumentElement {
      */
     virtual ~Argument();
 
-    inline bool isExist() const {
+    bool isExist() const {
         return _isExist;
     }
 
-    inline bool isRequired() const {
+    bool isRequired() const {
         return _isRequired;
     }
 
-    inline std::size_t count() const {
+    std::size_t count() const {
         return _count;
     }
 
-    inline std::size_t getNargs() const {
+    std::size_t getNargs() const {
         return _nargs;
     }
 
-    inline const std::string& getHelp() const {
+    const std::string& getHelp() const {
         return _help;
     }
 
-    inline const std::string& getMetavar() const {
+    const std::string& getMetavar() const {
         return _metavar;
     }
 
-    inline const std::vector<std::string>& getNameOrFlags() const {
+    const std::vector<std::string>& getNameOrFlags() const {
         return _nameOrFlags;
     }
 
-    inline const std::vector<std::string>& getDefaults() const {
+    const std::vector<std::string>& getDefaults() const {
         return _defaults;
+    }
+
+    Action::eAction getAction() const {
+        return _action;
     }
 
     std::string getString() const;
@@ -173,7 +177,7 @@ class Argument : public ArgumentElement {
      *
      * @return true if exist or false if not exist
      */
-    inline operator bool() const {
+    operator bool() const {
         if (_type == REVERSE_BOOLEAN_OPTION) {
             return !_isExist;
         }
@@ -187,7 +191,7 @@ class Argument : public ArgumentElement {
      *
      * @return std::string
      */
-    inline operator std::string() const {
+    operator std::string() const {
         return getString();
     }
 
@@ -206,7 +210,7 @@ class Argument : public ArgumentElement {
     operator std::vector<std::vector<std::string> >() const;
 
     template<typename T>
-    inline operator T() const {
+    operator T() const {
         return getNumber();
     }
 
@@ -216,7 +220,7 @@ class Argument : public ArgumentElement {
      * @param index
      * @return const Argument&
      */
-    inline const ArgumentElement& operator[](unsigned long index) const {
+    const ArgumentElement& operator[](unsigned long index) const {
         return at(index);
     }
 
@@ -232,7 +236,7 @@ class Argument : public ArgumentElement {
      * @param action_
      * @return this reference
      */
-    inline Argument& action(enum Action::eAction action_) {
+    Argument& action(enum Action::eAction action_) {
         _action = action_;
         _typeConstructor();
         _defaultsConstructor();
@@ -244,7 +248,7 @@ class Argument : public ArgumentElement {
      * @param help_
      * @return this reference
      */
-    inline Argument& help(const char* help_) {
+    Argument& help(const char* help_) {
         _help = help_;
         return *this;
     }
@@ -261,7 +265,7 @@ class Argument : public ArgumentElement {
      * @param metavar_
      * @return this reference
      */
-    inline Argument& metavar(const char* metavar_) {
+    Argument& metavar(const char* metavar_) {
         _metavar = metavar_;
         return *this;
     }
@@ -271,7 +275,7 @@ class Argument : public ArgumentElement {
      * @param nargs_
      * @return this reference
      */
-    inline Argument& nargs(std::size_t nargs_) {
+    Argument& nargs(std::size_t nargs_) {
         _nargs = nargs_;
         _typeConstructor();
         _defaultsConstructor();
@@ -283,7 +287,7 @@ class Argument : public ArgumentElement {
      * @param defaults_
      * @return this reference
      */
-    inline Argument& defaults(const Vector& defaults_) {
+    Argument& defaults(const Vector& defaults_) {
         _defaults = defaults_;
         _defaultsConstructor();
         return *this;
@@ -294,11 +298,12 @@ class Argument : public ArgumentElement {
      * @param pValid
      * @return this reference
      */
-    inline Argument& valid(IValid* pValid) {
-        if (_valid != NULL) {
+    Argument& valid(IValid* pValid, bool isDeletable = true) {
+        if (_valid != NULL && _validDeletable) {
             delete _valid;
         }
         _valid = pValid;
+        _validDeletable = isDeletable;
         return *this;
     }
 
@@ -310,21 +315,11 @@ class Argument : public ArgumentElement {
      * @return reference of new argument
      */
     template<typename T>
-    inline Argument& dest(std::vector<T>& dest) {
-        Argument* argumentType = new ArgumentVectorType<T>(this, dest);
-        return *argumentType;
-    }
-
-    /**
-     * @brief define a reference of object for insert the value after parseArguments method
-     *
-     * @tparam T
-     * @param dest
-     * @return reference of new argument
-     */
-    template<typename T>
-    inline Argument& dest(std::vector<std::vector<T> >& dest) {
+    Argument& dest(std::vector<std::vector<T> >& dest) {
+        bool validDeletable = _validDeletable;
+        _validDeletable = false;
         Argument* argumentType = new ArgumentVectorVectorType<T>(this, dest);
+        argumentType->_validDeletable = validDeletable;
         return *argumentType;
     }
 
@@ -336,8 +331,27 @@ class Argument : public ArgumentElement {
      * @return reference of new argument
      */
     template<typename T>
-    inline Argument& dest(T& dest) {
+    Argument& dest(std::vector<T>& dest) {
+        bool validDeletable = _validDeletable;
+        _validDeletable = false;
+        Argument* argumentType = new ArgumentVectorType<T>(this, dest);
+        argumentType->_validDeletable = validDeletable;
+        return *argumentType;
+    }
+
+    /**
+     * @brief define a reference of object for insert the value after parseArguments method
+     *
+     * @tparam T
+     * @param dest
+     * @return reference of new argument
+     */
+    template<typename T>
+    Argument& dest(T& dest) {
+        bool validDeletable = _validDeletable;
+        _validDeletable = false;
         Argument* argumentType = new ArgumentType<T>(this, dest);
+        argumentType->_validDeletable = validDeletable;
         return *argumentType;
     }
 
@@ -348,7 +362,7 @@ class Argument : public ArgumentElement {
      * @param argument
      * @return std::ostream&
      */
-    inline friend std::ostream& operator<<(std::ostream& os, const Argument& argument) {
+    friend std::ostream& operator<<(std::ostream& os, const Argument& argument) {
         os << argument.getString();
         return os;
     }
@@ -370,7 +384,7 @@ class Argument : public ArgumentElement {
         POSITIONAL_ARGUMENT
     };
 
-    virtual inline void _toDest() {
+    virtual void _toDest() {
         /* do nothing */
     }
 
@@ -398,7 +412,9 @@ class Argument : public ArgumentElement {
     std::size_t _nargs;
     std::string _help;
     std::string _metavar;
+
     IValid* _valid;
+    bool _validDeletable;
 
     Argument** _this;
     enum Action::eAction _action;

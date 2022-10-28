@@ -25,7 +25,7 @@
 
 #include <sys/stat.h>
 
-#include <iostream>
+#include <cstdlib>
 #include <sstream>
 
 #include "mblet/argparsor/exception.h"
@@ -34,6 +34,27 @@
 namespace mblet {
 
 namespace argparsor {
+
+/*
+################################################################################
+ ValidNumber
+################################################################################
+*/
+ValidNumber::ValidNumber() {}
+ValidNumber::~ValidNumber() {}
+
+bool ValidNumber::isValid(std::vector<std::string>& args) {
+    for (std::size_t i = 0; i < args.size(); ++i) {
+        char* endPtr = NULL;
+        ::strtod(args[i].c_str(), &endPtr);
+        if (endPtr != NULL && endPtr[0] != '\0') {
+            std::ostringstream oss("");
+            oss << "\"" << args[i] << "\" is not a number";
+            throw ParseArgumentValidException(oss.str().c_str());
+        }
+    }
+    return true;
+}
 
 /*
 ################################################################################
