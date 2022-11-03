@@ -15,7 +15,7 @@ foreach(file ${test_files})
             NO_SYSTEM_FROM_IMPORTED ON
     )
     target_compile_options("${filenamewe}.gtest" PRIVATE -Wall -Wextra -Werror)
-    target_link_libraries("${filenamewe}.gtest" gtest_main gtest pthread)
+    target_link_libraries("${filenamewe}.gtest" gmock_main gmock pthread)
     target_link_libraries("${filenamewe}.gtest" argparsor)
     add_test(NAME "${filenamewe}.gtest" COMMAND "$<TARGET_FILE:${filenamewe}.gtest>")
 endforeach()

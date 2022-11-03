@@ -1,8 +1,10 @@
 #include <gtest/gtest.h>
-
-#include <fstream>
+#include <sys/stat.h>
 
 #include "mblet/argparsor.h"
+#include "mock/mockc.h"
+
+MOCKC_METHOD2(stat, int(const char* __file, struct stat* __buf));
 
 GTEST_TEST(parseArguments, parseException) {
     {
@@ -540,7 +542,14 @@ GTEST_TEST(parseArguments, validException) {
     }
 }
 
+ACTION_P(actionStat, st_mode) {
+    arg1->st_mode = st_mode;
+    return 0;
+}
+
 GTEST_TEST(parseArguments, standartValid) {
+    using ::testing::_;
+    using ::testing::Return;
     {
         const char* argv[] = {"binaryName", "--option", "A", "100"};
         const int argc = sizeof(argv) / sizeof(*argv);
@@ -641,7 +650,8 @@ GTEST_TEST(parseArguments, standartValid) {
         EXPECT_EQ(args["--option"][1].getString(), "100");
     }
     {
-        const char* argv[] = {"binaryName", "--option", "/unknownFolder/unknownPath"};
+        MOCKC_EXPECT_CALL(stat, (_, _)).WillOnce(Return(-1));
+        const char* argv[] = {"binaryName", "--option", "."};
         const int argc = sizeof(argv) / sizeof(*argv);
         mblet::Argparsor args;
         args.addArgument("--option").nargs(1).valid(new mblet::Argparsor::ValidPath());
@@ -651,7 +661,7 @@ GTEST_TEST(parseArguments, standartValid) {
                     args.parseArguments(argc, const_cast<char**>(argv));
                 }
                 catch (const mblet::Argparsor::ParseArgumentValidException& e) {
-                    EXPECT_STREQ(e.what(), "\"/unknownFolder/unknownPath\" is not a valid path");
+                    EXPECT_STREQ(e.what(), "\".\" is not a valid path");
                     EXPECT_STREQ(e.argument(), "--option");
                     throw;
                 }
@@ -659,8 +669,8 @@ GTEST_TEST(parseArguments, standartValid) {
             mblet::Argparsor::ParseArgumentValidException);
     }
     {
-        std::ofstream newFile("./argparsorTestFile");
-        const char* argv[] = {"binaryName", "--option", "./argparsorTestFile"};
+        MOCKC_EXPECT_CALL(stat, (_, _)).WillOnce(actionStat(__S_IFREG));
+        const char* argv[] = {"binaryName", "--option", "."};
         const int argc = sizeof(argv) / sizeof(*argv);
         mblet::Argparsor args;
         args.addArgument("--option")
@@ -672,18 +682,16 @@ GTEST_TEST(parseArguments, standartValid) {
                     args.parseArguments(argc, const_cast<char**>(argv));
                 }
                 catch (const mblet::Argparsor::ParseArgumentValidException& e) {
-                    EXPECT_STREQ(e.what(), "\"./argparsorTestFile\" is not a valid directory");
+                    EXPECT_STREQ(e.what(), "\".\" is not a valid directory");
                     EXPECT_STREQ(e.argument(), "--option");
                     throw;
                 }
             },
             mblet::Argparsor::ParseArgumentValidException);
-        newFile.close();
-        ::remove("./argparsorTestFile");
     }
     {
-        ::mkdir("./argparsorTestDir", 0);
-        const char* argv[] = {"binaryName", "--option", "./argparsorTestDir"};
+        MOCKC_EXPECT_CALL(stat, (_, _)).WillOnce(actionStat(__S_IFDIR));
+        const char* argv[] = {"binaryName", "--option", "."};
         const int argc = sizeof(argv) / sizeof(*argv);
         mblet::Argparsor args;
         args.addArgument("--option")
@@ -695,25 +703,22 @@ GTEST_TEST(parseArguments, standartValid) {
                     args.parseArguments(argc, const_cast<char**>(argv));
                 }
                 catch (const mblet::Argparsor::ParseArgumentValidException& e) {
-                    EXPECT_STREQ(e.what(), "\"./argparsorTestDir\" is not a valid file");
+                    EXPECT_STREQ(e.what(), "\".\" is not a valid file");
                     EXPECT_STREQ(e.argument(), "--option");
                     throw;
                 }
             },
             mblet::Argparsor::ParseArgumentValidException);
-        ::remove("./argparsorTestDir");
     }
     {
-        std::ofstream newFile("./argparsorTestFile");
-        const char* argv[] = {"binaryName", "--option", "./argparsorTestFile"};
+        MOCKC_EXPECT_CALL(stat, (_, _)).WillOnce(actionStat(__S_IFREG));
+        const char* argv[] = {"binaryName", "--option", "."};
         const int argc = sizeof(argv) / sizeof(*argv);
         mblet::Argparsor args;
         args.addArgument("--option")
             .nargs(1)
             .valid(new mblet::Argparsor::ValidPath(mblet::Argparsor::ValidPath::IS_FILE));
         args.parseArguments(argc, const_cast<char**>(argv));
-        EXPECT_EQ(args["--option"].getString(), "./argparsorTestFile");
-        newFile.close();
-        ::remove("./argparsorTestFile");
+        EXPECT_EQ(args["--option"].getString(), ".");
     }
 }
