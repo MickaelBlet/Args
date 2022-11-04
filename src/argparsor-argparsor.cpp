@@ -27,6 +27,7 @@
 
 #include <algorithm>
 #include <iostream>
+#include <sstream>
 
 #include "mblet/argparsor/argument.h"
 #include "mblet/argparsor/utils.h"

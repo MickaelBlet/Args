@@ -14,6 +14,6 @@ foreach(file ${test_files})
             CXX_EXTENSIONS OFF
             NO_SYSTEM_FROM_IMPORTED ON
     )
-    target_compile_options("${filenamewe}.example" PRIVATE -Wall -Wextra -Werror)
+    target_compile_options("${filenamewe}.example" PRIVATE -pedantic -Wall -Wextra -Werror)
     target_link_libraries("${filenamewe}.example" argparsor)
 endforeach()

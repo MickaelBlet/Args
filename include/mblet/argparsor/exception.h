@@ -39,6 +39,7 @@ namespace argparsor {
 class Exception : public std::exception {
   public:
     Exception(const char* str) :
+        std::exception(),
         _str(str) {}
     virtual ~Exception() throw() {}
     const char* what() const throw() {

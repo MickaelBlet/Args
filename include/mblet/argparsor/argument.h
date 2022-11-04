@@ -26,7 +26,8 @@
 #ifndef _MBLET_ARGPARSOR_ARGUMENT_H_
 #define _MBLET_ARGPARSOR_ARGUMENT_H_
 
-#include <sstream>
+#include <cstdlib>
+#include <cstring>
 #include <string>
 #include <vector>
 
@@ -40,6 +41,200 @@ namespace mblet {
 class Argparsor;
 
 namespace argparsor {
+
+template<typename T>
+inline void boolTo(const bool&, T&) {
+    throw ParseArgumentException("destination method not found for this type");
+}
+
+inline void boolTo(const bool& b, bool& ret) {
+    ret = b;
+}
+
+inline void boolTo(const bool& b, char& ret) {
+    ret = b;
+}
+
+inline void boolTo(const bool& b, unsigned char& ret) {
+    ret = b;
+}
+
+inline void boolTo(const bool& b, short& ret) {
+    ret = b;
+}
+
+inline void boolTo(const bool& b, unsigned short& ret) {
+    ret = b;
+}
+
+inline void boolTo(const bool& b, int& ret) {
+    ret = b;
+}
+
+inline void boolTo(const bool& b, unsigned int& ret) {
+    ret = b;
+}
+
+inline void boolTo(const bool& b, long& ret) {
+    ret = b;
+}
+
+inline void boolTo(const bool& b, unsigned long& ret) {
+    ret = b;
+}
+
+#if __cplusplus >= 201103L
+#ifdef _GLIBCXX_USE_LONG_LONG
+
+inline void boolTo(const bool& b, long long& ret) {
+    ret = b;
+}
+
+inline void boolTo(const bool& b, unsigned long long& ret) {
+    ret = b;
+}
+
+#endif
+#endif
+
+inline void boolTo(const bool& b, float& ret) {
+    ret = b;
+}
+
+inline void boolTo(const bool& b, double& ret) {
+    ret = b;
+}
+
+inline void boolTo(const bool& b, long double& ret) {
+    ret = b;
+}
+
+inline void boolTo(const bool& b, std::string& ret) {
+    if (b) {
+        ret = "true";
+    }
+    else {
+        ret = "false";
+    }
+}
+
+inline void boolTo(const bool& b, const char*& ret) {
+    if (b) {
+        ret = "true";
+    }
+    else {
+        ret = "false";
+    }
+}
+
+template<std::size_t Size>
+inline void boolTo(const bool& b, char (&ret)[Size]) {
+    if (b) {
+        if (Size >= sizeof("true")) {
+            ::memcpy(ret, "true", sizeof("true"));
+        }
+        else {
+            ::memcpy(ret, "true", Size - 1);
+            ret[Size - 1] = '\0';
+        }
+    }
+    else {
+        if (Size >= sizeof("false")) {
+            ::memcpy(ret, "false", sizeof("false"));
+        }
+        else {
+            ::memcpy(ret, "false", Size - 1);
+            ret[Size - 1] = '\0';
+        }
+    }
+}
+
+template<typename T>
+inline void strTo(const std::string&, T&) {
+    throw ParseArgumentException("destination method not found for this type");
+}
+
+inline void strTo(const std::string& str, bool& ret) {
+    ret = ::strtod(str.c_str(), NULL);
+}
+
+inline void strTo(const std::string& str, char& ret) {
+    ret = ::strtod(str.c_str(), NULL);
+}
+
+inline void strTo(const std::string& str, unsigned char& ret) {
+    ret = ::strtod(str.c_str(), NULL);
+}
+
+inline void strTo(const std::string& str, short& ret) {
+    ret = ::strtod(str.c_str(), NULL);
+}
+
+inline void strTo(const std::string& str, unsigned short& ret) {
+    ret = ::strtod(str.c_str(), NULL);
+}
+
+inline void strTo(const std::string& str, int& ret) {
+    ret = ::strtod(str.c_str(), NULL);
+}
+
+inline void strTo(const std::string& str, unsigned int& ret) {
+    ret = ::strtod(str.c_str(), NULL);
+}
+
+inline void strTo(const std::string& str, long& ret) {
+    ret = ::strtod(str.c_str(), NULL);
+}
+
+inline void strTo(const std::string& str, unsigned long& ret) {
+    ret = ::strtod(str.c_str(), NULL);
+}
+
+#if __cplusplus >= 201103L
+#ifdef _GLIBCXX_USE_LONG_LONG
+
+inline void strTo(const std::string& str, long long& ret) {
+    ret = ::strtod(str.c_str(), NULL);
+}
+
+inline void strTo(const std::string& str, unsigned long long& ret) {
+    ret = ::strtod(str.c_str(), NULL);
+}
+
+#endif
+#endif
+
+inline void strTo(const std::string& str, float& ret) {
+    ret = ::strtod(str.c_str(), NULL);
+}
+
+inline void strTo(const std::string& str, double& ret) {
+    ret = ::strtod(str.c_str(), NULL);
+}
+
+inline void strTo(const std::string& str, long double& ret) {
+    ret = ::strtod(str.c_str(), NULL);
+}
+
+inline void strTo(const std::string& str, std::string& ret) {
+    ret = str;
+}
+
+inline void strTo(const std::string& str, const char*& ret) {
+    ret = str.c_str();
+}
+
+template<std::size_t Size>
+inline void strTo(const std::string& str, char (&ret)[Size]) {
+    if (Size > str.size()) {
+        ::memcpy(ret, str.c_str(), str.size());
+        ret[str.size()] = '\0';
+    }
+    else {
+        ::memcpy(ret, str.c_str(), Size - 1);
+        ret[Size - 1] = '\0';
+    }
+}
 
 class Argparsor;
 
@@ -315,10 +510,12 @@ class Argument : public ArgumentElement {
      * @return reference of new argument
      */
     template<typename T>
-    Argument& dest(std::vector<std::vector<T> >& dest) {
+    Argument& dest(std::vector<std::vector<T> >& dest,
+                   void (*toDest)(std::vector<std::vector<T> >& dest, bool isExist,
+                                  const std::vector<std::vector<std::string> >& arguments) = NULL) {
         bool validDeletable = _validDeletable;
         _validDeletable = false;
-        Argument* argumentType = new ArgumentVectorVectorType<T>(this, dest);
+        Argument* argumentType = new ArgumentVectorVectorType<T>(this, dest, toDest);
         argumentType->_validDeletable = validDeletable;
         return *argumentType;
     }
@@ -331,10 +528,11 @@ class Argument : public ArgumentElement {
      * @return reference of new argument
      */
     template<typename T>
-    Argument& dest(std::vector<T>& dest) {
+    Argument& dest(std::vector<T>& dest, void (*toDest)(std::vector<T>& dest, bool isExist,
+                                                        const std::vector<std::string>& arguments) = NULL) {
         bool validDeletable = _validDeletable;
         _validDeletable = false;
-        Argument* argumentType = new ArgumentVectorType<T>(this, dest);
+        Argument* argumentType = new ArgumentVectorType<T>(this, dest, toDest);
         argumentType->_validDeletable = validDeletable;
         return *argumentType;
     }
@@ -347,10 +545,10 @@ class Argument : public ArgumentElement {
      * @return reference of new argument
      */
     template<typename T>
-    Argument& dest(T& dest) {
+    Argument& dest(T& dest, void (*toDest)(T& dest, bool isExist, const std::string& argument) = NULL) {
         bool validDeletable = _validDeletable;
         _validDeletable = false;
-        Argument* argumentType = new ArgumentType<T>(this, dest);
+        Argument* argumentType = new ArgumentType<T>(this, dest, toDest);
         argumentType->_validDeletable = validDeletable;
         return *argumentType;
     }
@@ -424,9 +622,10 @@ class Argument : public ArgumentElement {
 template<typename T>
 class ArgumentType : public Argument {
   public:
-    ArgumentType(Argument* argument, T& dest) :
+    ArgumentType(Argument* argument, T& dest, void (*toDest)(T&, bool, const std::string&)) :
         Argument(*argument),
-        _dest(dest) {
+        _dest(dest),
+        _toDestCustom(toDest) {
         delete argument;
         *_this = this;
     }
@@ -434,31 +633,34 @@ class ArgumentType : public Argument {
 
   private:
     void _toDest() {
-        std::stringstream ss("");
-        if (_type == BOOLEAN_OPTION) {
-            ss << _isExist;
-        }
-        else if (_type == REVERSE_BOOLEAN_OPTION) {
-            ss << !_isExist;
-        }
-        else if (_isNumber) {
-            ss << _number;
+        if (_toDestCustom != NULL) {
+            _toDestCustom(_dest, _isExist, _argument);
         }
         else {
-            ss << _argument;
+            if (_type == BOOLEAN_OPTION) {
+                boolTo(_isExist, _dest);
+            }
+            else if (_type == REVERSE_BOOLEAN_OPTION) {
+                boolTo(!_isExist, _dest);
+            }
+            else {
+                strTo(_argument, _dest);
+            }
         }
-        ss >> _dest;
     }
 
     T& _dest;
+    void (*_toDestCustom)(T&, bool, const std::string&);
 };
 
 template<typename T>
 class ArgumentVectorType : public Argument {
   public:
-    ArgumentVectorType(Argument* argument, std::vector<T>& dest) :
+    ArgumentVectorType(Argument* argument, std::vector<T>& dest,
+                       void (*toDest)(std::vector<T>&, bool, const std::vector<std::string>&)) :
         Argument(*argument),
-        _dest(dest) {
+        _dest(dest),
+        _toDestCustom(toDest) {
         delete argument;
         *_this = this;
     }
@@ -466,65 +668,71 @@ class ArgumentVectorType : public Argument {
 
   private:
     void _toDest() {
-        if (!empty()) {
-            for (std::size_t i = 0; i < size(); ++i) {
-                if (!at(i).empty()) {
-                    for (std::size_t j = 0; j < at(i).size(); ++j) {
+        if (_toDestCustom != NULL) {
+            std::vector<std::string> arguments;
+            if (!empty()) {
+                for (std::size_t i = 0; i < size(); ++i) {
+                    if (!at(i).empty()) {
+                        for (std::size_t j = 0; j < at(i).size(); ++j) {
+                            arguments.push_back(at(i).at(j).getString());
+                        }
+                    }
+                    else {
+                        arguments.push_back(at(i).getString());
+                    }
+                }
+            }
+            else {
+                arguments.push_back(_argument);
+            }
+            _toDestCustom(_dest, _isExist, arguments);
+        }
+        else {
+            if (!empty()) {
+                for (std::size_t i = 0; i < size(); ++i) {
+                    if (!at(i).empty()) {
+                        for (std::size_t j = 0; j < at(i).size(); ++j) {
+                            T dest;
+                            strTo(at(i).at(j).getString(), dest);
+                            _dest.push_back(dest);
+                        }
+                    }
+                    else {
                         T dest;
-                        std::stringstream ss("");
-                        if (at(i).at(j).isNumber()) {
-                            ss << at(i).at(j).getNumber();
-                        }
-                        else {
-                            ss << at(i).at(j).getString();
-                        }
-                        ss >> dest;
+                        strTo(at(i).getString(), dest);
                         _dest.push_back(dest);
                     }
                 }
-                else {
-                    T dest;
-                    std::stringstream ss("");
-                    if (at(i).isNumber()) {
-                        ss << at(i).getNumber();
-                    }
-                    else {
-                        ss << at(i).getString();
-                    }
-                    ss >> dest;
-                    _dest.push_back(dest);
-                }
-            }
-        }
-        else {
-            T dest;
-            std::stringstream ss("");
-            if (_type == BOOLEAN_OPTION) {
-                ss << _isExist;
-            }
-            else if (_type == REVERSE_BOOLEAN_OPTION) {
-                ss << !_isExist;
-            }
-            else if (_isNumber) {
-                ss << _number;
             }
             else {
-                ss << _argument;
+                T dest;
+                if (_type == BOOLEAN_OPTION) {
+                    boolTo(_isExist, dest);
+                }
+                else if (_type == REVERSE_BOOLEAN_OPTION) {
+                    boolTo(!_isExist, dest);
+                }
+                else {
+                    strTo(_argument, dest);
+                }
+                _dest.push_back(dest);
             }
-            ss >> dest;
-            _dest.push_back(dest);
         }
     }
 
     std::vector<T>& _dest;
+    void (*_toDestCustom)(std::vector<T>&, bool, const std::vector<std::string>&);
 };
 
 template<typename T>
 class ArgumentVectorVectorType : public Argument {
   public:
-    ArgumentVectorVectorType(Argument* argument, std::vector<std::vector<T> >& dest) :
+    ArgumentVectorVectorType(Argument* argument, std::vector<std::vector<T> >& dest,
+                             void (*toDest)(std::vector<std::vector<T> >&, bool,
+                                            const std::vector<std::vector<std::string> >&)) :
         Argument(*argument),
-        _dest(dest) {
+        _dest(dest),
+        _toDestCustom(toDest) {
         delete argument;
         *_this = this;
     }
@@ -532,61 +740,68 @@ class ArgumentVectorVectorType : public Argument {
 
   private:
     void _toDest() {
-        if (!empty()) {
-            for (std::size_t i = 0; i < size(); ++i) {
-                std::vector<T> vectorDest;
-                if (!at(i).empty()) {
-                    for (std::size_t j = 0; j < at(i).size(); ++j) {
-                        T dest;
-                        std::stringstream ss("");
-                        if (at(i).at(j).isNumber()) {
-                            ss << at(i).at(j).getNumber();
+        if (_toDestCustom != NULL) {
+            std::vector<std::vector<std::string> > arguments;
+            if (!empty()) {
+                for (std::size_t i = 0; i < size(); ++i) {
+                    std::vector<std::string> tmpVector;
+                    if (!at(i).empty()) {
+                        for (std::size_t j = 0; j < at(i).size(); ++j) {
+                            tmpVector.push_back(at(i).at(j).getString());
                         }
-                        else {
-                            ss << at(i).at(j).getString();
-                        }
-                        ss >> dest;
-                        vectorDest.push_back(dest);
-                    }
-                }
-                else {
-                    T dest;
-                    std::stringstream ss("");
-                    if (at(i).isNumber()) {
-                        ss << at(i).getNumber();
                     }
                     else {
-                        ss << at(i).getString();
+                        tmpVector.push_back(at(i).getString());
                     }
-                    ss >> dest;
-                    vectorDest.push_back(dest);
+                    arguments.push_back(tmpVector);
                 }
-                _dest.push_back(vectorDest);
-            }
-        }
-        else {
-            T dest;
-            std::stringstream ss("");
-            if (_type == BOOLEAN_OPTION) {
-                ss << _isExist;
-            }
-            else if (_type == REVERSE_BOOLEAN_OPTION) {
-                ss << !_isExist;
-            }
-            else if (_isNumber) {
-                ss << _number;
             }
             else {
-                ss << _argument;
+                std::vector<std::string> tmpVector;
+                tmpVector.push_back(_argument);
+                arguments.push_back(tmpVector);
             }
-            ss >> dest;
-            std::vector<T> vectorDest;
-            vectorDest.push_back(dest);
-            _dest.push_back(vectorDest);
+            _toDestCustom(_dest, _isExist, arguments);
+        }
+        else {
+            if (!empty()) {
+                for (std::size_t i = 0; i < size(); ++i) {
+                    std::vector<T> vectorDest;
+                    if (!at(i).empty()) {
+                        for (std::size_t j = 0; j < at(i).size(); ++j) {
+                            T dest;
+                            strTo(at(i).at(j).getString(), dest);
+                            vectorDest.push_back(dest);
+                        }
+                    }
+                    else {
+                        T dest;
+                        strTo(at(i).getString(), dest);
+                        vectorDest.push_back(dest);
+                    }
+                    _dest.push_back(vectorDest);
+                }
+            }
+            else {
+                T dest;
+                if (_type == BOOLEAN_OPTION) {
+                    boolTo(_isExist, dest);
+                }
+                else if (_type == REVERSE_BOOLEAN_OPTION) {
+                    boolTo(!_isExist, dest);
+                }
+                else {
+                    strTo(_argument, dest);
+                }
+                std::vector<T> vectorDest;
+                vectorDest.push_back(dest);
+                _dest.push_back(vectorDest);
+            }
         }
     }
 
     std::vector<std::vector<T> >& _dest;
+    void (*_toDestCustom)(std::vector<std::vector<T> >&, bool, const std::vector<std::vector<std::string> >&);
 };
 
 } // namespace argparsor

@@ -4,8 +4,6 @@
 #include "mblet/argparsor.h"
 #include "mock/mockc.h"
 
-MOCKC_METHOD2(stat, int(const char* __file, struct stat* __buf));
-
 GTEST_TEST(parseArguments, parseException) {
     {
         const char* argv[] = {"binaryName", "-ba"};
@@ -542,6 +540,7 @@ GTEST_TEST(parseArguments, validException) {
     }
 }
 
+MOCKC_METHOD2(stat, int(const char* __file, struct stat* __buf))
 ACTION_P(actionStat, st_mode) {
     arg1->st_mode = st_mode;
     return 0;

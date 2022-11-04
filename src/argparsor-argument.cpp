@@ -24,6 +24,7 @@
  */
 
 #include <algorithm>
+#include <sstream>
 
 #include "mblet/argparsor/action.h"
 #include "mblet/argparsor/argparsor.h"

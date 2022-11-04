@@ -495,12 +495,17 @@ optional arguments:
 
 #include "mblet/argparsor.h"
 
+struct CustomStruct {
+    std::string a;
+    double b;
+};
+
 int main(int argc, char* argv[]) {
     using namespace mblet;
 
     struct {
-        std::string notrequired;
-        std::string required;
+        char notrequired[32];
+        const char* required;
         bool b;
         bool c;
         double simple;
@@ -509,9 +514,19 @@ int main(int argc, char* argv[]) {
         std::vector<std::string> multi;
         std::vector<std::vector<double> > multiAppend;
         std::vector<std::string> extend;
-        std::vector<std::vector<std::string> > extendNumber;
+
+        std::vector<CustomStruct> extendNumber;
+
+        static void toExtendNumber(std::vector<CustomStruct>& extendNumber, bool /*isExist*/,
+                                   const std::vector<std::string>& arguments) {
+            for (std::size_t i = 0; i < arguments.size(); i += 2) {
+                CustomStruct number = {arguments[i], ::strtod(arguments[i + 1].c_str(), NULL)};
+                extendNumber.push_back(number);
+            }
+        }
     } options;
-    options.notrequired = "default notrequired";
+
+    ::memcpy(options.notrequired, "default notrequired", sizeof("default notrequired"));
     options.required = "default required";
     options.b = false;
     options.c = false;
@@ -547,7 +562,6 @@ int main(int argc, char* argv[]) {
         .required(true)
         .metavar("ARG1 ARG2")
         .nargs(2)
-        .defaults(args.vector("foo", "bar"))
         .dest(options.number);
     args.addArgument("--infinite").help("help of infinite").nargs('+').dest(options.infinite);
     args.addArgument(args.vector("-m", "--multi"))
@@ -578,7 +592,7 @@ int main(int argc, char* argv[]) {
         .metavar("EXTEND")
         .nargs(2)
         .defaults(args.vector("0", "1", "2", "3"))
-        .dest(options.extendNumber);
+        .dest(options.extendNumber, &options.toExtendNumber);
     try {
         args.parseArguments(argc, argv, true);
 
@@ -671,8 +685,8 @@ int main(int argc, char* argv[]) {
             if (i > 0) {
                 std::cout << ", ";
             }
-            std::cout << options.extendNumber[i][0];
-            std::cout << ", " << options.extendNumber[i][1];
+            std::cout << options.extendNumber[i].a;
+            std::cout << ", " << options.extendNumber[i].b;
         }
         std::cout << std::endl;
     }

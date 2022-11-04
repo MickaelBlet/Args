@@ -153,27 +153,15 @@ args.addArgument("--arg").valid(new mblet::Argparsor::ValidPath(mblet::Argparsor
 
 ## Build
 
-### Static
 ```bash
+# Static
 mkdir build; pushd build; cmake .. && make -j && make install; popd
-```
-
-### Dynnamic
-```bash
+# Dynamic
 mkdir build; pushd build; cmake -DBUILD_SHARED_LIBS=1 .. && make -j && make install; popd
-```
-
-### Static C++98
-```bash
+# Static C++98
 mkdir build; pushd build; cmake -DCMAKE_CXX_STANDARD=98 .. && make -j && make install; popd
-```
-
-### Example + Tests + Coverage
-```bash
+# Example + Tests + Coverage
 mkdir build; pushd build; cmake -DBUILD_EXAMPLE=1 -DBUILD_TESTING=1 -DBUILD_COVERAGE=1 -DCMAKE_CXX_STANDARD=98 .. && make -j && make test; popd
-```
-
-### Install with custom directory
-```bash
+# Install with custom directory
 mkdir build; pushd build; cmake -DCMAKE_INSTALL_PREFIX="YOUR_INSTALL_PATH" .. && make -j && make install; popd
 ```
