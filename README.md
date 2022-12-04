@@ -1,7 +1,7 @@
 # Argparsor
 
 Parse and stock options from argc and argv  
-Examples at [examples.md](doc/examples.md)
+Examples at [examples.md](docs/examples.md)
 
 ## Option format
 
@@ -79,17 +79,17 @@ List of action
 ### DEFAULT
 
 This just stores the argument’s value. This is the default action.  
-Example at [examples.md/none](doc/examples.md#none).
+Example at [examples.md/none](docs/examples.md#none).
 
 ### APPEND
 
 This stores a list, and appends each argument value to the list. It is useful to allow an option to be specified multiple times. If the default value is non-empty, the default elements will be present in the parsed value for the option, with any values from the command line appended after those default values.  
-Example at [examples.md/append](doc/examples.md#append).
+Example at [examples.md/append](docs/examples.md#append).
 
 ### EXTEND
 
 This stores a list, and extends each argument value to the list.  
-Example at [examples.md/extend](doc/examples.md#extend).
+Example at [examples.md/extend](docs/examples.md#extend).
 
 ### HELP
 
@@ -98,32 +98,32 @@ This case used for create the help text.
 ```cpp
 mblet::Argparsor args(false);
 ```
-Example at [examples.md/help](doc/examples.md#help).
+Example at [examples.md/help](docs/examples.md#help).
 
 ### INFINITE
 
 This stores a list.  
-Example at [examples.md/infinite](doc/examples.md#infinite).
+Example at [examples.md/infinite](docs/examples.md#infinite).
 
 ### STORE_FALSE
 
 This case used for storing the values `false` respectively.  
-Example at [examples.md/storefalse](doc/examples.md#storefalse).
+Example at [examples.md/storefalse](docs/examples.md#storefalse).
 
 ### STORE_TRUE
 
 This case used for storing the values `true` respectively.  
-Example at [examples.md/storetrue](doc/examples.md#storetrue).
+Example at [examples.md/storetrue](docs/examples.md#storetrue).
 
 ### VERSION
 
 This case used for storing the version text with `defaults` method.  
-Example at [examples.md/version](doc/examples.md#version).
+Example at [examples.md/version](docs/examples.md#version).
 
 ## Valid
 
 You can check format of argument with IValid interface object.  
-Example of Custom Valid at [examples.md/custom-valid-transform](doc/examples.md#custom-valid-transform).
+Example of Custom Valid at [examples.md/custom-valid-transform](docs/examples.md#custom-valid-transform).
 
 ### ValidNumber
 Check if arguments are number.

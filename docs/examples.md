@@ -1,28 +1,5 @@
 # Examples
 
-Positionnal:
-- [Argument](#argument)
-
-Actions:
-- [Append](#append)
-- [Extend](#extend)
-- [Help](#help)
-- [Infinite](#infinite)
-- [None](#none)
-- [StoreFalse](#storefalse)
-- [StoreTrue](#storetrue)
-- [Version](#version)
-
-Defaults:
-- [Default value](#default-value)
-
-Valid:
-- [Default valid](#default-valid)
-- [Custom valid transform](#custom-valid-transform)
-
-Full:
-- [All Type](#all-type)
-
 ## Argument
 ```cpp
 #include <iostream>
