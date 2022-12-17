@@ -4,7 +4,7 @@
 
 int main(int argc, char* argv[]) {
     mblet::Argparsor args;
-    args.addArgument("--no-boolean").action(args.STORE_FALSE).help("custom not booblean option message");
+    args.addArgument("--no-boolean").action(args.STORE_FALSE).help("custom not boolean option message");
     args.parseArguments(argc, argv);
     if (args["--no-boolean"]) {
         std::cout << "true" << std::endl;

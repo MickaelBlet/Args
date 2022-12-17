@@ -161,7 +161,7 @@ mkdir build; pushd build; cmake -DBUILD_SHARED_LIBS=1 .. && make -j && make inst
 # Static C++98
 mkdir build; pushd build; cmake -DCMAKE_CXX_STANDARD=98 .. && make -j && make install; popd
 # Example + Tests + Coverage
-mkdir build; pushd build; cmake -DBUILD_EXAMPLE=1 -DBUILD_TESTING=1 -DBUILD_COVERAGE=1 -DCMAKE_CXX_STANDARD=98 .. && make -j && make test; popd
+mkdir build; pushd build; cmake -DBUILD_EXAMPLE=1 -DBUILD_TESTING=1 -DBUILD_COVERAGE=1 -DCMAKE_CXX_STANDARD=98 .. && make -j && make test -j; popd
 # Install with custom directory
 mkdir build; pushd build; cmake -DCMAKE_INSTALL_PREFIX="YOUR_INSTALL_PATH" .. && make -j && make install; popd
 ```

@@ -251,7 +251,7 @@ $ ./a.out -n 1 2 3 --none 4 5 6
 
 int main(int argc, char* argv[]) {
     mblet::Argparsor args;
-    args.addArgument("--no-boolean").action(args.STORE_FALSE).help("custom not booblean option message");
+    args.addArgument("--no-boolean").action(args.STORE_FALSE).help("custom not boolean option message");
     args.parseArguments(argc, argv);
     if (args["--no-boolean"]) {
         std::cout << "true" << std::endl;
@@ -277,7 +277,7 @@ false
 
 int main(int argc, char* argv[]) {
     mblet::Argparsor args;
-    args.addArgument("-b").flag("--boolean").action(args.STORE_TRUE).help("custom booblean option message");
+    args.addArgument("-b").flag("--boolean").action(args.STORE_TRUE).help("custom boolean option message");
     args.parseArguments(argc, argv);
     if (args["--boolean"]) {
         std::cout << "true" << std::endl;
