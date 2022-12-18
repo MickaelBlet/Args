@@ -1,6 +1,14 @@
-cmake_minimum_required(VERSION 3.1)
+cmake_minimum_required(VERSION 3.5)
 
-project(argparsor CXX)
+project(argparsor VERSION 3.1.0 LANGUAGES CXX)
+
+# OPTIONS
+option(BUILD_EXAMPLE "Build example binaries" OFF)
+option(BUILD_TESTING "Build test binaries" OFF)
+option(BUILD_COVERAGE "Check coverage at end of test" OFF)
+if(NOT CMAKE_CXX_STANDARD)
+    set(CMAKE_CXX_STANDARD 11 CACHE STRING "C++ standard to be used")
+endif()
 
 include_directories(
     "${PROJECT_SOURCE_DIR}/include"
@@ -9,24 +17,24 @@ file(GLOB SOURCE "${PROJECT_SOURCE_DIR}/src/*.cpp")
 
 add_library("${PROJECT_NAME}" ${SOURCE})
 
-target_compile_options("${PROJECT_NAME}" PRIVATE -pedantic -Wall -Wextra -Werror)
+target_compile_options("${PROJECT_NAME}" PRIVATE
+    -pedantic -Wall -Wextra -Werror
+)
 
-if (NOT "${CMAKE_CXX_STANDARD}")
-    set(CMAKE_CXX_STANDARD 11 CACHE STRING "C++ standard to be used")
-endif()
-
-set_target_properties("${PROJECT_NAME}"
-    PROPERTIES
-        CXX_STANDARD "${CMAKE_CXX_STANDARD}"
-        CXX_STANDARD_REQUIRED ON
-        CXX_EXTENSIONS OFF
-        NO_SYSTEM_FROM_IMPORTED ON
-        INTERFACE_INCLUDE_DIRECTORIES "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>;$<INSTALL_INTERFACE:include>"
+set_target_properties("${PROJECT_NAME}" PROPERTIES
+    VERSION ${PROJECT_VERSION}
+    SOVERSION ${PROJECT_VERSION_MAJOR}
+    CXX_STANDARD "${CMAKE_CXX_STANDARD}"
+    CXX_STANDARD_REQUIRED ON
+    CXX_EXTENSIONS OFF
+    NO_SYSTEM_FROM_IMPORTED ON
+    INTERFACE_INCLUDE_DIRECTORIES "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>;$<INSTALL_INTERFACE:include>"
 )
 
 # config
 file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}Config.cmake"
-"include(\"\${CMAKE_CURRENT_LIST_DIR}/${PROJECT_NAME}Targets.cmake\")")
+    "include(\"\${CMAKE_CURRENT_LIST_DIR}/${PROJECT_NAME}Targets.cmake\")"
+)
 
 # target
 install(TARGETS "${PROJECT_NAME}" EXPORT "${PROJECT_NAME}Targets"
@@ -45,20 +53,17 @@ install(FILES "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}Config.cmake"
         DESTINATION "lib/cmake"
 )
 
-if (BUILD_EXAMPLE)
-    message(STATUS "Enable BUILD_EXAMPLE: ${BUILD_EXAMPLE}")
+if(BUILD_EXAMPLE)
     add_subdirectory(example)
-endif() # BUILD_EXAMPLE
+endif()
 
-if (BUILD_TESTING)
-    message(STATUS "Enable BUILD_TESTING: ${BUILD_TESTING}")
+if(CMAKE_BUILD_TYPE STREQUAL "Debug" AND BUILD_TESTING)
     enable_testing()
-    if (BUILD_COVERAGE)
-        message(STATUS "Enable BUILD_COVERAGE: ${BUILD_COVERAGE}")
+    if(BUILD_COVERAGE)
         target_compile_options("${PROJECT_NAME}" PRIVATE -g -O0 --coverage -fprofile-arcs -ftest-coverage)
         target_link_libraries("${PROJECT_NAME}" gcov)
         include("${PROJECT_SOURCE_DIR}/etc/cmake/CodeCoverage.cmake")
         append_coverage_compiler_flags_to_target("${PROJECT_NAME}")
-    endif() # BUILD_COVERAGE
+    endif()
     add_subdirectory(test)
-endif() # BUILD_TESTING
+endif()
