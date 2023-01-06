@@ -38,13 +38,9 @@ namespace argparsor {
  */
 class Exception : public std::exception {
   public:
-    Exception(const char* str) :
-        std::exception(),
-        _str(str) {}
-    virtual ~Exception() throw() {}
-    const char* what() const throw() {
-        return _str.c_str();
-    }
+    Exception(const char* str);
+    virtual ~Exception() throw();
+    const char* what() const throw();
 
   protected:
     std::string _str;
@@ -55,25 +51,36 @@ class Exception : public std::exception {
  */
 class ArgumentException : public Exception {
   public:
-    ArgumentException(const char* message) :
-        Exception(message),
-        _argument() {}
-    ArgumentException(const char* argument, const char* message) :
-        Exception(message),
-        _argument(argument) {}
-    virtual ~ArgumentException() throw() {}
-    const char* argument() const throw() {
-        return _argument.c_str();
-    }
+    ArgumentException(const char* message);
+    ArgumentException(const char* argument, const char* message);
+    virtual ~ArgumentException() throw();
+    const char* argument() const throw();
 
   protected:
     std::string _argument;
 };
 
-typedef ArgumentException ParseArgumentException;
-typedef ParseArgumentException ParseArgumentRequiredException;
-typedef ParseArgumentException ParseArgumentValidException;
-typedef ArgumentException AccessDeniedException;
+struct AccessDeniedException: public ArgumentException {
+    AccessDeniedException(const char * argument, const char* message);
+    virtual ~AccessDeniedException() throw();
+};
+
+struct ParseArgumentException: public ArgumentException {
+    ParseArgumentException(const char* message);
+    ParseArgumentException(const char * argument, const char* message);
+    virtual ~ParseArgumentException() throw();
+};
+
+struct ParseArgumentRequiredException: public ParseArgumentException {
+    ParseArgumentRequiredException(const char * argument, const char* message);
+    virtual ~ParseArgumentRequiredException() throw();
+};
+
+struct ParseArgumentValidException: public ParseArgumentException {
+    ParseArgumentValidException(const char* message);
+    ParseArgumentValidException(const char * argument, const char* message);
+    virtual ~ParseArgumentValidException() throw();
+};
 
 } // namespace argparsor
 

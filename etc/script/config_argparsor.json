@@ -5,6 +5,7 @@
         "include/mblet/argparsor.h",
         "src/argparsor-argparsor.cpp",
         "src/argparsor-argument.cpp",
+        "src/argparsor-exception.cpp",
         "src/argparsor-valid.cpp"
     ],
     "include_paths": ["include"],
@@ -48,6 +49,19 @@
         "ValidPath::~ValidPath(",
         "bool ValidPath::isValid(",
         "std::string Argument::_metavarDefault(",
-        "void Argument::_toNumber("
+        "void Argument::_toNumber(",
+        "Exception::Exception(",
+        "Exception::~Exception(",
+        "ArgumentException::ArgumentException(",
+        "ArgumentException::~ArgumentException(",
+        "const char* ArgumentException::argument(",
+        "AccessDeniedException::AccessDeniedException(",
+        "AccessDeniedException::~AccessDeniedException(",
+        "ParseArgumentException::ParseArgumentException(",
+        "ParseArgumentException::~ParseArgumentException(",
+        "ParseArgumentRequiredException::ParseArgumentRequiredException(",
+        "ParseArgumentRequiredException::~ParseArgumentRequiredException(",
+        "ParseArgumentValidException::ParseArgumentValidException(",
+        "ParseArgumentValidException::~ParseArgumentValidException("
     ]
 }
