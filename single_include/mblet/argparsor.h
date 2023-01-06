@@ -2,7 +2,7 @@
  * argparsor.h
  *
  * Licensed under the MIT License <http://opensource.org/licenses/MIT>.
- * Copyright (c) 2022 BLET Mickaël.
+ * Copyright (c) 2022-2023 BLET Mickaël.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -31,7 +31,7 @@
  * argparsor/action.h
  *
  * Licensed under the MIT License <http://opensource.org/licenses/MIT>.
- * Copyright (c) 2022 BLET Mickaël.
+ * Copyright (c) 2022-2023 BLET Mickaël.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -83,7 +83,7 @@ struct Action {
  * argparsor/argparsor.h
  *
  * Licensed under the MIT License <http://opensource.org/licenses/MIT>.
- * Copyright (c) 2022 BLET Mickaël.
+ * Copyright (c) 2022-2023 BLET Mickaël.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -119,7 +119,7 @@ struct Action {
  * argparsor/argument.h
  *
  * Licensed under the MIT License <http://opensource.org/licenses/MIT>.
- * Copyright (c) 2022 BLET Mickaël.
+ * Copyright (c) 2022-2023 BLET Mickaël.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -155,7 +155,7 @@ struct Action {
  * argparsor/exception.h
  *
  * Licensed under the MIT License <http://opensource.org/licenses/MIT>.
- * Copyright (c) 2022 BLET Mickaël.
+ * Copyright (c) 2022-2023 BLET Mickaël.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -191,13 +191,9 @@ namespace argparsor {
  */
 class Exception : public std::exception {
   public:
-    Exception(const char* str) :
-        std::exception(),
-        _str(str) {}
-    virtual ~Exception() throw() {}
-    const char* what() const throw() {
-        return _str.c_str();
-    }
+    Exception(const char* str);
+    virtual ~Exception() throw();
+    const char* what() const throw();
 
   protected:
     std::string _str;
@@ -208,25 +204,36 @@ class Exception : public std::exception {
  */
 class ArgumentException : public Exception {
   public:
-    ArgumentException(const char* message) :
-        Exception(message),
-        _argument() {}
-    ArgumentException(const char* argument, const char* message) :
-        Exception(message),
-        _argument(argument) {}
-    virtual ~ArgumentException() throw() {}
-    const char* argument() const throw() {
-        return _argument.c_str();
-    }
+    ArgumentException(const char* message);
+    ArgumentException(const char* argument, const char* message);
+    virtual ~ArgumentException() throw();
+    const char* argument() const throw();
 
   protected:
     std::string _argument;
 };
 
-typedef ArgumentException ParseArgumentException;
-typedef ParseArgumentException ParseArgumentRequiredException;
-typedef ParseArgumentException ParseArgumentValidException;
-typedef ArgumentException AccessDeniedException;
+struct AccessDeniedException: public ArgumentException {
+    AccessDeniedException(const char * argument, const char* message);
+    virtual ~AccessDeniedException() throw();
+};
+
+struct ParseArgumentException: public ArgumentException {
+    ParseArgumentException(const char* message);
+    ParseArgumentException(const char * argument, const char* message);
+    virtual ~ParseArgumentException() throw();
+};
+
+struct ParseArgumentRequiredException: public ParseArgumentException {
+    ParseArgumentRequiredException(const char * argument, const char* message);
+    virtual ~ParseArgumentRequiredException() throw();
+};
+
+struct ParseArgumentValidException: public ParseArgumentException {
+    ParseArgumentValidException(const char* message);
+    ParseArgumentValidException(const char * argument, const char* message);
+    virtual ~ParseArgumentValidException() throw();
+};
 
 } // namespace argparsor
 
@@ -239,7 +246,7 @@ typedef ArgumentException AccessDeniedException;
  * argparsor/valid.h
  *
  * Licensed under the MIT License <http://opensource.org/licenses/MIT>.
- * Copyright (c) 2022 BLET Mickaël.
+ * Copyright (c) 2022-2023 BLET Mickaël.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -407,7 +414,7 @@ class ValidPath : public IValid {
  * argparsor/vector.h
  *
  * Licensed under the MIT License <http://opensource.org/licenses/MIT>.
- * Copyright (c) 2022 BLET Mickaël.
+ * Copyright (c) 2022-2023 BLET Mickaël.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -1589,7 +1596,7 @@ class Argparsor : public argparsor::Argparsor, public argparsor::Action {
  * argparsor-argparsor.cpp
  *
  * Licensed under the MIT License <http://opensource.org/licenses/MIT>.
- * Copyright (c) 2022 BLET Mickaël.
+ * Copyright (c) 2022-2023 BLET Mickaël.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -1624,7 +1631,7 @@ class Argparsor : public argparsor::Argparsor, public argparsor::Action {
  * argparsor/utils.h
  *
  * Licensed under the MIT License <http://opensource.org/licenses/MIT>.
- * Copyright (c) 2022 BLET Mickaël.
+ * Copyright (c) 2022-2023 BLET Mickaël.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -2397,11 +2404,14 @@ inline void Argparsor::parsePositionnalArgument(char* argv[], int* index) {
 } // namespace argparsor
 
 } // namespace mblet
+
+#undef PREFIX_SIZEOF_SHORT_OPTION
+#undef PREFIX_SIZEOF_LONG_OPTION
 /**
  * argparsor-argument.cpp
  *
  * Licensed under the MIT License <http://opensource.org/licenses/MIT>.
- * Copyright (c) 2022 BLET Mickaël.
+ * Copyright (c) 2022-2023 BLET Mickaël.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -2944,11 +2954,105 @@ inline void Argument::_defaultsConstructor() {
 } // namespace argparsor
 
 } // namespace mblet
+
+#undef PREFIX_SIZEOF_SHORT_OPTION
+#undef PREFIX_SIZEOF_LONG_OPTION
+/**
+ * argparsor-exception.cpp
+ *
+ * Licensed under the MIT License <http://opensource.org/licenses/MIT>.
+ * Copyright (c) 2022-2023 BLET Mickaël.
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included
+ * in all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+// #include "mblet/argparsor/exception.h"
+
+
+namespace mblet {
+
+namespace argparsor {
+
+inline Exception::Exception(const char* str) :
+    std::exception(), _str(str)
+    {}
+
+inline Exception::~Exception() throw() {}
+
+const char* Exception::what() const throw() {
+    return _str.c_str();
+}
+
+inline ArgumentException::ArgumentException(const char* message) :
+    Exception(message), _argument()
+    {}
+
+inline ArgumentException::ArgumentException(const char* argument, const char* message) :
+    Exception(message), _argument(argument)
+    {}
+
+inline ArgumentException::~ArgumentException() throw() {}
+
+inline const char* ArgumentException::argument() const throw() {
+    return _argument.c_str();
+}
+
+inline AccessDeniedException::AccessDeniedException(const char* argument, const char* message) :
+    ArgumentException(argument, message)
+    {}
+
+inline AccessDeniedException::~AccessDeniedException() throw() {}
+
+inline ParseArgumentException::ParseArgumentException(const char* message) :
+    ArgumentException(message)
+    {}
+
+inline ParseArgumentException::ParseArgumentException(const char* argument, const char* message) :
+    ArgumentException(argument, message)
+    {}
+
+inline ParseArgumentException::~ParseArgumentException() throw() {}
+
+inline ParseArgumentRequiredException::ParseArgumentRequiredException(const char* argument, const char* message) :
+    ParseArgumentException(argument, message)
+    {}
+
+inline ParseArgumentRequiredException::~ParseArgumentRequiredException() throw() {}
+
+inline ParseArgumentValidException::ParseArgumentValidException(const char* message) :
+    ParseArgumentException(message)
+    {}
+
+inline ParseArgumentValidException::ParseArgumentValidException(const char* argument, const char* message) :
+    ParseArgumentException(argument, message)
+    {}
+
+inline ParseArgumentValidException::~ParseArgumentValidException() throw() {}
+
+} // namespace argparsor
+
+} // namespace mblet
 /**
  * argparsor-valid.cpp
  *
  * Licensed under the MIT License <http://opensource.org/licenses/MIT>.
- * Copyright (c) 2022 BLET Mickaël.
+ * Copyright (c) 2022-2023 BLET Mickaël.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
