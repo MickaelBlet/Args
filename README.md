@@ -3,6 +3,66 @@
 Parse and stock options from argc and argv  
 Examples at [examples.md](docs/examples.md)
 
+## Quick Start
+
+```cpp
+#include <iostream>
+
+#include "mblet/argparsor.h"
+
+int main(int argc, char* argv[]) {
+    mblet::Argparsor args;
+    args.addArgument("ARGUMENT").help("help of argument").required(true);
+    args.addArgument("-v").flag("--version").help("help of version option")
+        .action(args.VERSION).defaults("Version: 0.0.0");
+    args.addArgument("--option").help("help of option");
+    args.addArgument("--log-level").help("help of log-level").metavar("LEVEL")
+        .valid(new mblet::Argparsor::ValidChoise(args.vector("DEBUG", "INFO", "WARNING", "ERROR")))
+        .defaults("INFO");
+    try {
+        args.parseArguments(argc, argv, true);
+        std::cout << "ARGUMENT: " << args["ARGUMENT"] << '\n';
+        if (args["--option"]) {
+            std::cout << "--option: " << args["--option"] << '\n';
+        }
+        std::cout << "--log-level: " << args["--log-level"] << std::endl;
+    }
+    catch (const mblet::Argparsor::ParseArgumentException& e) {
+        std::cerr << args.getBynaryName() << ": " << e.what();
+        std::cerr << " -- '" << e.argument() << "'" << std::endl;
+        return 1; // END
+    }
+    return 0;
+}
+```
+
+```
+$ ./a.out --version
+Version: 0.0.0
+$ ./a.out -h
+
+```
+
+## Build
+
+```bash
+# Static Release
+mkdir build; pushd build; cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=0 .. && make -j && make install; popd
+# Dynamic Release
+mkdir build; pushd build; cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=1 .. && make -j && make install; popd
+
+# Static Release C++98
+mkdir build; pushd build; cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_STANDARD=98 -DBUILD_SHARED_LIBS=0 .. && make -j && make install; popd
+# Dynamic Release C++98
+mkdir build; pushd build; cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_STANDARD=98 -DBUILD_SHARED_LIBS=1 .. && make -j && make install; popd
+
+# Install with custom directory
+mkdir build; pushd build; cmake -DCMAKE_INSTALL_PREFIX="YOUR_INSTALL_PATH" .. && make -j && make install; popd
+
+# Example + Tests + Coverage
+mkdir build; pushd build; cmake -DCMAKE_BUILD_TYPE=Debug -DBUILD_EXAMPLE=1 -DBUILD_TESTING=1 -DBUILD_COVERAGE=1 -DCMAKE_CXX_STANDARD=98 .. && make -j && make test -j; popd
+```
+
 ## Option format
 
 Short format
@@ -149,24 +209,4 @@ Check if arguments are valid path/dir/file
 args.addArgument("--arg").valid(new mblet::Argparsor::ValidPath());
 args.addArgument("--arg").valid(new mblet::Argparsor::ValidPath(mblet::Argparsor::ValidPath::IS_DIR));
 args.addArgument("--arg").valid(new mblet::Argparsor::ValidPath(mblet::Argparsor::ValidPath::IS_FILE));
-```
-
-## Build
-
-```bash
-# Static Release
-mkdir build; pushd build; cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=0 .. && make -j && make install; popd
-# Dynamic Release
-mkdir build; pushd build; cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=1 .. && make -j && make install; popd
-
-# Static Release C++98
-mkdir build; pushd build; cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_STANDARD=98 -DBUILD_SHARED_LIBS=0 .. && make -j && make install; popd
-# Dynamic Release C++98
-mkdir build; pushd build; cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_STANDARD=98 -DBUILD_SHARED_LIBS=1 .. && make -j && make install; popd
-
-# Install with custom directory
-mkdir build; pushd build; cmake -DCMAKE_INSTALL_PREFIX="YOUR_INSTALL_PATH" .. && make -j && make install; popd
-
-# Example + Tests + Coverage
-mkdir build; pushd build; cmake -DCMAKE_BUILD_TYPE=Debug -DBUILD_EXAMPLE=1 -DBUILD_TESTING=1 -DBUILD_COVERAGE=1 -DCMAKE_CXX_STANDARD=98 .. && make -j && make test -j; popd
 ```
