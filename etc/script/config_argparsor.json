@@ -52,6 +52,7 @@
         "void Argument::_toNumber(",
         "Exception::Exception(",
         "Exception::~Exception(",
+        "const char* Exception::what(",
         "ArgumentException::ArgumentException(",
         "ArgumentException::~ArgumentException(",
         "const char* ArgumentException::argument(",

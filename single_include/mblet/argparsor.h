@@ -1,3 +1,7 @@
+// GENERATE BY AMALGAMATE
+#ifndef _AMALGAMATE_GUARD__SINGLE_INCLUDE_MBLET_ARGPARSOR_H_
+#define _AMALGAMATE_GUARD__SINGLE_INCLUDE_MBLET_ARGPARSOR_H_
+
 /**
  * argparsor.h
  *
@@ -213,25 +217,25 @@ class ArgumentException : public Exception {
     std::string _argument;
 };
 
-struct AccessDeniedException: public ArgumentException {
-    AccessDeniedException(const char * argument, const char* message);
+struct AccessDeniedException : public ArgumentException {
+    AccessDeniedException(const char* argument, const char* message);
     virtual ~AccessDeniedException() throw();
 };
 
-struct ParseArgumentException: public ArgumentException {
+struct ParseArgumentException : public ArgumentException {
     ParseArgumentException(const char* message);
-    ParseArgumentException(const char * argument, const char* message);
+    ParseArgumentException(const char* argument, const char* message);
     virtual ~ParseArgumentException() throw();
 };
 
-struct ParseArgumentRequiredException: public ParseArgumentException {
-    ParseArgumentRequiredException(const char * argument, const char* message);
+struct ParseArgumentRequiredException : public ParseArgumentException {
+    ParseArgumentRequiredException(const char* argument, const char* message);
     virtual ~ParseArgumentRequiredException() throw();
 };
 
-struct ParseArgumentValidException: public ParseArgumentException {
+struct ParseArgumentValidException : public ParseArgumentException {
     ParseArgumentValidException(const char* message);
-    ParseArgumentValidException(const char * argument, const char* message);
+    ParseArgumentValidException(const char* argument, const char* message);
     virtual ~ParseArgumentValidException() throw();
 };
 
@@ -505,7 +509,6 @@ class Vector : public std::vector<std::string> {
 } // namespace mblet
 
 #endif // _MBLET_ARGPARSOR_VECTOR_H_
-
 
 namespace mblet {
 
@@ -1285,7 +1288,6 @@ class ArgumentVectorVectorType : public Argument {
 
 // #include "mblet/argparsor/vector.h"
 
-
 namespace mblet {
 
 namespace argparsor {
@@ -1562,7 +1564,6 @@ class Argparsor {
 
 // #include "mblet/argparsor/vector.h"
 
-
 namespace mblet {
 
 // simply use argparsor
@@ -1618,7 +1619,6 @@ class Argparsor : public argparsor::Argparsor, public argparsor::Action {
  */
 
 // #include "mblet/argparsor/argparsor.h"
-
 
 #include <algorithm>
 #include <iostream>
@@ -1757,7 +1757,6 @@ inline bool takeArg(const char* arg, std::string* retOptionName, std::string* re
 #endif // _MBLET_ARGPARSOR_UTILS_H_
 
 // #include "mblet/argparsor/vector.h"
-
 
 #define PREFIX_SIZEOF_SHORT_OPTION (sizeof("-") - 1)
 #define PREFIX_SIZEOF_LONG_OPTION (sizeof("--") - 1)
@@ -2199,8 +2198,8 @@ inline void Argparsor::parseLongArgument(int maxIndex, char* argv[], int* index)
                   *(it->second));
 }
 
-inline void Argparsor::parseArgument(int maxIndex, char* argv[], int* index, bool hasArg, const char* option, const char* arg,
-                              Argument* argument) {
+inline void Argparsor::parseArgument(int maxIndex, char* argv[], int* index, bool hasArg, const char* option,
+                                     const char* arg, Argument* argument) {
     if (hasArg) {
         switch (argument->_type) {
             case Argument::SIMPLE_OPTION:
@@ -2442,7 +2441,6 @@ inline void Argparsor::parsePositionnalArgument(char* argv[], int* index) {
 // #include "mblet/argparsor/argument.h"
 
 // #include "mblet/argparsor/utils.h"
-
 
 #define PREFIX_SIZEOF_SHORT_OPTION (sizeof("-") - 1)
 #define PREFIX_SIZEOF_LONG_OPTION (sizeof("--") - 1)
@@ -2984,28 +2982,27 @@ inline void Argument::_defaultsConstructor() {
 
 // #include "mblet/argparsor/exception.h"
 
-
 namespace mblet {
 
 namespace argparsor {
 
 inline Exception::Exception(const char* str) :
-    std::exception(), _str(str)
-    {}
+    std::exception(),
+    _str(str) {}
 
 inline Exception::~Exception() throw() {}
 
-const char* Exception::what() const throw() {
+inline const char* Exception::what() const throw() {
     return _str.c_str();
 }
 
 inline ArgumentException::ArgumentException(const char* message) :
-    Exception(message), _argument()
-    {}
+    Exception(message),
+    _argument() {}
 
 inline ArgumentException::ArgumentException(const char* argument, const char* message) :
-    Exception(message), _argument(argument)
-    {}
+    Exception(message),
+    _argument(argument) {}
 
 inline ArgumentException::~ArgumentException() throw() {}
 
@@ -3014,34 +3011,28 @@ inline const char* ArgumentException::argument() const throw() {
 }
 
 inline AccessDeniedException::AccessDeniedException(const char* argument, const char* message) :
-    ArgumentException(argument, message)
-    {}
+    ArgumentException(argument, message) {}
 
 inline AccessDeniedException::~AccessDeniedException() throw() {}
 
 inline ParseArgumentException::ParseArgumentException(const char* message) :
-    ArgumentException(message)
-    {}
+    ArgumentException(message) {}
 
 inline ParseArgumentException::ParseArgumentException(const char* argument, const char* message) :
-    ArgumentException(argument, message)
-    {}
+    ArgumentException(argument, message) {}
 
 inline ParseArgumentException::~ParseArgumentException() throw() {}
 
 inline ParseArgumentRequiredException::ParseArgumentRequiredException(const char* argument, const char* message) :
-    ParseArgumentException(argument, message)
-    {}
+    ParseArgumentException(argument, message) {}
 
 inline ParseArgumentRequiredException::~ParseArgumentRequiredException() throw() {}
 
 inline ParseArgumentValidException::ParseArgumentValidException(const char* message) :
-    ParseArgumentException(message)
-    {}
+    ParseArgumentException(message) {}
 
 inline ParseArgumentValidException::ParseArgumentValidException(const char* argument, const char* message) :
-    ParseArgumentException(argument, message)
-    {}
+    ParseArgumentException(argument, message) {}
 
 inline ParseArgumentValidException::~ParseArgumentValidException() throw() {}
 
@@ -3082,7 +3073,6 @@ inline ParseArgumentValidException::~ParseArgumentValidException() throw() {}
 
 // #include "mblet/argparsor/valid.h"
 
-
 namespace mblet {
 
 namespace argparsor {
@@ -3092,6 +3082,7 @@ namespace argparsor {
  ValidNumber
 ################################################################################
 */
+
 inline ValidNumber::ValidNumber() {}
 inline ValidNumber::~ValidNumber() {}
 
@@ -3216,3 +3207,5 @@ inline bool ValidPath::isValid(std::vector<std::string>& args) {
 } // namespace argparsor
 
 } // namespace mblet
+
+#endif // _AMALGAMATE_GUARD__SINGLE_INCLUDE_MBLET_ARGPARSOR_H_

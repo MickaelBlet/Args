@@ -94,8 +94,16 @@ class Amalgamation(object):
             t = TranslationUnit(file_path, self, True)
             amalgamation += t.content
 
+        # Add guard protection
+        begin = '// GENERATE BY AMALGAMATE\n'
+        # name of guard
+        guard_name = '_AMALGAMATE_GUARD__' + self.target.upper().replace('/', '_').replace('.', '_') + '_'
+        begin += '#ifndef ' + guard_name + "\n"
+        begin += '#define ' + guard_name + "\n\n"
+        end = '\n#endif // ' + guard_name
+
         with open(self.target, 'w') as f:
-            f.write(amalgamation)
+            f.write(begin + amalgamation + end)
 
         print("...done!\n")
         if self.verbose:
