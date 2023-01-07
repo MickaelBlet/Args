@@ -1,7 +1,3 @@
-include_directories(
-    "${CMAKE_CURRENT_SOURCE_DIR}/include"
-)
-
 file(GLOB example_files "*.cpp")
 
 foreach(file ${example_files})
@@ -13,7 +9,8 @@ foreach(file ${example_files})
             CXX_STANDARD_REQUIRED ON
             CXX_EXTENSIONS OFF
             NO_SYSTEM_FROM_IMPORTED ON
+            COMPILE_FLAGS "-pedantic -Wall -Wextra -Werror"
+            INCLUDE_DIRECTORIES "${CMAKE_CURRENT_SOURCE_DIR}/../include;${CMAKE_CURRENT_SOURCE_DIR}/include"
+            LINK_LIBRARIES "${PROJECT_NAME}"
     )
-    target_compile_options("${filenamewe}.example" PRIVATE -pedantic -Wall -Wextra -Werror)
-    target_link_libraries("${filenamewe}.example" ${PROJECT_NAME})
 endforeach()

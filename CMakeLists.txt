@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.5)
 
-project(argparsor VERSION 3.1.0 LANGUAGES CXX)
+project(argparsor VERSION 3.1.1 LANGUAGES CXX)
 
 # OPTIONS
 option(BUILD_EXAMPLE "Build example binaries" OFF)
@@ -10,25 +10,21 @@ if(NOT CMAKE_CXX_STANDARD)
     set(CMAKE_CXX_STANDARD 11 CACHE STRING "C++ standard to be used")
 endif()
 
-include_directories(
-    "${PROJECT_SOURCE_DIR}/include"
-)
-file(GLOB SOURCE "${PROJECT_SOURCE_DIR}/src/*.cpp")
+file(GLOB SOURCE "src/*.cpp")
 
 add_library("${PROJECT_NAME}" ${SOURCE})
 
-target_compile_options("${PROJECT_NAME}" PRIVATE
-    -pedantic -Wall -Wextra -Werror
-)
-
-set_target_properties("${PROJECT_NAME}" PROPERTIES
-    VERSION ${PROJECT_VERSION}
-    SOVERSION ${PROJECT_VERSION_MAJOR}
-    CXX_STANDARD "${CMAKE_CXX_STANDARD}"
-    CXX_STANDARD_REQUIRED ON
-    CXX_EXTENSIONS OFF
-    NO_SYSTEM_FROM_IMPORTED ON
-    INTERFACE_INCLUDE_DIRECTORIES "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>;$<INSTALL_INTERFACE:include>"
+set_target_properties("${PROJECT_NAME}"
+    PROPERTIES
+        VERSION ${PROJECT_VERSION}
+        SOVERSION ${PROJECT_VERSION_MAJOR}
+        CXX_STANDARD "${CMAKE_CXX_STANDARD}"
+        CXX_STANDARD_REQUIRED ON
+        CXX_EXTENSIONS OFF
+        NO_SYSTEM_FROM_IMPORTED ON
+        COMPILE_FLAGS "-pedantic -Wall -Wextra -Werror"
+        INCLUDE_DIRECTORIES "${CMAKE_CURRENT_SOURCE_DIR}/include"
+        INTERFACE_INCLUDE_DIRECTORIES "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>;$<INSTALL_INTERFACE:include>"
 )
 
 # config
@@ -66,4 +62,5 @@ if(CMAKE_BUILD_TYPE STREQUAL "Debug" AND BUILD_TESTING)
         append_coverage_compiler_flags_to_target("${PROJECT_NAME}")
     endif()
     add_subdirectory(test)
+    add_subdirectory(single_include/test)
 endif()

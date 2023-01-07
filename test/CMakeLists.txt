@@ -1,7 +1,3 @@
-include_directories(
-    "${CMAKE_CURRENT_SOURCE_DIR}/include"
-)
-
 if(BUILD_COVERAGE)
     set(FIXTURES_COVERAGE_LIST)
 endif()
@@ -16,10 +12,10 @@ foreach(file ${test_files})
         CXX_STANDARD_REQUIRED ON
         CXX_EXTENSIONS OFF
         NO_SYSTEM_FROM_IMPORTED ON
+        COMPILE_FLAGS "-pedantic -Wall -Wextra -Werror"
+        INCLUDE_DIRECTORIES "${CMAKE_CURRENT_SOURCE_DIR}/../include;${CMAKE_CURRENT_SOURCE_DIR}/include"
+        LINK_LIBRARIES "gmock_main;gmock;pthread;${PROJECT_NAME}"
     )
-    target_compile_options("${filenamewe}.gtest" PRIVATE -pedantic -Wall -Wextra -Werror)
-    target_link_libraries("${filenamewe}.gtest" gmock_main gmock pthread)
-    target_link_libraries("${filenamewe}.gtest" ${PROJECT_NAME})
     add_test(NAME "${filenamewe}.gtest" COMMAND "$<TARGET_FILE:${filenamewe}.gtest>")
     if(BUILD_COVERAGE)
         set_property(TEST "${filenamewe}.gtest" PROPERTY FIXTURES_SETUP "${filenamewe}.gtest.fixture")
