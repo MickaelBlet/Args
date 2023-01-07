@@ -39,8 +39,27 @@ int main(int argc, char* argv[]) {
 ```
 $ ./a.out --version
 Version: 0.0.0
-$ ./a.out -h
+$ usage: .a.out [-h] [-v] [--log-level LEVEL] [--option OPTION] -- ARGUMENT
 
+positional arguments:
+  ARGUMENT           help of argument (required)
+
+optional arguments:
+  -h, --help         show this help message and exit
+  -v, --version      help of version option
+  --log-level LEVEL  help of log-level (default: INFO)
+  --option OPTION    help of option
+$ ./a.out
+./a.out: argument is required -- 'ARGUMENT'
+$ ./a.out 42 --log-level Foo
+./a.out: "Foo" is not a choise value ("DEBUG", "INFO", "WARNING", "ERROR") -- '--log-level'
+$ ./a.out 42
+ARGUMENT: 42
+--log-level: INFO
+$ ./a.out 42 --log-level DEBUG --option Bar
+ARGUMENT: 42
+--option: Bar
+--log-level: DEBUG
 ```
 
 ## Build
