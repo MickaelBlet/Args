@@ -30,8 +30,8 @@ namespace mblet {
 namespace argparsor {
 
 Exception::Exception(const char* str) :
-    std::exception(), _str(str)
-    {}
+    std::exception(),
+    _str(str) {}
 
 Exception::~Exception() throw() {}
 
@@ -40,12 +40,12 @@ const char* Exception::what() const throw() {
 }
 
 ArgumentException::ArgumentException(const char* message) :
-    Exception(message), _argument()
-    {}
+    Exception(message),
+    _argument() {}
 
 ArgumentException::ArgumentException(const char* argument, const char* message) :
-    Exception(message), _argument(argument)
-    {}
+    Exception(message),
+    _argument(argument) {}
 
 ArgumentException::~ArgumentException() throw() {}
 
@@ -54,34 +54,28 @@ const char* ArgumentException::argument() const throw() {
 }
 
 AccessDeniedException::AccessDeniedException(const char* argument, const char* message) :
-    ArgumentException(argument, message)
-    {}
+    ArgumentException(argument, message) {}
 
 AccessDeniedException::~AccessDeniedException() throw() {}
 
 ParseArgumentException::ParseArgumentException(const char* message) :
-    ArgumentException(message)
-    {}
+    ArgumentException(message) {}
 
 ParseArgumentException::ParseArgumentException(const char* argument, const char* message) :
-    ArgumentException(argument, message)
-    {}
+    ArgumentException(argument, message) {}
 
 ParseArgumentException::~ParseArgumentException() throw() {}
 
 ParseArgumentRequiredException::ParseArgumentRequiredException(const char* argument, const char* message) :
-    ParseArgumentException(argument, message)
-    {}
+    ParseArgumentException(argument, message) {}
 
 ParseArgumentRequiredException::~ParseArgumentRequiredException() throw() {}
 
 ParseArgumentValidException::ParseArgumentValidException(const char* message) :
-    ParseArgumentException(message)
-    {}
+    ParseArgumentException(message) {}
 
 ParseArgumentValidException::ParseArgumentValidException(const char* argument, const char* message) :
-    ParseArgumentException(argument, message)
-    {}
+    ParseArgumentException(argument, message) {}
 
 ParseArgumentValidException::~ParseArgumentValidException() throw() {}
 

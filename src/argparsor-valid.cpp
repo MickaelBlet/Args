@@ -40,6 +40,7 @@ namespace argparsor {
  ValidNumber
 ################################################################################
 */
+
 ValidNumber::ValidNumber() {}
 ValidNumber::~ValidNumber() {}
 

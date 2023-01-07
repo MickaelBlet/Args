@@ -5,10 +5,15 @@
 int main(int argc, char* argv[]) {
     mblet::Argparsor args;
     args.addArgument("ARGUMENT").help("help of argument").required(true);
-    args.addArgument("-v").flag("--version").help("help of version option")
-        .action(args.VERSION).defaults("Version: 0.0.0");
+    args.addArgument("-v")
+        .flag("--version")
+        .help("help of version option")
+        .action(args.VERSION)
+        .defaults("Version: 0.0.0");
     args.addArgument("--option").help("help of option");
-    args.addArgument("--log-level").help("help of log-level").metavar("LEVEL")
+    args.addArgument("--log-level")
+        .help("help of log-level")
+        .metavar("LEVEL")
         .valid(new mblet::Argparsor::ValidChoise(args.vector("DEBUG", "INFO", "WARNING", "ERROR")))
         .defaults("INFO");
     try {

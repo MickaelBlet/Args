@@ -60,25 +60,25 @@ class ArgumentException : public Exception {
     std::string _argument;
 };
 
-struct AccessDeniedException: public ArgumentException {
-    AccessDeniedException(const char * argument, const char* message);
+struct AccessDeniedException : public ArgumentException {
+    AccessDeniedException(const char* argument, const char* message);
     virtual ~AccessDeniedException() throw();
 };
 
-struct ParseArgumentException: public ArgumentException {
+struct ParseArgumentException : public ArgumentException {
     ParseArgumentException(const char* message);
-    ParseArgumentException(const char * argument, const char* message);
+    ParseArgumentException(const char* argument, const char* message);
     virtual ~ParseArgumentException() throw();
 };
 
-struct ParseArgumentRequiredException: public ParseArgumentException {
-    ParseArgumentRequiredException(const char * argument, const char* message);
+struct ParseArgumentRequiredException : public ParseArgumentException {
+    ParseArgumentRequiredException(const char* argument, const char* message);
     virtual ~ParseArgumentRequiredException() throw();
 };
 
-struct ParseArgumentValidException: public ParseArgumentException {
+struct ParseArgumentValidException : public ParseArgumentException {
     ParseArgumentValidException(const char* message);
-    ParseArgumentValidException(const char * argument, const char* message);
+    ParseArgumentValidException(const char* argument, const char* message);
     virtual ~ParseArgumentValidException() throw();
 };
 
