@@ -229,7 +229,7 @@ class Argparsor {
 
   private:
     Argparsor(const Argparsor&);            // disable copy constructor
-    Argparsor& operator=(Argparsor const&); // disable copy operator
+    Argparsor& operator=(const Argparsor&); // disable copy operator
 
     /**
      * @brief Get the short argument decompose multi short argument
@@ -304,4 +304,4 @@ class Argparsor {
 
 } // namespace mblet
 
-#endif // _MBLET_ARGPARSOR_ARGPARSOR_H_
+#endif // #ifndef _MBLET_ARGPARSOR_ARGPARSOR_H_

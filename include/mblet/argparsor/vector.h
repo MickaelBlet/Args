@@ -92,4 +92,4 @@ class Vector : public std::vector<std::string> {
 
 } // namespace mblet
 
-#endif // _MBLET_ARGPARSOR_VECTOR_H_
+#endif // #ifndef _MBLET_ARGPARSOR_VECTOR_H_

@@ -8,7 +8,8 @@ IndentCaseLabels: true
 ColumnLimit: 120
 CompactNamespaces: false
 NamespaceIndentation: None
-FixNamespaceComments: false
+FixNamespaceComments: true
+ShortNamespaceLines: 0
 BreakBeforeBraces: Custom
 BraceWrapping:
   AfterCaseLabel: false
@@ -21,8 +22,17 @@ AllowShortBlocksOnASingleLine: Empty
 AllowShortFunctionsOnASingleLine: Empty
 SpacesBeforeTrailingComments: 1
 SpaceAfterTemplateKeyword: false
+AlwaysBreakTemplateDeclarations: Yes
 Standard: c++03
 PointerAlignment: Left
 ReferenceAlignment: Left
 SpaceAroundPointerQualifiers: Before
 DerivePointerAlignment: false
+EmptyLineBeforeAccessModifier: Always
+QualifierAlignment: Custom
+QualifierOrder:
+- static
+- inline
+- volatile
+- const
+- type

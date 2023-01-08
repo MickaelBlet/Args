@@ -86,4 +86,4 @@ struct ParseArgumentValidException : public ParseArgumentException {
 
 } // namespace mblet
 
-#endif // _MBLET_ARGPARSOR_EXCEPTION_H_
+#endif // #ifndef _MBLET_ARGPARSOR_EXCEPTION_H_

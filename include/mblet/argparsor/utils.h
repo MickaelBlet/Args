@@ -125,4 +125,4 @@ inline bool takeArg(const char* arg, std::string* retOptionName, std::string* re
 
 } // namespace mblet
 
-#endif // _MBLET_ARGPARSOR_UTILS_H_
+#endif // #ifndef _MBLET_ARGPARSOR_UTILS_H_
