@@ -4,15 +4,19 @@ project(argparsor VERSION 3.1.1 LANGUAGES CXX)
 
 # OPTIONS
 option(BUILD_EXAMPLE "Build example binaries" OFF)
+option(BUILD_SINGLE_INCLUDE "Build single_include header" OFF)
 option(BUILD_TESTING "Build test binaries" OFF)
 option(BUILD_COVERAGE "Check coverage at end of test" OFF)
 if(NOT CMAKE_CXX_STANDARD)
     set(CMAKE_CXX_STANDARD 11 CACHE STRING "C++ standard to be used")
 endif()
 
-file(GLOB SOURCE "src/*.cpp")
-
-add_library("${PROJECT_NAME}" ${SOURCE})
+add_library("${PROJECT_NAME}"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/argparsor-argparsor.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/argparsor-argument.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/argparsor-exception.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/argparsor-valid.cpp"
+)
 
 set_target_properties("${PROJECT_NAME}"
     PROPERTIES
@@ -24,7 +28,7 @@ set_target_properties("${PROJECT_NAME}"
         NO_SYSTEM_FROM_IMPORTED ON
         COMPILE_FLAGS "-pedantic -Wall -Wextra -Werror"
         INCLUDE_DIRECTORIES "${CMAKE_CURRENT_SOURCE_DIR}/include"
-        INTERFACE_INCLUDE_DIRECTORIES "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>;$<INSTALL_INTERFACE:include>"
+        INTERFACE_INCLUDE_DIRECTORIES "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>;$<INSTALL_INTERFACE:include>"
 )
 
 # config
@@ -32,16 +36,17 @@ file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}Config.cmake"
     "include(\"\${CMAKE_CURRENT_LIST_DIR}/${PROJECT_NAME}Targets.cmake\")"
 )
 
-# target
+# install
 install(TARGETS "${PROJECT_NAME}" EXPORT "${PROJECT_NAME}Targets"
         ARCHIVE DESTINATION lib
         LIBRARY DESTINATION lib
         RUNTIME DESTINATION bin
 )
-install(DIRECTORY "${PROJECT_SOURCE_DIR}/include/"
+install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/include/"
         DESTINATION include
 )
 install(EXPORT "${PROJECT_NAME}Targets"
+        NAMESPACE mblet::
         FILE "${PROJECT_NAME}Targets.cmake"
         DESTINATION "lib/cmake"
 )
@@ -53,14 +58,20 @@ if(BUILD_EXAMPLE)
     add_subdirectory(example)
 endif()
 
-if(CMAKE_BUILD_TYPE STREQUAL "Debug" AND BUILD_TESTING)
+if(BUILD_SINGLE_INCLUDE)
+    add_subdirectory(single_include)
+endif()
+
+if(NOT BUILD_SHARED_LIBS AND CMAKE_BUILD_TYPE STREQUAL "Debug" AND BUILD_TESTING)
     enable_testing()
     if(BUILD_COVERAGE)
         target_compile_options("${PROJECT_NAME}" PRIVATE -g -O0 --coverage -fprofile-arcs -ftest-coverage)
         target_link_libraries("${PROJECT_NAME}" gcov)
-        include("${PROJECT_SOURCE_DIR}/etc/cmake/CodeCoverage.cmake")
+        include("${CMAKE_CURRENT_SOURCE_DIR}/etc/cmake/CodeCoverage.cmake")
         append_coverage_compiler_flags_to_target("${PROJECT_NAME}")
     endif()
     add_subdirectory(test)
-    add_subdirectory(single_include/test)
+    if(BUILD_SINGLE_INCLUDE)
+        add_subdirectory(single_include/test)
+    endif()
 endif()
