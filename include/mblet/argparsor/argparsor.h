@@ -106,8 +106,8 @@ class Argparsor {
      * @param str
      * @return [true] argument is in map, [false] argument is not in map
      */
-    bool argumentExist(const char* str) const {
-        return argumentExist(std::string(str));
+    bool argumentExists(const char* str) const {
+        return argumentExists(std::string(str));
     }
 
     /**
@@ -116,7 +116,7 @@ class Argparsor {
      * @param str
      * @return [true] argument is in map, [false] argument is not in map
      */
-    bool argumentExist(const std::string& str) const {
+    bool argumentExists(const std::string& str) const {
         return (_argumentFromName.find(str) != _argumentFromName.end());
     }
 

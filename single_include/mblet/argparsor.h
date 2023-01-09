@@ -1358,8 +1358,8 @@ class Argparsor {
      * @param str
      * @return [true] argument is in map, [false] argument is not in map
      */
-    bool argumentExist(const char* str) const {
-        return argumentExist(std::string(str));
+    bool argumentExists(const char* str) const {
+        return argumentExists(std::string(str));
     }
 
     /**
@@ -1368,7 +1368,7 @@ class Argparsor {
      * @param str
      * @return [true] argument is in map, [false] argument is not in map
      */
-    bool argumentExist(const std::string& str) const {
+    bool argumentExists(const std::string& str) const {
         return (_argumentFromName.find(str) != _argumentFromName.end());
     }
 
@@ -2643,7 +2643,7 @@ inline Argument& Argument::flag(const char* flag_) {
         throw ArgumentException(flag_, "can't add flag in positionnal argument");
     }
     validFormatFlag(flag_);
-    if (_argparsor.argumentExist(flag_)) {
+    if (_argparsor.argumentExists(flag_)) {
         throw ArgumentException(flag_, "invalid flag already exist");
     }
     _nameOrFlags.push_back(flag_);

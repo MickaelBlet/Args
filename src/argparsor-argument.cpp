@@ -232,7 +232,7 @@ Argument& Argument::flag(const char* flag_) {
         throw ArgumentException(flag_, "can't add flag in positionnal argument");
     }
     validFormatFlag(flag_);
-    if (_argparsor.argumentExist(flag_)) {
+    if (_argparsor.argumentExists(flag_)) {
         throw ArgumentException(flag_, "invalid flag already exist");
     }
     _nameOrFlags.push_back(flag_);
