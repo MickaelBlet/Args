@@ -39,7 +39,8 @@ int main(int argc, char* argv[]) {
 ```
 $ ./a.out --version
 Version: 0.0.0
-$ usage: .a.out [-h] [-v] [--log-level LEVEL] [--option OPTION] -- ARGUMENT
+$ ./a.out -h
+usage: ./a.out [-h] [-v] [--log-level LEVEL] [--option OPTION] -- ARGUMENT
 
 positional arguments:
   ARGUMENT           help of argument (required)
