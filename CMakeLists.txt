@@ -31,12 +31,11 @@ set_target_properties("${PROJECT_NAME}"
         INTERFACE_INCLUDE_DIRECTORIES "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>;$<INSTALL_INTERFACE:include>"
 )
 
-# config
+# install
 file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}Config.cmake"
     "include(\"\${CMAKE_CURRENT_LIST_DIR}/${PROJECT_NAME}Targets.cmake\")"
 )
 
-# install
 install(TARGETS "${PROJECT_NAME}" EXPORT "${PROJECT_NAME}Targets"
         ARCHIVE DESTINATION lib
         LIBRARY DESTINATION lib
@@ -62,7 +61,11 @@ if(BUILD_SINGLE_INCLUDE)
     add_subdirectory(single_include)
 endif()
 
-if(NOT BUILD_SHARED_LIBS AND CMAKE_BUILD_TYPE STREQUAL "Debug" AND BUILD_TESTING)
+# test
+get_target_property(library_type "${PROJECT_NAME}" TYPE)
+if(library_type STREQUAL "STATIC_LIBRARY" AND
+   CMAKE_BUILD_TYPE STREQUAL "Debug" AND
+   BUILD_TESTING)
     enable_testing()
     if(BUILD_COVERAGE)
         target_compile_options("${PROJECT_NAME}" PRIVATE -g -O0 --coverage -fprofile-arcs -ftest-coverage)
@@ -71,7 +74,4 @@ if(NOT BUILD_SHARED_LIBS AND CMAKE_BUILD_TYPE STREQUAL "Debug" AND BUILD_TESTING
         append_coverage_compiler_flags_to_target("${PROJECT_NAME}")
     endif()
     add_subdirectory(test)
-    if(BUILD_SINGLE_INCLUDE)
-        add_subdirectory(single_include/test)
-    endif()
 endif()
