@@ -160,10 +160,10 @@ int main(int argc, char* argv[]) {
 $ ./a.out
 do nothing
 $ ./a.out --help
-usage: ./a.out [-h]
+usage: a.out [-h]
 
 optional arguments:
-  -h, --help  custom help option message
+  -h, --help            custom help option message
 ```
 
 ## Infinite
@@ -356,12 +356,15 @@ $ ./a.out --option-number custom1 custom2
 default value
 custom1|custom2
 $ ./a.out -h
-usage: ./a.out [-h] [--option OPTION] [--option-number OPTION-NUMBER OPTION-NUMBER]
+usage: a.out [-h] [--option OPTION]
+             [--option-number OPTION-NUMBER OPTION-NUMBER]
 
 optional arguments:
-  -h, --help                                   show this help message and exit
-  --option OPTION                              custom option message (default: default value)
-  --option-number OPTION-NUMBER OPTION-NUMBER  custom option-number message (default: default1, default2)
+  -h, --help            show this help message and exit
+  --option OPTION       custom option message (default: default value)
+  --option-number OPTION-NUMBER OPTION-NUMBER
+                        custom option-number message (default: default1,
+                        default2)
 ```
 
 ## Default valid
@@ -397,11 +400,11 @@ $ ./a.out --option custom
 $ ./a.out --option 42
 42
 $ ./a.out -h
-usage: ./a.out --option OPTION [-h]
+usage: a.out --option OPTION [-h]
 
 optional arguments:
-  --option OPTION  custom option message (required)
-  -h, --help       show this help message and exit
+  --option OPTION       custom option message (required)
+  -h, --help            show this help message and exit
 ```
 
 ## Custom valid transform
@@ -459,11 +462,11 @@ foobar
 $ ./a.out --option 42
 ./a.out: "42" is not "foo" -- '--option'
 $ ./a.out -h
-usage: ./a.out --option OPTION [-h]
+usage: a.out --option OPTION [-h]
 
 optional arguments:
-  --option OPTION  custom option message (required)
-  -h, --help       show this help message and exit
+  --option OPTION       custom option message (required)
+  -h, --help            show this help message and exit
 ```
 
 ## All Type
@@ -723,26 +726,34 @@ REQUIRED: 42
 --extend: 4, 2, 4, 2
 --extend-number: 4, 2, 4, 2, 4, 2
 $ ./a.out -h
-usage: ./a.out -n ARG1 ARG2 -s argSimple [-E EXTEND] [-N MULTI] [-b] [-c] [-e EXTEND] [-h] [-m MULTI] [-v] [--infinite INFINITE...] -- REQUIRED [NOTREQUIRED]
+usage: a.out -n ARG1 ARG2 -s argSimple [-E EXTEND] [-N MULTI] [-b] [-c]
+             [-e EXTEND] [-h] [-m MULTI] [-v] [--infinite INFINITE...]
+             --
+             REQUIRED [NOTREQUIRED]
 
 custom description message
 
 positional arguments:
-  REQUIRED                    help of required positional argument (required)
-  NOTREQUIRED                 help of positional argument (default: foo)
+  REQUIRED              help of required positional argument (required)
+  NOTREQUIRED           help of positional argument (default: foo)
 
 optional arguments:
-  -n, --number ARG1 ARG2      help of number (required)
-  -s, --simple argSimple      help of simple option (required)
-  -E, --extend-number EXTEND  help of extend (default: (0, 1), (2, 3))
-  -N, --multiAppend MULTI     help of multi (default: (0, 1), (2, 3))
-  -b                          help of boolean option
-  -c                          help of count option
-  -e, --extend EXTEND         help of extend (default: 0, 1, 2, 3)
-  -h, --help                  custom help option message
-  -m, --multi MULTI           help of multi (default: 0, 1, 2)
-  -v, --version               help of version option
-  --infinite INFINITE...      help of infinite
+  -n, --number ARG1 ARG2
+                        help of number (required)
+  -s, --simple argSimple
+                        help of simple option (required)
+  -E, --extend-number EXTEND
+                        help of extend (default: (0, 1), (2, 3))
+  -N, --multiAppend MULTI
+                        help of multi (default: (0, 1), (2, 3))
+  -b                    help of boolean option
+  -c                    help of count option
+  -e, --extend EXTEND   help of extend (default: 0, 1, 2, 3)
+  -h, --help            custom help option message
+  -m, --multi MULTI     help of multi (default: 0, 1, 2)
+  -v, --version         help of version option
+  --infinite INFINITE...
+                        help of infinite
 
 custom epilog message
 ```

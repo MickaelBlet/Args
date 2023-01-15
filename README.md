@@ -1,6 +1,7 @@
 # Argparsor
 
-Parse and stock options from argc and argv  
+Parse and stock options from argc and argv.  
+Automatic generate usage message.  
 Examples at [examples.md](docs/examples.md)
 
 ## Quick Start
@@ -40,16 +41,16 @@ int main(int argc, char* argv[]) {
 $ ./a.out --version
 Version: 0.0.0
 $ ./a.out -h
-usage: ./a.out [-h] [-v] [--log-level LEVEL] [--option OPTION] -- ARGUMENT
+usage: a.out [-h] [-v] [--log-level LEVEL] [--option OPTION] -- ARGUMENT
 
 positional arguments:
-  ARGUMENT           help of argument (required)
+  ARGUMENT              help of argument (required)
 
 optional arguments:
-  -h, --help         show this help message and exit
-  -v, --version      help of version option
-  --log-level LEVEL  help of log-level (default: INFO)
-  --option OPTION    help of option
+  -h, --help            show this help message and exit
+  -v, --version         help of version option
+  --log-level LEVEL     help of log-level (default: INFO)
+  --option OPTION       help of option
 $ ./a.out
 ./a.out: argument is required -- 'ARGUMENT'
 $ ./a.out 42 --log-level Foo

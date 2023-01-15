@@ -183,6 +183,26 @@ class Argparsor {
     }
 
     /**
+     * @brief Set the Usage Widths.
+     * default values:
+     * padWidth: 2,
+     * argsWidth: 20,
+     * sepWidth: 2,
+     * helpWidth: 56
+     *
+     * @param padWidth width of padding to first column of usage message
+     * @param argsWidth width of first column of usage message
+     * @param sepWidth width of column separator of usage message
+     * @param helpWidth width of second column of usage message
+     */
+    void setUsageWidth(std::size_t padWidth, std::size_t argsWidth, std::size_t sepWidth, std::size_t helpWidth) {
+        _usagePadWidth = padWidth;
+        _usageArgsWidth = argsWidth;
+        _usageSepWidth = sepWidth;
+        _usageHelpWidth = helpWidth;
+    }
+
+    /**
      * @brief Set the description in usage message
      *
      * @param description
@@ -292,6 +312,10 @@ class Argparsor {
     Argument* _versionOption;
 
     std::string _usage;
+    std::size_t _usagePadWidth;
+    std::size_t _usageArgsWidth;
+    std::size_t _usageSepWidth;
+    std::size_t _usageHelpWidth;
     std::string _description;
     std::string _epilog;
 

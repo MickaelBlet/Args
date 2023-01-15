@@ -422,7 +422,7 @@ GTEST_TEST(parseArguments, help) {
               "usage: binaryName [-h]\n"
               "\n"
               "optional arguments:\n"
-              "  -h, --help  show this help message and exit\n");
+              "  -h, --help            show this help message and exit\n");
 }
 
 GTEST_TEST(parseArguments, version) {

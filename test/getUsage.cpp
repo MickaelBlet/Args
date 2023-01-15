@@ -31,32 +31,92 @@ GTEST_TEST(getUsage, compareOption) {
 
     std::ostringstream usage("");
 
-    usage << "usage:  -a -d -e -g --long2 --long6 [-b] [-c] [-f] [-h] [--long1] [--long3] [--long4] [--long5] -- "
-             "REQUIRED1 REQUIRED2 [NOTREQUIRED1] [NOTREQUIRED2]\n";
+    usage << "usage:  -a -d -e -g --long2 --long6 [-b] [-c] [-f] [-h] [--long1] [--long3]\n"
+             "        [--long4] [--long5]\n"
+             "        --\n"
+             "        REQUIRED1 REQUIRED2 [NOTREQUIRED1] [NOTREQUIRED2]\n";
     usage << "\n";
     usage << "positional arguments:\n";
-    usage << "  REQUIRED1     help of required1 positional argument (required)\n";
-    usage << "  REQUIRED2     help of required2 positional argument (required)\n";
-    usage << "  NOTREQUIRED1  help of positional argument\n";
-    usage << "  NOTREQUIRED2  help of positional argument\n";
+    usage << "  REQUIRED1             help of required1 positional argument (required)\n";
+    usage << "  REQUIRED2             help of required2 positional argument (required)\n";
+    usage << "  NOTREQUIRED1          help of positional argument\n";
+    usage << "  NOTREQUIRED2          help of positional argument\n";
     usage << "\n";
     usage << "optional arguments:\n";
-    usage << "  -a            help of a short option (required)\n";
-    usage << "  -d            help of d short option (required)\n";
-    usage << "  -e            help of e short option (required)\n";
-    usage << "  -g            help of g short option (required)\n";
-    usage << "  --long2       help of long2 option (required)\n";
-    usage << "  --long6       help of long6 option (required)\n";
-    usage << "  -b            help of b short option\n";
-    usage << "  -c            help of c short option\n";
-    usage << "  -f            help of f short option\n";
-    usage << "  -h, --help    custom help option message\n";
-    usage << "  --long1       help of long1 option\n";
-    usage << "  --long3       help of long3 option\n";
-    usage << "  --long4       help of long4 option\n";
-    usage << "  --long5       help of long5 option\n";
+    usage << "  -a                    help of a short option (required)\n";
+    usage << "  -d                    help of d short option (required)\n";
+    usage << "  -e                    help of e short option (required)\n";
+    usage << "  -g                    help of g short option (required)\n";
+    usage << "  --long2               help of long2 option (required)\n";
+    usage << "  --long6               help of long6 option (required)\n";
+    usage << "  -b                    help of b short option\n";
+    usage << "  -c                    help of c short option\n";
+    usage << "  -f                    help of f short option\n";
+    usage << "  -h, --help            custom help option message\n";
+    usage << "  --long1               help of long1 option\n";
+    usage << "  --long3               help of long3 option\n";
+    usage << "  --long4               help of long4 option\n";
+    usage << "  --long5               help of long5 option\n";
 
     EXPECT_EQ(args.getUsage(), usage.str());
+}
+
+GTEST_TEST(getUsage, widthUsage) {
+    mblet::Argparsor args;
+    args.setUsageWidth(0, 10, 2, 10);
+    args.setDescription("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX");
+    args.addArgument("XXXXXXXXXXX").help("XXXX XXXX XXXX XXXX XXXX XXXX XXXX XXXX XXXX XXXX XXXX XXXX XXXX XX");
+    std::ostringstream oss("");
+    oss << "usage:  [-h] --\n"
+        << "        [XXXXXXXXXXX]\n"
+        << "\n"
+        << "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX\n"
+        << "\n"
+        << "positional arguments:\n"
+        << "XXXXXXXXXXX\n"
+        << "            XXXX XXXX\n"
+        << "            XXXX XXXX\n"
+        << "            XXXX XXXX\n"
+        << "            XXXX XXXX\n"
+        << "            XXXX XXXX\n"
+        << "            XXXX XXXX\n"
+        << "            XXXX XX\n"
+        << "\n"
+        << "optional arguments:\n"
+        << "-h, --help  show this\n"
+        << "            help\n"
+        << "            message\n"
+        << "            and exit\n";
+    EXPECT_EQ(args.getUsage(), oss.str());
+    args.setDescription("                                                      ");
+
+    const char* cargv[] = {"./a.out"};
+    char** argv = (char**)cargv;
+    args.parseArguments(1, argv);
+    oss.str("");
+    oss.clear();
+    oss << "usage: a.out [-h] --\n"
+        << "             [XXXXXXXXXXX]\n"
+        << "\n"
+        << "                      \n"
+        << "\n"
+        << "\n"
+        << "positional arguments:\n"
+        << "XXXXXXXXXXX\n"
+        << "            XXXX XXXX\n"
+        << "            XXXX XXXX\n"
+        << "            XXXX XXXX\n"
+        << "            XXXX XXXX\n"
+        << "            XXXX XXXX\n"
+        << "            XXXX XXXX\n"
+        << "            XXXX XX\n"
+        << "\n"
+        << "optional arguments:\n"
+        << "-h, --help  show this\n"
+        << "            help\n"
+        << "            message\n"
+        << "            and exit\n";
+    EXPECT_EQ(args.getUsage(), oss.str());
 }
 
 GTEST_TEST(getUsage, allTypeArgument) {
@@ -115,36 +175,37 @@ GTEST_TEST(getUsage, allTypeArgument) {
 
     std::ostringstream usage("");
 
-    usage << "usage:  [-b] [-h] [-i INFINITE...] [-s ArgOfSimple] [--multi MULTI] [--multi-infinite "
-             "MULTI-INFINITE] [--multi-infinite-number MULTI-INFINITE-NUMBER MULTI-INFINITE-NUMBER] [--multi-number "
-             "MULTI-NUMBER MULTI-NUMBER] [--notbool] [--number Arg1 Arg2] -- REQUIRED [NOTREQUIRED]\n";
+    usage << "usage:  [-b] [-h] [-i INFINITE...] [-s ArgOfSimple] [--multi MULTI]\n"
+             "        [--multi-infinite MULTI-INFINITE]\n"
+             "        [--multi-infinite-number MULTI-INFINITE-NUMBER MULTI-INFINITE-NUMBER]\n"
+             "        [--multi-number MULTI-NUMBER MULTI-NUMBER] [--notbool]\n"
+             "        [--number Arg1 Arg2]\n"
+             "        --\n"
+             "        REQUIRED [NOTREQUIRED]\n";
     usage << "\n";
     usage << "custom description message\n";
     usage << "\n";
     usage << "positional arguments:\n";
-    usage << "  REQUIRED                                                             help of required positional "
-             "argument (required)\n";
-    usage << "  NOTREQUIRED                                                          help of positional argument "
-             "(default: DEFAULT VALUE)\n";
+    usage << "  REQUIRED              help of required positional argument (required)\n";
+    usage << "  NOTREQUIRED           help of positional argument (default: DEFAULT VALUE)\n";
     usage << "\n";
     usage << "optional arguments:\n";
-    usage << "  -b, --bool                                                           help of bool option\n";
-    usage << "  -h, --help                                                           show this help message and exit\n";
-    usage << "  -i, --infinite INFINITE...                                           help of infinite option (default: "
-             "0, 1, 2, 3)\n";
-    usage << "  -s, --simple ArgOfSimple                                             help of simple option (default: "
-             "0)\n";
-    usage << "  --multi MULTI                                                        help of multi option (default: 0, "
-             "1, 2, 3)\n";
-    usage << "  --multi-infinite MULTI-INFINITE                                      help of multi-infinite option "
-             "(default: 0, 1, 2, 3)\n";
-    usage << "  --multi-infinite-number MULTI-INFINITE-NUMBER MULTI-INFINITE-NUMBER  help of multi-infinite-number "
-             "option (default: (0, 1), (2, 3))\n";
-    usage << "  --multi-number MULTI-NUMBER MULTI-NUMBER                             help of multi number option "
-             "(default: (0, 1), (2, 3))\n";
-    usage << "  --notbool                                                            help of notbool option\n";
-    usage << "  --number Arg1 Arg2                                                   help of number option (default: "
-             "0, 1)\n";
+    usage << "  -b, --bool            help of bool option\n";
+    usage << "  -h, --help            show this help message and exit\n";
+    usage << "  -i, --infinite INFINITE...\n";
+    usage << "                        help of infinite option (default: 0, 1, 2, 3)\n";
+    usage << "  -s, --simple ArgOfSimple\n";
+    usage << "                        help of simple option (default: 0)\n";
+    usage << "  --multi MULTI         help of multi option (default: 0, 1, 2, 3)\n";
+    usage << "  --multi-infinite MULTI-INFINITE\n";
+    usage << "                        help of multi-infinite option (default: 0, 1, 2, 3)\n";
+    usage << "  --multi-infinite-number MULTI-INFINITE-NUMBER MULTI-INFINITE-NUMBER\n";
+    usage << "                        help of multi-infinite-number option (default: (0, 1),\n";
+    usage << "                        (2, 3))\n";
+    usage << "  --multi-number MULTI-NUMBER MULTI-NUMBER\n";
+    usage << "                        help of multi number option (default: (0, 1), (2, 3))\n";
+    usage << "  --notbool             help of notbool option\n";
+    usage << "  --number Arg1 Arg2    help of number option (default: 0, 1)\n";
     usage << "\n";
     usage << "custom epilog message\n";
 

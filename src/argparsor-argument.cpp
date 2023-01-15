@@ -31,8 +31,8 @@
 #include "mblet/argparsor/argument.h"
 #include "mblet/argparsor/utils.h"
 
-#define PREFIX_SIZEOF_SHORT_OPTION (sizeof("-") - 1)
-#define PREFIX_SIZEOF_LONG_OPTION (sizeof("--") - 1)
+#define _ARGPARSOR_PREFIX_SIZEOF_SHORT_OPTION (sizeof("-") - 1)
+#define _ARGPARSOR_PREFIX_SIZEOF_LONG_OPTION (sizeof("--") - 1)
 
 namespace mblet {
 
@@ -369,11 +369,11 @@ std::string Argument::_metavarDefault() {
     // get short or long name
     for (std::size_t i = 0; i < _nameOrFlags.size(); ++i) {
         if (_nameOrFlags[i][0] == '-' && _nameOrFlags[i][1] == '-') {
-            flag = _nameOrFlags[i].c_str() + PREFIX_SIZEOF_LONG_OPTION;
+            flag = _nameOrFlags[i].c_str() + _ARGPARSOR_PREFIX_SIZEOF_LONG_OPTION;
             break;
         }
         else if (flag == NULL && _nameOrFlags[i][0] == '-' && _nameOrFlags[i][1] != '-') {
-            flag = _nameOrFlags[i].c_str() + PREFIX_SIZEOF_SHORT_OPTION;
+            flag = _nameOrFlags[i].c_str() + _ARGPARSOR_PREFIX_SIZEOF_SHORT_OPTION;
         }
     }
     // create a defaultUsageName from longName or shortName
@@ -542,5 +542,5 @@ void Argument::_defaultsConstructor() {
 
 } // namespace mblet
 
-#undef PREFIX_SIZEOF_SHORT_OPTION
-#undef PREFIX_SIZEOF_LONG_OPTION
+#undef _ARGPARSOR_PREFIX_SIZEOF_SHORT_OPTION
+#undef _ARGPARSOR_PREFIX_SIZEOF_LONG_OPTION

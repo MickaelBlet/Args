@@ -1,5 +1,7 @@
 set(library_project_name argparsor)
 
+get_target_property(library_include_dirs "${library_project_name}" INCLUDE_DIRECTORIES)
+
 set(test_source_files
     "${CMAKE_CURRENT_SOURCE_DIR}/accessDenied.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/addArgument.cpp"
@@ -21,7 +23,7 @@ foreach(file ${test_source_files})
         CXX_EXTENSIONS OFF
         NO_SYSTEM_FROM_IMPORTED ON
         COMPILE_FLAGS "-pedantic -Wall -Wextra -Werror"
-        INCLUDE_DIRECTORIES "${CMAKE_CURRENT_SOURCE_DIR}/../include;${CMAKE_CURRENT_SOURCE_DIR}/include"
+        INCLUDE_DIRECTORIES "${library_include_dirs};${CMAKE_CURRENT_SOURCE_DIR}/include"
         LINK_LIBRARIES "gmock_main;gmock;pthread;${library_project_name}"
     )
     add_test(NAME "${filenamewe}.gtest" COMMAND "$<TARGET_FILE:${filenamewe}.gtest>")

@@ -1435,6 +1435,26 @@ class Argparsor {
     }
 
     /**
+     * @brief Set the Usage Widths.
+     * default values:
+     * padWidth: 2,
+     * argsWidth: 20,
+     * sepWidth: 2,
+     * helpWidth: 56
+     *
+     * @param padWidth width of padding to first column of usage message
+     * @param argsWidth width of first column of usage message
+     * @param sepWidth width of column separator of usage message
+     * @param helpWidth width of second column of usage message
+     */
+    void setUsageWidth(std::size_t padWidth, std::size_t argsWidth, std::size_t sepWidth, std::size_t helpWidth) {
+        _usagePadWidth = padWidth;
+        _usageArgsWidth = argsWidth;
+        _usageSepWidth = sepWidth;
+        _usageHelpWidth = helpWidth;
+    }
+
+    /**
      * @brief Set the description in usage message
      *
      * @param description
@@ -1544,6 +1564,10 @@ class Argparsor {
     Argument* _versionOption;
 
     std::string _usage;
+    std::size_t _usagePadWidth;
+    std::size_t _usageArgsWidth;
+    std::size_t _usageSepWidth;
+    std::size_t _usageHelpWidth;
     std::string _description;
     std::string _epilog;
 
@@ -1758,8 +1782,14 @@ inline bool takeArg(const char* arg, std::string* retOptionName, std::string* re
 
 // #include "mblet/argparsor/vector.h"
 
-#define PREFIX_SIZEOF_SHORT_OPTION (sizeof("-") - 1)
-#define PREFIX_SIZEOF_LONG_OPTION (sizeof("--") - 1)
+#define _ARGPARSOR_PREFIX_SIZEOF_SHORT_OPTION (sizeof("-") - 1)
+#define _ARGPARSOR_PREFIX_SIZEOF_LONG_OPTION (sizeof("--") - 1)
+
+#if defined _WIN32 || defined _WIN64 || defined __CYGWIN__
+#define _ARGPARSOR_SEPARATOR_PATH '\\'
+#else
+#define _ARGPARSOR_SEPARATOR_PATH '/'
+#endif
 
 namespace mblet {
 
@@ -1772,6 +1802,10 @@ inline Argparsor::Argparsor(bool help) :
     _helpOption(NULL),
     _versionOption(NULL),
     _usage(),
+    _usagePadWidth(2),
+    _usageArgsWidth(20),
+    _usageSepWidth(2),
+    _usageHelpWidth(56),
     _description(),
     _epilog(),
     _isAlternative(false),
@@ -1790,15 +1824,52 @@ inline Argparsor::~Argparsor() {
     }
 }
 
+std::vector<std::string> static inline s_multilineWrap(const std::string& str, std::size_t widthMax) {
+    std::vector<std::string> lines;
+    std::string line;
+    std::istringstream iss(str);
+    while (std::getline(iss, line)) {
+        while (line.size() >= widthMax) {
+            std::size_t spacePos = line.rfind(' ', widthMax);
+            if (spacePos != std::string::npos) {
+                lines.push_back(line.substr(0, spacePos));
+                while (spacePos < line.size() && line.at(spacePos) == ' ') {
+                    ++spacePos;
+                }
+                line = line.substr(spacePos);
+            }
+            else {
+                break;
+            }
+        }
+        lines.push_back(line);
+    }
+    return lines;
+}
+
 inline std::string Argparsor::getUsage() const {
-    std::ostringstream oss("");
     if (!_usage.empty()) {
         return _usage;
     }
+    std::ostringstream oss("");
     bool hasOption = false;
     bool hasPositionnal = false;
+    bool hasMultiLine = false;
+    // get basename of binaryName
+    std::string binaryName;
+    std::size_t lastDirCharacterPos = _binaryName.rfind(_ARGPARSOR_SEPARATOR_PATH);
+    if (lastDirCharacterPos != std::string::npos) {
+        binaryName = _binaryName.substr(lastDirCharacterPos + 1);
+    }
+    else {
+        binaryName = _binaryName;
+    }
     // usage line
-    oss << "usage: " << _binaryName;
+    std::string usageLine = std::string("usage: ") + binaryName;
+    oss << usageLine;
+    std::size_t binaryPad = usageLine.size();
+    std::size_t index = binaryPad;
+    std::size_t indexMax = _usagePadWidth + _usageArgsWidth + _usageSepWidth + _usageHelpWidth;
     std::list<Argument*>::const_iterator it;
     for (it = _arguments.begin(); it != _arguments.end(); ++it) {
         if ((*it)->_type == Argument::POSITIONAL_ARGUMENT) {
@@ -1806,11 +1877,11 @@ inline std::string Argparsor::getUsage() const {
             continue;
         }
         hasOption = true;
-        oss << ' ';
+        std::ostringstream ossArgument("");
         if (!(*it)->_isRequired) {
-            oss << '[';
+            ossArgument << '[';
         }
-        oss << (*it)->_nameOrFlags.front();
+        ossArgument << (*it)->_nameOrFlags.front();
         switch ((*it)->_type) {
             case Argument::SIMPLE_OPTION:
             case Argument::NUMBER_OPTION:
@@ -1820,39 +1891,72 @@ inline std::string Argparsor::getUsage() const {
             case Argument::MULTI_NUMBER_OPTION:
             case Argument::MULTI_NUMBER_INFINITE_OPTION:
                 if ((*it)->_metavar.empty()) {
-                    oss << ' ' << (*it)->_metavarDefault();
+                    ossArgument << ' ' << (*it)->_metavarDefault();
                 }
                 else {
-                    oss << ' ' << (*it)->_metavar;
+                    ossArgument << ' ' << (*it)->_metavar;
                 }
                 break;
             default:
                 break;
         }
         if (!(*it)->_isRequired) {
-            oss << ']';
+            ossArgument << ']';
+        }
+        std::string argument = ossArgument.str();
+        if (index + argument.size() >= indexMax) {
+            hasMultiLine = true;
+            oss << '\n' << std::string(binaryPad + 1, ' ') << argument;
+            index = binaryPad + argument.size() + 1;
+        }
+        else {
+            oss << ' ' << argument;
+            index += argument.size() + 1;
         }
     }
     if (hasOption && hasPositionnal) {
-        oss << " --";
+        if (hasMultiLine || index + 3 >= indexMax) {
+            oss << '\n' << std::string(binaryPad + 1, ' ') << "--\n" << std::string(binaryPad, ' ');
+            index = binaryPad;
+        }
+        else {
+            oss << " --";
+            index += 3;
+        }
     }
     for (it = _arguments.begin(); it != _arguments.end(); ++it) {
         if ((*it)->_type != Argument::POSITIONAL_ARGUMENT) {
             continue;
         }
-        oss << ' ';
+        std::ostringstream ossArgument("");
         if (!(*it)->_isRequired) {
-            oss << '[';
+            ossArgument << '[';
         }
-        oss << (*it)->_nameOrFlags.front();
+        ossArgument << (*it)->_nameOrFlags.front();
         if (!(*it)->_isRequired) {
-            oss << ']';
+            ossArgument << ']';
+        }
+        std::string argument = ossArgument.str();
+        if (index + argument.size() >= indexMax) {
+            hasMultiLine = true;
+            oss << '\n' << std::string(binaryPad + 1, ' ') << argument;
+            index = binaryPad + argument.size() + 1;
+        }
+        else {
+            oss << ' ' << argument;
+            index += argument.size() + 1;
         }
     }
     oss << '\n';
     // description
     if (!_description.empty()) {
-        oss << '\n' << _description << '\n';
+        index = 0;
+        oss << '\n';
+        std::vector<std::string> lines = s_multilineWrap(_description, indexMax);
+        for (std::size_t i = 0; i < lines.size(); ++i) {
+            oss << lines[i];
+            oss << '\n';
+        }
     }
     // optionnal
     if (!_arguments.empty()) {
@@ -1870,7 +1974,6 @@ inline std::string Argparsor::getUsage() const {
             }
             std::string& optionStr = listOption->back().first;
             std::string& helpStr = listOption->back().second;
-            optionStr += "  ";
             for (std::size_t i = 0; i < (*it)->_nameOrFlags.size(); ++i) {
                 if (i > 0) {
                     optionStr += ", ";
@@ -1895,7 +1998,7 @@ inline std::string Argparsor::getUsage() const {
                 default:
                     break;
             }
-            helpStr += "  " + (*it)->_help;
+            helpStr += (*it)->_help;
             if ((*it)->_isRequired) {
                 helpStr += " (required)";
             }
@@ -1935,21 +2038,51 @@ inline std::string Argparsor::getUsage() const {
         if (!positionals.empty()) {
             oss << "\npositional arguments:\n";
             for (optIt = positionals.begin(); optIt != positionals.end(); ++optIt) {
-                oss.width(max);
-                oss.flags(std::ios::left);
-                oss << optIt->first;
-                oss.width(0);
-                oss << optIt->second;
+                oss << std::string(_usagePadWidth, ' ');
+                if (optIt->first.size() + _usageSepWidth > _usageArgsWidth + _usageSepWidth) {
+                    oss << optIt->first;
+                    oss << '\n';
+                    oss << std::string(_usagePadWidth + _usageArgsWidth + _usageSepWidth, ' ');
+                }
+                else {
+                    oss.width(_usageArgsWidth + _usageSepWidth);
+                    oss.flags(std::ios::left);
+                    oss << optIt->first;
+                    oss.width(0);
+                }
+                std::vector<std::string> lines = s_multilineWrap(optIt->second, _usageHelpWidth);
+                for (std::size_t i = 0; i < lines.size(); ++i) {
+                    oss << lines[i];
+                    oss << '\n';
+                    if (i + 1 < lines.size()) {
+                        oss << std::string(_usagePadWidth + _usageArgsWidth + _usageSepWidth, ' ');
+                    }
+                }
             }
         }
         if (!optionnals.empty()) {
             oss << "\noptional arguments:\n";
             for (optIt = optionnals.begin(); optIt != optionnals.end(); ++optIt) {
-                oss.width(max);
-                oss.flags(std::ios::left);
-                oss << optIt->first;
-                oss.width(0);
-                oss << optIt->second;
+                oss << std::string(_usagePadWidth, ' ');
+                if (optIt->first.size() + _usageSepWidth > _usageArgsWidth + _usageSepWidth) {
+                    oss << optIt->first;
+                    oss << '\n';
+                    oss << std::string(_usagePadWidth + _usageArgsWidth + _usageSepWidth, ' ');
+                }
+                else {
+                    oss.width(_usageArgsWidth + _usageSepWidth);
+                    oss.flags(std::ios::left);
+                    oss << optIt->first;
+                    oss.width(0);
+                }
+                std::vector<std::string> lines = s_multilineWrap(optIt->second, _usageHelpWidth);
+                for (std::size_t i = 0; i < lines.size(); ++i) {
+                    oss << lines[i];
+                    oss << '\n';
+                    if (i + 1 < lines.size()) {
+                        oss << std::string(_usagePadWidth + _usageArgsWidth + _usageSepWidth, ' ');
+                    }
+                }
             }
         }
     }
@@ -2144,8 +2277,8 @@ inline void Argparsor::parseShortArgument(int maxIndex, char* argv[], int* index
         // try to find long option
         it = _argumentFromName.find("-" + options);
         if (it != _argumentFromName.end()) {
-            parseArgument(maxIndex, argv, index, hasArg, options.c_str() + PREFIX_SIZEOF_SHORT_OPTION, arg.c_str(),
-                          *(it->second));
+            parseArgument(maxIndex, argv, index, hasArg, options.c_str() + _ARGPARSOR_PREFIX_SIZEOF_SHORT_OPTION,
+                          arg.c_str(), *(it->second));
             return;
         }
     }
@@ -2192,9 +2325,9 @@ inline void Argparsor::parseLongArgument(int maxIndex, char* argv[], int* index)
     bool hasArg = takeArg(argv[*index], &option, &arg);
     it = _argumentFromName.find(option);
     if (it == _argumentFromName.end()) {
-        throw ParseArgumentException(option.c_str() + PREFIX_SIZEOF_LONG_OPTION, "invalid option");
+        throw ParseArgumentException(option.c_str() + _ARGPARSOR_PREFIX_SIZEOF_LONG_OPTION, "invalid option");
     }
-    parseArgument(maxIndex, argv, index, hasArg, option.c_str() + PREFIX_SIZEOF_LONG_OPTION, arg.c_str(),
+    parseArgument(maxIndex, argv, index, hasArg, option.c_str() + _ARGPARSOR_PREFIX_SIZEOF_LONG_OPTION, arg.c_str(),
                   *(it->second));
 }
 
@@ -2404,8 +2537,9 @@ inline void Argparsor::parsePositionnalArgument(char* argv[], int* index) {
 
 } // namespace mblet
 
-#undef PREFIX_SIZEOF_SHORT_OPTION
-#undef PREFIX_SIZEOF_LONG_OPTION
+#undef _ARGPARSOR_PREFIX_SIZEOF_SHORT_OPTION
+#undef _ARGPARSOR_PREFIX_SIZEOF_LONG_OPTION
+#undef _ARGPARSOR_SEPARATOR_PATH
 /**
  * argparsor-argument.cpp
  *
@@ -2442,8 +2576,8 @@ inline void Argparsor::parsePositionnalArgument(char* argv[], int* index) {
 
 // #include "mblet/argparsor/utils.h"
 
-#define PREFIX_SIZEOF_SHORT_OPTION (sizeof("-") - 1)
-#define PREFIX_SIZEOF_LONG_OPTION (sizeof("--") - 1)
+#define _ARGPARSOR_PREFIX_SIZEOF_SHORT_OPTION (sizeof("-") - 1)
+#define _ARGPARSOR_PREFIX_SIZEOF_LONG_OPTION (sizeof("--") - 1)
 
 namespace mblet {
 
@@ -2780,11 +2914,11 @@ inline std::string Argument::_metavarDefault() {
     // get short or long name
     for (std::size_t i = 0; i < _nameOrFlags.size(); ++i) {
         if (_nameOrFlags[i][0] == '-' && _nameOrFlags[i][1] == '-') {
-            flag = _nameOrFlags[i].c_str() + PREFIX_SIZEOF_LONG_OPTION;
+            flag = _nameOrFlags[i].c_str() + _ARGPARSOR_PREFIX_SIZEOF_LONG_OPTION;
             break;
         }
         else if (flag == NULL && _nameOrFlags[i][0] == '-' && _nameOrFlags[i][1] != '-') {
-            flag = _nameOrFlags[i].c_str() + PREFIX_SIZEOF_SHORT_OPTION;
+            flag = _nameOrFlags[i].c_str() + _ARGPARSOR_PREFIX_SIZEOF_SHORT_OPTION;
         }
     }
     // create a defaultUsageName from longName or shortName
@@ -2953,8 +3087,8 @@ inline void Argument::_defaultsConstructor() {
 
 } // namespace mblet
 
-#undef PREFIX_SIZEOF_SHORT_OPTION
-#undef PREFIX_SIZEOF_LONG_OPTION
+#undef _ARGPARSOR_PREFIX_SIZEOF_SHORT_OPTION
+#undef _ARGPARSOR_PREFIX_SIZEOF_LONG_OPTION
 /**
  * argparsor-exception.cpp
  *
