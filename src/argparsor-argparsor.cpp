@@ -361,21 +361,21 @@ void Argparsor::parseArguments(int argc, char* argv[], bool alternative, bool st
     // foreach argument
     for (int i = 1; i < argc; ++i) {
         if (isShortOption(argv[i])) {
-            parseShortArgument(endIndex, argv, &i);
+            _parseShortArgument(endIndex, argv, &i);
         }
         else if (isLongOption(argv[i])) {
-            parseLongArgument(endIndex, argv, &i);
+            _parseLongArgument(endIndex, argv, &i);
         }
         else if (isEndOption(argv[i])) {
             ++i;
             while (i < argc) {
-                parsePositionnalArgument(argv, &i);
+                _parsePositionnalArgument(argv, &i);
                 ++i;
             }
             break;
         }
         else {
-            parsePositionnalArgument(argv, &i);
+            _parsePositionnalArgument(argv, &i);
         }
     }
     // check help option
@@ -519,7 +519,7 @@ Argument& Argparsor::addArgument(const Vector& nameOrFlags) {
 /*
 ** private
 */
-void Argparsor::parseShortArgument(int maxIndex, char* argv[], int* index) {
+void Argparsor::_parseShortArgument(int maxIndex, char* argv[], int* index) {
     std::string options;
     std::string arg;
     std::map<std::string, Argument**>::iterator it;
@@ -528,8 +528,8 @@ void Argparsor::parseShortArgument(int maxIndex, char* argv[], int* index) {
         // try to find long option
         it = _argumentFromName.find("-" + options);
         if (it != _argumentFromName.end()) {
-            parseArgument(maxIndex, argv, index, hasArg, options.c_str() + _ARGPARSOR_PREFIX_SIZEOF_SHORT_OPTION,
-                          arg.c_str(), *(it->second));
+            _parseArgument(maxIndex, argv, index, hasArg, options.c_str() + _ARGPARSOR_PREFIX_SIZEOF_SHORT_OPTION,
+                           arg.c_str(), *(it->second));
             return;
         }
     }
@@ -550,7 +550,7 @@ void Argparsor::parseShortArgument(int maxIndex, char* argv[], int* index) {
             arg = options.substr(i + 1, options.size() - i);
             (*(it->second))->_isExist = true;
             ++(*(it->second))->_count;
-            parseArgument(maxIndex, argv, index, hasArg, charOption.c_str(), arg.c_str(), *(it->second));
+            _parseArgument(maxIndex, argv, index, hasArg, charOption.c_str(), arg.c_str(), *(it->second));
             return;
         }
         else if ((*(it->second))->_type != Argument::BOOLEAN_OPTION &&
@@ -566,10 +566,10 @@ void Argparsor::parseShortArgument(int maxIndex, char* argv[], int* index) {
     if (it == _argumentFromName.end()) {
         throw ParseArgumentException(charOption.c_str(), "invalid option");
     }
-    parseArgument(maxIndex, argv, index, hasArg, charOption.c_str(), arg.c_str(), *(it->second));
+    _parseArgument(maxIndex, argv, index, hasArg, charOption.c_str(), arg.c_str(), *(it->second));
 }
 
-void Argparsor::parseLongArgument(int maxIndex, char* argv[], int* index) {
+void Argparsor::_parseLongArgument(int maxIndex, char* argv[], int* index) {
     std::string option;
     std::string arg;
     std::map<std::string, Argument**>::iterator it;
@@ -578,12 +578,12 @@ void Argparsor::parseLongArgument(int maxIndex, char* argv[], int* index) {
     if (it == _argumentFromName.end()) {
         throw ParseArgumentException(option.c_str() + _ARGPARSOR_PREFIX_SIZEOF_LONG_OPTION, "invalid option");
     }
-    parseArgument(maxIndex, argv, index, hasArg, option.c_str() + _ARGPARSOR_PREFIX_SIZEOF_LONG_OPTION, arg.c_str(),
-                  *(it->second));
+    _parseArgument(maxIndex, argv, index, hasArg, option.c_str() + _ARGPARSOR_PREFIX_SIZEOF_LONG_OPTION, arg.c_str(),
+                   *(it->second));
 }
 
-void Argparsor::parseArgument(int maxIndex, char* argv[], int* index, bool hasArg, const char* option, const char* arg,
-                              Argument* argument) {
+void Argparsor::_parseArgument(int maxIndex, char* argv[], int* index, bool hasArg, const char* option, const char* arg,
+                               Argument* argument) {
     if (hasArg) {
         switch (argument->_type) {
             case Argument::SIMPLE_OPTION:
@@ -635,7 +635,7 @@ void Argparsor::parseArgument(int maxIndex, char* argv[], int* index, bool hasAr
                 argument->clear();
                 std::size_t countArg = 0;
                 for (int i = *index + 1; i < maxIndex; ++i) {
-                    if (endOfInfiniteArgument(argv[i])) {
+                    if (_endOfInfiniteArgument(argv[i])) {
                         break;
                     }
                     argument->push_back(argv[i]);
@@ -661,7 +661,7 @@ void Argparsor::parseArgument(int maxIndex, char* argv[], int* index, bool hasAr
                 }
                 std::size_t countArg = 0;
                 for (int i = *index + 1; i < maxIndex; ++i) {
-                    if (endOfInfiniteArgument(argv[i])) {
+                    if (_endOfInfiniteArgument(argv[i])) {
                         break;
                     }
                     argument->push_back(argv[i]);
@@ -691,7 +691,7 @@ void Argparsor::parseArgument(int maxIndex, char* argv[], int* index, bool hasAr
                 }
                 std::size_t countArg = 0;
                 for (int i = *index + 1; i < maxIndex; i += argument->_nargs) {
-                    if (endOfInfiniteArgument(argv[i])) {
+                    if (_endOfInfiniteArgument(argv[i])) {
                         break;
                     }
                     if (i + argument->_nargs > static_cast<unsigned int>(maxIndex)) {
@@ -715,7 +715,7 @@ void Argparsor::parseArgument(int maxIndex, char* argv[], int* index, bool hasAr
     ++argument->_count;
 }
 
-bool Argparsor::endOfInfiniteArgument(const char* argument) {
+bool Argparsor::_endOfInfiniteArgument(const char* argument) {
     std::string option;
     std::string arg;
     std::map<std::string, Argument**>::iterator it;
@@ -764,7 +764,7 @@ bool Argparsor::endOfInfiniteArgument(const char* argument) {
     return true;
 }
 
-void Argparsor::parsePositionnalArgument(char* argv[], int* index) {
+void Argparsor::_parsePositionnalArgument(char* argv[], int* index) {
     std::list<Argument*>::iterator it;
     for (it = _arguments.begin(); it != _arguments.end(); ++it) {
         // assign to first not used positional argument

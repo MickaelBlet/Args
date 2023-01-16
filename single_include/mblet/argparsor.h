@@ -1330,11 +1330,11 @@ class Argparsor {
     }
 
     /**
-     * @brief Get the bynary name
+     * @brief Get the binary name
      *
      * @return const std::string&
      */
-    const std::string& getBynaryName() const {
+    const std::string& getBinaryName() const {
         return _binaryName;
     }
 
@@ -1355,65 +1355,65 @@ class Argparsor {
     /**
      * @brief Check if argument exist
      *
-     * @param str
+     * @param nameOrFlag
      * @return [true] argument is in map, [false] argument is not in map
      */
-    bool argumentExists(const char* str) const {
-        return argumentExists(std::string(str));
+    bool argumentExists(const std::string& nameOrFlag) const {
+        return (_argumentFromName.find(nameOrFlag) != _argumentFromName.end());
     }
 
     /**
      * @brief Check if argument exist
      *
-     * @param str
+     * @param nameOrFlag
      * @return [true] argument is in map, [false] argument is not in map
      */
-    bool argumentExists(const std::string& str) const {
-        return (_argumentFromName.find(str) != _argumentFromName.end());
+    bool argumentExists(const char* nameOrFlag) const {
+        return argumentExists(std::string(nameOrFlag));
     }
 
     /**
      * @brief Get the argument object
      *
-     * @param str
+     * @param nameOrFlag
      * @return const Argument&
      */
-    const Argument& getArgument(const char* str) const {
-        return getArgument(std::string(str));
-    }
-
-    /**
-     * @brief Get the argument object
-     *
-     * @param str
-     * @return const Argument&
-     */
-    const Argument& getArgument(const std::string& str) const {
-        std::map<std::string, Argument**>::const_iterator cit = _argumentFromName.find(str);
+    const Argument& getArgument(const std::string& nameOrFlag) const {
+        std::map<std::string, Argument**>::const_iterator cit = _argumentFromName.find(nameOrFlag);
         if (cit == _argumentFromName.end()) {
-            throw AccessDeniedException(str.c_str(), "argument not found");
+            throw AccessDeniedException(nameOrFlag.c_str(), "argument not found");
         }
         return **(cit->second);
     }
 
     /**
-     * @brief Override bracket operator with getArgument
+     * @brief Get the argument object
      *
-     * @param str
+     * @param nameOrFlag
      * @return const Argument&
      */
-    const Argument& operator[](const char* str) const {
-        return getArgument(str);
+    const Argument& getArgument(const char* nameOrFlag) const {
+        return getArgument(std::string(nameOrFlag));
     }
 
     /**
      * @brief Override bracket operator with getArgument
      *
-     * @param str
+     * @param nameOrFlag
      * @return const Argument&
      */
-    const Argument& operator[](const std::string& str) const {
-        return getArgument(str);
+    const Argument& operator[](const char* nameOrFlag) const {
+        return getArgument(nameOrFlag);
+    }
+
+    /**
+     * @brief Override bracket operator with getArgument
+     *
+     * @param nameOrFlag
+     * @return const Argument&
+     */
+    const Argument& operator[](const std::string& nameOrFlag) const {
+        return getArgument(nameOrFlag);
     }
 
     /**
@@ -1492,6 +1492,11 @@ class Argparsor {
      */
     Argument& addArgument(const Vector& nameOrFlags);
 
+    /**
+     * @brief Construct a vector object from str parameters
+     *
+     * @return Vector
+     */
     static Vector vector(const char* v1 = NULL, const char* v2 = NULL, const char* v3 = NULL, const char* v4 = NULL,
                          const char* v5 = NULL, const char* v6 = NULL, const char* v7 = NULL, const char* v8 = NULL,
                          const char* v9 = NULL, const char* v10 = NULL) {
@@ -1510,7 +1515,7 @@ class Argparsor {
      * @param argv
      * @param index
      */
-    void parseShortArgument(int maxIndex, char* argv[], int* index);
+    void _parseShortArgument(int maxIndex, char* argv[], int* index);
 
     /**
      * @brief Get the long argument
@@ -1519,7 +1524,7 @@ class Argparsor {
      * @param argv
      * @param index
      */
-    void parseLongArgument(int maxIndex, char* argv[], int* index);
+    void _parseLongArgument(int maxIndex, char* argv[], int* index);
 
     /**
      * @brief Get the argument
@@ -1533,8 +1538,8 @@ class Argparsor {
      * @param argument
      * @param alternative
      */
-    void parseArgument(int maxIndex, char* argv[], int* index, bool hasArg, const char* option, const char* arg,
-                       Argument* argument);
+    void _parseArgument(int maxIndex, char* argv[], int* index, bool hasArg, const char* option, const char* arg,
+                        Argument* argument);
 
     /**
      * @brief Get the positionnal argument
@@ -1543,7 +1548,7 @@ class Argparsor {
      * @param index
      * @param strict
      */
-    void parsePositionnalArgument(char* argv[], int* index);
+    void _parsePositionnalArgument(char* argv[], int* index);
 
     /**
      * @brief Check end of infinite parsing
@@ -1553,7 +1558,7 @@ class Argparsor {
      * @return true
      * @return false
      */
-    bool endOfInfiniteArgument(const char* argument);
+    bool _endOfInfiniteArgument(const char* argument);
 
     std::string _binaryName;
 
@@ -2110,21 +2115,21 @@ inline void Argparsor::parseArguments(int argc, char* argv[], bool alternative, 
     // foreach argument
     for (int i = 1; i < argc; ++i) {
         if (isShortOption(argv[i])) {
-            parseShortArgument(endIndex, argv, &i);
+            _parseShortArgument(endIndex, argv, &i);
         }
         else if (isLongOption(argv[i])) {
-            parseLongArgument(endIndex, argv, &i);
+            _parseLongArgument(endIndex, argv, &i);
         }
         else if (isEndOption(argv[i])) {
             ++i;
             while (i < argc) {
-                parsePositionnalArgument(argv, &i);
+                _parsePositionnalArgument(argv, &i);
                 ++i;
             }
             break;
         }
         else {
-            parsePositionnalArgument(argv, &i);
+            _parsePositionnalArgument(argv, &i);
         }
     }
     // check help option
@@ -2268,7 +2273,7 @@ inline Argument& Argparsor::addArgument(const Vector& nameOrFlags) {
 /*
 ** private
 */
-inline void Argparsor::parseShortArgument(int maxIndex, char* argv[], int* index) {
+void Argparsor::_parseShortArgument(int maxIndex, char* argv[], int* index) {
     std::string options;
     std::string arg;
     std::map<std::string, Argument**>::iterator it;
@@ -2277,8 +2282,8 @@ inline void Argparsor::parseShortArgument(int maxIndex, char* argv[], int* index
         // try to find long option
         it = _argumentFromName.find("-" + options);
         if (it != _argumentFromName.end()) {
-            parseArgument(maxIndex, argv, index, hasArg, options.c_str() + _ARGPARSOR_PREFIX_SIZEOF_SHORT_OPTION,
-                          arg.c_str(), *(it->second));
+            _parseArgument(maxIndex, argv, index, hasArg, options.c_str() + _ARGPARSOR_PREFIX_SIZEOF_SHORT_OPTION,
+                           arg.c_str(), *(it->second));
             return;
         }
     }
@@ -2299,7 +2304,7 @@ inline void Argparsor::parseShortArgument(int maxIndex, char* argv[], int* index
             arg = options.substr(i + 1, options.size() - i);
             (*(it->second))->_isExist = true;
             ++(*(it->second))->_count;
-            parseArgument(maxIndex, argv, index, hasArg, charOption.c_str(), arg.c_str(), *(it->second));
+            _parseArgument(maxIndex, argv, index, hasArg, charOption.c_str(), arg.c_str(), *(it->second));
             return;
         }
         else if ((*(it->second))->_type != Argument::BOOLEAN_OPTION &&
@@ -2315,10 +2320,10 @@ inline void Argparsor::parseShortArgument(int maxIndex, char* argv[], int* index
     if (it == _argumentFromName.end()) {
         throw ParseArgumentException(charOption.c_str(), "invalid option");
     }
-    parseArgument(maxIndex, argv, index, hasArg, charOption.c_str(), arg.c_str(), *(it->second));
+    _parseArgument(maxIndex, argv, index, hasArg, charOption.c_str(), arg.c_str(), *(it->second));
 }
 
-inline void Argparsor::parseLongArgument(int maxIndex, char* argv[], int* index) {
+void Argparsor::_parseLongArgument(int maxIndex, char* argv[], int* index) {
     std::string option;
     std::string arg;
     std::map<std::string, Argument**>::iterator it;
@@ -2327,12 +2332,12 @@ inline void Argparsor::parseLongArgument(int maxIndex, char* argv[], int* index)
     if (it == _argumentFromName.end()) {
         throw ParseArgumentException(option.c_str() + _ARGPARSOR_PREFIX_SIZEOF_LONG_OPTION, "invalid option");
     }
-    parseArgument(maxIndex, argv, index, hasArg, option.c_str() + _ARGPARSOR_PREFIX_SIZEOF_LONG_OPTION, arg.c_str(),
-                  *(it->second));
+    _parseArgument(maxIndex, argv, index, hasArg, option.c_str() + _ARGPARSOR_PREFIX_SIZEOF_LONG_OPTION, arg.c_str(),
+                   *(it->second));
 }
 
-inline void Argparsor::parseArgument(int maxIndex, char* argv[], int* index, bool hasArg, const char* option,
-                                     const char* arg, Argument* argument) {
+void Argparsor::_parseArgument(int maxIndex, char* argv[], int* index, bool hasArg, const char* option, const char* arg,
+                               Argument* argument) {
     if (hasArg) {
         switch (argument->_type) {
             case Argument::SIMPLE_OPTION:
@@ -2384,7 +2389,7 @@ inline void Argparsor::parseArgument(int maxIndex, char* argv[], int* index, boo
                 argument->clear();
                 std::size_t countArg = 0;
                 for (int i = *index + 1; i < maxIndex; ++i) {
-                    if (endOfInfiniteArgument(argv[i])) {
+                    if (_endOfInfiniteArgument(argv[i])) {
                         break;
                     }
                     argument->push_back(argv[i]);
@@ -2410,7 +2415,7 @@ inline void Argparsor::parseArgument(int maxIndex, char* argv[], int* index, boo
                 }
                 std::size_t countArg = 0;
                 for (int i = *index + 1; i < maxIndex; ++i) {
-                    if (endOfInfiniteArgument(argv[i])) {
+                    if (_endOfInfiniteArgument(argv[i])) {
                         break;
                     }
                     argument->push_back(argv[i]);
@@ -2440,7 +2445,7 @@ inline void Argparsor::parseArgument(int maxIndex, char* argv[], int* index, boo
                 }
                 std::size_t countArg = 0;
                 for (int i = *index + 1; i < maxIndex; i += argument->_nargs) {
-                    if (endOfInfiniteArgument(argv[i])) {
+                    if (_endOfInfiniteArgument(argv[i])) {
                         break;
                     }
                     if (i + argument->_nargs > static_cast<unsigned int>(maxIndex)) {
@@ -2464,7 +2469,7 @@ inline void Argparsor::parseArgument(int maxIndex, char* argv[], int* index, boo
     ++argument->_count;
 }
 
-inline bool Argparsor::endOfInfiniteArgument(const char* argument) {
+bool Argparsor::_endOfInfiniteArgument(const char* argument) {
     std::string option;
     std::string arg;
     std::map<std::string, Argument**>::iterator it;
@@ -2513,7 +2518,7 @@ inline bool Argparsor::endOfInfiniteArgument(const char* argument) {
     return true;
 }
 
-inline void Argparsor::parsePositionnalArgument(char* argv[], int* index) {
+void Argparsor::_parsePositionnalArgument(char* argv[], int* index) {
     std::list<Argument*>::iterator it;
     for (it = _arguments.begin(); it != _arguments.end(); ++it) {
         // assign to first not used positional argument

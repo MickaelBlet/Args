@@ -20,6 +20,7 @@ set(example_files
     "${CMAKE_CURRENT_SOURCE_DIR}/storeFalse.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/storeTrue.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/version.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/widthArgument.cpp"
 )
 
 foreach(file ${example_files})

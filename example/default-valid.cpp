@@ -16,7 +16,7 @@ int main(int argc, char* argv[]) {
         return 0;
     }
     catch (const mblet::Argparsor::ParseArgumentException& e) {
-        std::cerr << args.getBynaryName() << ": " << e.what() << " -- '" << e.argument() << "'" << std::endl;
+        std::cerr << args.getBinaryName() << ": " << e.what() << " -- '" << e.argument() << "'" << std::endl;
         return 1;
     }
 }
