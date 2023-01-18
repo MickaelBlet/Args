@@ -185,6 +185,8 @@ Argument::operator std::vector<std::string>() const {
         case SIMPLE_OPTION:
             ret.push_back(_argument);
             break;
+        case NUMBER_POSITIONAL_ARGUMENT:
+        case INFINITE_POSITIONAL_ARGUMENT:
         case NUMBER_OPTION:
         case MULTI_OPTION:
         case INFINITE_OPTION:
@@ -195,6 +197,7 @@ Argument::operator std::vector<std::string>() const {
             break;
         case MULTI_NUMBER_OPTION:
         case MULTI_NUMBER_INFINITE_OPTION:
+        case INFINITE_NUMBER_POSITIONAL_ARGUMENT:
             for (std::size_t i = 0; i < size(); ++i) {
                 for (std::size_t j = 0; j < at(i).size(); ++j) {
                     ret.push_back(at(i).at(j)._argument);
@@ -228,7 +231,7 @@ Argument::operator std::vector<std::vector<std::string> >() const {
 }
 
 Argument& Argument::flag(const char* flag_) {
-    if (_type == POSITIONAL_ARGUMENT) {
+    if (_isPositionnalArgument()) {
         throw ArgumentException(flag_, "can't add flag in positionnal argument");
     }
     validFormatFlag(flag_);
@@ -268,25 +271,23 @@ void Argument::validFormatFlag(const char* flag) {
 }
 
 bool Argument::compareOption(const Argument* first, const Argument* second) {
-    if (first->_type == Argument::POSITIONAL_ARGUMENT && first->_isRequired &&
-        second->_type == Argument::POSITIONAL_ARGUMENT && second->_isRequired) {
+    if (first->_isPositionnalArgument() && first->_isRequired && second->_isPositionnalArgument() &&
+        second->_isRequired) {
         return false;
     }
-    else if (first->_type == Argument::POSITIONAL_ARGUMENT && first->_isRequired &&
-             second->_type == Argument::POSITIONAL_ARGUMENT) {
+    else if (first->_isPositionnalArgument() && first->_isRequired && second->_isPositionnalArgument()) {
         return true;
     }
-    else if (first->_type == Argument::POSITIONAL_ARGUMENT && second->_type == Argument::POSITIONAL_ARGUMENT &&
-             second->_isRequired) {
+    else if (first->_isPositionnalArgument() && second->_isPositionnalArgument() && second->_isRequired) {
         return false;
     }
-    else if (first->_type == Argument::POSITIONAL_ARGUMENT && second->_type == Argument::POSITIONAL_ARGUMENT) {
+    else if (first->_isPositionnalArgument() && second->_isPositionnalArgument()) {
         return false;
     }
-    else if (first->_type == Argument::POSITIONAL_ARGUMENT) {
+    else if (first->_isPositionnalArgument()) {
         return false;
     }
-    else if (second->_type == Argument::POSITIONAL_ARGUMENT) {
+    else if (second->_isPositionnalArgument()) {
         return true;
     }
     if (isShortOption(first->_nameOrFlags.front().c_str()) && isShortOption(second->_nameOrFlags.front().c_str())) {
@@ -401,10 +402,27 @@ std::string Argument::_metavarDefault() {
 }
 
 void Argument::_typeConstructor() {
-    if (_type == Argument::POSITIONAL_ARGUMENT) {
-        throw ArgumentException(_nameOrFlags.front().c_str(), "positional argument cannot use action or nargs");
+    if (_isPositionnalArgument()) {
+        if (_nargs == 1 && _action == Action::NONE) {
+            _type = Argument::POSITIONAL_ARGUMENT;
+        }
+        else if ((_nargs == '+' && _action == Action::NONE) || (_nargs == 1 && _action == Action::INFINITE)) {
+            _nargs = 1;
+            _action = Action::INFINITE;
+            _type = Argument::INFINITE_POSITIONAL_ARGUMENT;
+        }
+        else if (_nargs > 1 && _action == Action::NONE) {
+            _type = Argument::NUMBER_POSITIONAL_ARGUMENT;
+        }
+        else if (_nargs > 1 && _action == Action::INFINITE) {
+            _type = Argument::INFINITE_NUMBER_POSITIONAL_ARGUMENT;
+        }
+        else {
+            throw ArgumentException(_nameOrFlags.front().c_str(),
+                                    "positional argument cannot use with this action or this nargs");
+        }
     }
-    if (_nargs == 0 || _action == Action::STORE_TRUE) {
+    else if (_nargs == 0 || _action == Action::STORE_TRUE) {
         _nargs = 0;
         _type = Argument::BOOLEAN_OPTION;
     }
@@ -476,7 +494,7 @@ void Argument::_defaultsConstructor() {
             _argument = _defaults.front();
             _default = _defaults.front();
         }
-        if (_type == Argument::NUMBER_OPTION) {
+        if (_type == Argument::NUMBER_POSITIONAL_ARGUMENT || _type == Argument::NUMBER_OPTION) {
             if (_defaults.size() != _nargs) {
                 throw ArgumentException(_nameOrFlags.front().c_str(),
                                         "invalid number of argument with number of default argument");
@@ -490,8 +508,8 @@ void Argument::_defaultsConstructor() {
                 push_back(ArgumentElement(_defaults[i].c_str(), _defaults[i].c_str()));
             }
         }
-        if (_type == Argument::MULTI_OPTION || _type == Argument::INFINITE_OPTION ||
-            _type == Argument::MULTI_INFINITE_OPTION) {
+        if (_type == Argument::INFINITE_POSITIONAL_ARGUMENT || _type == Argument::MULTI_OPTION ||
+            _type == Argument::INFINITE_OPTION || _type == Argument::MULTI_INFINITE_OPTION) {
             _default = "";
             for (std::size_t i = 0; i < _defaults.size(); ++i) {
                 if (i > 0) {
@@ -501,7 +519,8 @@ void Argument::_defaultsConstructor() {
                 push_back(ArgumentElement(_defaults[i].c_str(), _defaults[i].c_str()));
             }
         }
-        if (_type == Argument::MULTI_NUMBER_OPTION || _type == Argument::MULTI_NUMBER_INFINITE_OPTION) {
+        if (_type == Argument::INFINITE_NUMBER_POSITIONAL_ARGUMENT || _type == Argument::MULTI_NUMBER_OPTION ||
+            _type == Argument::MULTI_NUMBER_INFINITE_OPTION) {
             if (_defaults.size() % _nargs != 0) {
                 throw ArgumentException(_nameOrFlags.front().c_str(),
                                         "invalid number of argument with number of default argument");

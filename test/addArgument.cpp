@@ -130,10 +130,10 @@ GTEST_TEST(addArgument, argumentException) {
     EXPECT_THROW(
         {
             try {
-                args.addArgument("B").action(mblet::Argparsor::NONE);
+                args.addArgument("B").action(mblet::Argparsor::APPEND);
             }
             catch (const mblet::Argparsor::ArgumentException& e) {
-                EXPECT_STREQ(e.what(), "positional argument cannot use action or nargs");
+                EXPECT_STREQ(e.what(), "positional argument cannot use with this action or this nargs");
                 EXPECT_STREQ(e.argument(), "B");
                 throw;
             }
@@ -252,4 +252,10 @@ GTEST_TEST(addArgument, append) {
     mblet::Argparsor args;
     args.addArgument("--append").action(mblet::Argparsor::APPEND);
     EXPECT_FALSE(args["--append"]);
+}
+
+GTEST_TEST(addArgument, positionnal) {
+    mblet::Argparsor args;
+    args.addArgument("ARG").action(args.NONE).action(args.INFINITE).nargs(4).nargs(1);
+    EXPECT_EQ(args["ARG"].getAction(), args.INFINITE);
 }

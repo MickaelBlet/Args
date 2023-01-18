@@ -1,6 +1,7 @@
 # Examples
 
 ## Argument
+With nargs == 1
 ```cpp
 #include <iostream>
 
@@ -34,6 +35,103 @@ Additionnal argument(s):
 1
 2
 3
+```
+With nargs == 1 and action == INFINITE
+```cpp
+#include <iostream>
+
+#include "mblet/argparsor.h"
+
+int main(int argc, char* argv[]) {
+    mblet::Argparsor args;
+    args.addArgument("ARG").help("custom argument message").action(args.INFINITE);
+    args.parseArguments(argc, argv);
+    if (args["ARG"]) {
+        std::cout << args["ARG"] << std::endl;
+    }
+    if (args.getAdditionalArguments().size() > 0) {
+        std::cout << "Additionnal argument(s):" << std::endl;
+        for (std::size_t i = 0; i < args.getAdditionalArguments().size(); ++i) {
+            std::cout << args.getAdditionalArguments()[i] << std::endl;
+        }
+    }
+    return 0;
+}
+```
+```
+$ ./a.out
+$ ./a.out 42
+42
+$ ./a.out -- 42
+42
+$ ./a.out 42 1 2 3
+42, 1, 2, 3
+```
+With nargs == 3
+```cpp
+#include <iostream>
+
+#include "mblet/argparsor.h"
+
+int main(int argc, char* argv[]) {
+    mblet::Argparsor args;
+    args.addArgument("ARG").help("custom argument message").nargs(3);
+    args.parseArguments(argc, argv);
+    if (args["ARG"]) {
+        std::cout << args["ARG"] << std::endl;
+    }
+    if (args.getAdditionalArguments().size() > 0) {
+        std::cout << "Additionnal argument(s):" << std::endl;
+        for (std::size_t i = 0; i < args.getAdditionalArguments().size(); ++i) {
+            std::cout << args.getAdditionalArguments()[i] << std::endl;
+        }
+    }
+    return 0;
+}
+```
+```
+$ ./a.out
+$ ./a.out 1 2 3
+1, 2, 3
+$ ./a.out -- 1 2 3
+1, 2, 3
+$ ./a.out -- 1 2 3 42
+1, 2, 3
+Additionnal argument(s):
+42
+```
+With nargs == 3 and action == INFINITE
+```cpp
+#include <iostream>
+
+#include "mblet/argparsor.h"
+
+int main(int argc, char* argv[]) {
+    mblet::Argparsor args;
+    args.addArgument("ARG").help("custom argument message").nargs(3).action(args.INFINITE);
+    args.parseArguments(argc, argv);
+    if (args["ARG"]) {
+        std::cout << args["ARG"] << std::endl;
+    }
+    if (args.getAdditionalArguments().size() > 0) {
+        std::cout << "Additionnal argument(s):" << std::endl;
+        for (std::size_t i = 0; i < args.getAdditionalArguments().size(); ++i) {
+            std::cout << args.getAdditionalArguments()[i] << std::endl;
+        }
+    }
+    return 0;
+}
+```
+```
+$ ./a.out
+$ ./a.out 1 2 3
+(1, 2, 3)
+$ ./a.out -- 1 2 3
+(1, 2, 3)
+$ ./a.out 1 2 3 -- 42
+(1, 2, 3)
+Additionnal argument(s):
+42
 ```
 
 ## Append

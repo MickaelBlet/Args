@@ -29,8 +29,9 @@ int main(int argc, char* argv[]) {
         .help("help of version option")
         .action(args.VERSION)
         .defaults("Version: 0.0.0");
-    args.addArgument("--option").help("help of option");
+    args.addArgument(args.vector("-o", "--option")).help("help of option");
     args.addArgument("--log-level")
+        .flag("-l")
         .help("help of log-level")
         .metavar("LEVEL")
         .valid(new mblet::Argparsor::ValidChoise(args.vector("DEBUG", "INFO", "WARNING", "ERROR")))

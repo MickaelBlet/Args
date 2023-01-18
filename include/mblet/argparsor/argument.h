@@ -579,8 +579,23 @@ class Argument : public ArgumentElement {
         MULTI_INFINITE_OPTION,
         MULTI_NUMBER_OPTION,
         MULTI_NUMBER_INFINITE_OPTION,
-        POSITIONAL_ARGUMENT
+        POSITIONAL_ARGUMENT,
+        NUMBER_POSITIONAL_ARGUMENT,
+        INFINITE_POSITIONAL_ARGUMENT,
+        INFINITE_NUMBER_POSITIONAL_ARGUMENT
     };
+
+    bool _isPositionnalArgument() const {
+        switch (_type) {
+            case POSITIONAL_ARGUMENT:
+            case NUMBER_POSITIONAL_ARGUMENT:
+            case INFINITE_POSITIONAL_ARGUMENT:
+            case INFINITE_NUMBER_POSITIONAL_ARGUMENT:
+                return true;
+            default:
+                return false;
+        }
+    }
 
     virtual void _toDest() {
         /* do nothing */

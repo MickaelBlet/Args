@@ -125,6 +125,12 @@ GTEST_TEST(getUsage, allTypeArgument) {
     args.setEpilog("custom epilog message");
     // POSITIONNAL
     args.addArgument("REQUIRED").help("help of required positional argument").required(true);
+    args.addArgument("NUMBER").help("help of positional number argument").nargs(2);
+    args.addArgument("INFINITE").help("help of infinite positional argument").action(args.INFINITE);
+    args.addArgument("INFINITE_NUMBER")
+        .help("help of infinite positional number argument")
+        .action(args.INFINITE)
+        .nargs(2);
     args.addArgument("NOTREQUIRED").help("help of positional argument").defaults("DEFAULT VALUE");
     // BOOL
     args.addArgument(args.vector("-b", "--bool")).action(mblet::Argparsor::STORE_TRUE).help("help of bool option");
@@ -181,12 +187,16 @@ GTEST_TEST(getUsage, allTypeArgument) {
              "        [--multi-number MULTI-NUMBER MULTI-NUMBER] [--notbool]\n"
              "        [--number Arg1 Arg2]\n"
              "        --\n"
-             "        REQUIRED [NOTREQUIRED]\n";
+             "        REQUIRED [NUMBER NUMBER] [INFINITE {INFINITE}...]\n"
+             "        [{INFINITE_NUMBER INFINITE_NUMBER}...] [NOTREQUIRED]\n";
     usage << "\n";
     usage << "custom description message\n";
     usage << "\n";
     usage << "positional arguments:\n";
     usage << "  REQUIRED              help of required positional argument (required)\n";
+    usage << "  NUMBER                help of positional number argument\n";
+    usage << "  INFINITE              help of infinite positional argument\n";
+    usage << "  INFINITE_NUMBER       help of infinite positional number argument\n";
     usage << "  NOTREQUIRED           help of positional argument (default: DEFAULT VALUE)\n";
     usage << "\n";
     usage << "optional arguments:\n";

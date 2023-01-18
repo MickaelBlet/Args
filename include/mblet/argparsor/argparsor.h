@@ -296,7 +296,7 @@ class Argparsor {
      * @param index
      * @param strict
      */
-    void _parsePositionnalArgument(char* argv[], int* index);
+    void _parsePositionnalArgument(int argc, char* argv[], int* index, bool hasEndOption = false);
 
     /**
      * @brief Check end of infinite parsing

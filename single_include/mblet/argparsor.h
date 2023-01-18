@@ -1053,8 +1053,23 @@ class Argument : public ArgumentElement {
         MULTI_INFINITE_OPTION,
         MULTI_NUMBER_OPTION,
         MULTI_NUMBER_INFINITE_OPTION,
-        POSITIONAL_ARGUMENT
+        POSITIONAL_ARGUMENT,
+        NUMBER_POSITIONAL_ARGUMENT,
+        INFINITE_POSITIONAL_ARGUMENT,
+        INFINITE_NUMBER_POSITIONAL_ARGUMENT
     };
+
+    bool _isPositionnalArgument() const {
+        switch (_type) {
+            case POSITIONAL_ARGUMENT:
+            case NUMBER_POSITIONAL_ARGUMENT:
+            case INFINITE_POSITIONAL_ARGUMENT:
+            case INFINITE_NUMBER_POSITIONAL_ARGUMENT:
+                return true;
+            default:
+                return false;
+        }
+    }
 
     virtual void _toDest() {
         /* do nothing */
@@ -1548,7 +1563,7 @@ class Argparsor {
      * @param index
      * @param strict
      */
-    void _parsePositionnalArgument(char* argv[], int* index);
+    void _parsePositionnalArgument(int argc, char* argv[], int* index, bool hasEndOption = false);
 
     /**
      * @brief Check end of infinite parsing
@@ -1877,7 +1892,7 @@ inline std::string Argparsor::getUsage() const {
     std::size_t indexMax = _usagePadWidth + _usageArgsWidth + _usageSepWidth + _usageHelpWidth;
     std::list<Argument*>::const_iterator it;
     for (it = _arguments.begin(); it != _arguments.end(); ++it) {
-        if ((*it)->_type == Argument::POSITIONAL_ARGUMENT) {
+        if ((*it)->_isPositionnalArgument()) {
             hasPositionnal = true;
             continue;
         }
@@ -1930,14 +1945,37 @@ inline std::string Argparsor::getUsage() const {
         }
     }
     for (it = _arguments.begin(); it != _arguments.end(); ++it) {
-        if ((*it)->_type != Argument::POSITIONAL_ARGUMENT) {
+        if (!(*it)->_isPositionnalArgument()) {
             continue;
         }
         std::ostringstream ossArgument("");
         if (!(*it)->_isRequired) {
             ossArgument << '[';
         }
-        ossArgument << (*it)->_nameOrFlags.front();
+        if ((*it)->_type == Argument::POSITIONAL_ARGUMENT) {
+            ossArgument << (*it)->_nameOrFlags.front();
+        }
+        else if ((*it)->_type == Argument::NUMBER_POSITIONAL_ARGUMENT) {
+            for (std::size_t i = 0; i < (*it)->_nargs; ++i) {
+                if (i != 0) {
+                    ossArgument << ' ';
+                }
+                ossArgument << (*it)->_nameOrFlags.front();
+            }
+        }
+        else if ((*it)->_type == Argument::INFINITE_POSITIONAL_ARGUMENT) {
+            ossArgument << (*it)->_nameOrFlags.front() << " {" << (*it)->_nameOrFlags.front() << "}...";
+        }
+        else if ((*it)->_type == Argument::INFINITE_NUMBER_POSITIONAL_ARGUMENT) {
+            ossArgument << "{";
+            for (std::size_t i = 0; i < (*it)->_nargs; ++i) {
+                if (i != 0) {
+                    ossArgument << ' ';
+                }
+                ossArgument << (*it)->_nameOrFlags.front();
+            }
+            ossArgument << "}...";
+        }
         if (!(*it)->_isRequired) {
             ossArgument << ']';
         }
@@ -1969,13 +2007,18 @@ inline std::string Argparsor::getUsage() const {
         std::list<std::pair<std::string, std::string> > optionnals;
         for (it = _arguments.begin(); it != _arguments.end(); ++it) {
             std::list<std::pair<std::string, std::string> >* listOption = NULL;
-            if ((*it)->_type == Argument::POSITIONAL_ARGUMENT) {
-                positionals.push_back(std::pair<std::string, std::string>("", ""));
-                listOption = &positionals;
-            }
-            else {
-                optionnals.push_back(std::pair<std::string, std::string>("", ""));
-                listOption = &optionnals;
+            switch ((*it)->_type) {
+                case Argument::POSITIONAL_ARGUMENT:
+                case Argument::NUMBER_POSITIONAL_ARGUMENT:
+                case Argument::INFINITE_POSITIONAL_ARGUMENT:
+                case Argument::INFINITE_NUMBER_POSITIONAL_ARGUMENT:
+                    positionals.push_back(std::pair<std::string, std::string>("", ""));
+                    listOption = &positionals;
+                    break;
+                default:
+                    optionnals.push_back(std::pair<std::string, std::string>("", ""));
+                    listOption = &optionnals;
+                    break;
             }
             std::string& optionStr = listOption->back().first;
             std::string& helpStr = listOption->back().second;
@@ -2008,21 +2051,8 @@ inline std::string Argparsor::getUsage() const {
                 helpStr += " (required)";
             }
             else {
-                switch ((*it)->_type) {
-                    case Argument::POSITIONAL_ARGUMENT:
-                    case Argument::SIMPLE_OPTION:
-                    case Argument::NUMBER_OPTION:
-                    case Argument::INFINITE_OPTION:
-                    case Argument::MULTI_OPTION:
-                    case Argument::MULTI_INFINITE_OPTION:
-                    case Argument::MULTI_NUMBER_OPTION:
-                    case Argument::MULTI_NUMBER_INFINITE_OPTION:
-                        if (!(*it)->_default.empty()) {
-                            helpStr += " (default: " + (*it)->_default + ")";
-                        }
-                        break;
-                    default:
-                        break;
+                if (!(*it)->_default.empty() && (*it)->_action != Action::VERSION) {
+                    helpStr += " (default: " + (*it)->_default + ")";
                 }
             }
             helpStr += "\n";
@@ -2123,13 +2153,13 @@ inline void Argparsor::parseArguments(int argc, char* argv[], bool alternative, 
         else if (isEndOption(argv[i])) {
             ++i;
             while (i < argc) {
-                _parsePositionnalArgument(argv, &i);
+                _parsePositionnalArgument(argc, argv, &i, true);
                 ++i;
             }
             break;
         }
         else {
-            _parsePositionnalArgument(argv, &i);
+            _parsePositionnalArgument(endIndex, argv, &i);
         }
     }
     // check help option
@@ -2163,6 +2193,9 @@ inline void Argparsor::parseArguments(int argc, char* argv[], bool alternative, 
                 std::vector<std::string> arguments;
                 switch ((*it)->_type) {
                     case Argument::POSITIONAL_ARGUMENT:
+                    case Argument::NUMBER_POSITIONAL_ARGUMENT:
+                    case Argument::INFINITE_POSITIONAL_ARGUMENT:
+                    case Argument::INFINITE_NUMBER_POSITIONAL_ARGUMENT:
                     case Argument::SIMPLE_OPTION:
                     case Argument::NUMBER_OPTION:
                     case Argument::MULTI_OPTION:
@@ -2191,12 +2224,15 @@ inline void Argparsor::parseArguments(int argc, char* argv[], bool alternative, 
                     case Argument::MULTI_OPTION:
                     case Argument::INFINITE_OPTION:
                     case Argument::MULTI_INFINITE_OPTION:
+                    case Argument::NUMBER_POSITIONAL_ARGUMENT:
+                    case Argument::INFINITE_POSITIONAL_ARGUMENT:
                         for (std::size_t i = 0; i < (*it)->size() && i < arguments.size(); ++i) {
                             (*it)->at(i)._argument = arguments[i];
                         }
                         break;
                     case Argument::MULTI_NUMBER_OPTION:
-                    case Argument::MULTI_NUMBER_INFINITE_OPTION: {
+                    case Argument::MULTI_NUMBER_INFINITE_OPTION:
+                    case Argument::INFINITE_NUMBER_POSITIONAL_ARGUMENT: {
                         std::size_t i = 0;
                         for (std::size_t j = 0; j < (*it)->size() && i < arguments.size(); ++j) {
                             for (std::size_t k = 0; k < (*it)->at(j).size() && i < arguments.size(); ++k) {
@@ -2273,7 +2309,7 @@ inline Argument& Argparsor::addArgument(const Vector& nameOrFlags) {
 /*
 ** private
 */
-void Argparsor::_parseShortArgument(int maxIndex, char* argv[], int* index) {
+inline void Argparsor::_parseShortArgument(int maxIndex, char* argv[], int* index) {
     std::string options;
     std::string arg;
     std::map<std::string, Argument**>::iterator it;
@@ -2323,7 +2359,7 @@ void Argparsor::_parseShortArgument(int maxIndex, char* argv[], int* index) {
     _parseArgument(maxIndex, argv, index, hasArg, charOption.c_str(), arg.c_str(), *(it->second));
 }
 
-void Argparsor::_parseLongArgument(int maxIndex, char* argv[], int* index) {
+inline void Argparsor::_parseLongArgument(int maxIndex, char* argv[], int* index) {
     std::string option;
     std::string arg;
     std::map<std::string, Argument**>::iterator it;
@@ -2336,8 +2372,8 @@ void Argparsor::_parseLongArgument(int maxIndex, char* argv[], int* index) {
                    *(it->second));
 }
 
-void Argparsor::_parseArgument(int maxIndex, char* argv[], int* index, bool hasArg, const char* option, const char* arg,
-                               Argument* argument) {
+inline void Argparsor::_parseArgument(int maxIndex, char* argv[], int* index, bool hasArg, const char* option,
+                                      const char* arg, Argument* argument) {
     if (hasArg) {
         switch (argument->_type) {
             case Argument::SIMPLE_OPTION:
@@ -2469,7 +2505,7 @@ void Argparsor::_parseArgument(int maxIndex, char* argv[], int* index, bool hasA
     ++argument->_count;
 }
 
-bool Argparsor::_endOfInfiniteArgument(const char* argument) {
+inline bool Argparsor::_endOfInfiniteArgument(const char* argument) {
     std::string option;
     std::string arg;
     std::map<std::string, Argument**>::iterator it;
@@ -2518,17 +2554,60 @@ bool Argparsor::_endOfInfiniteArgument(const char* argument) {
     return true;
 }
 
-void Argparsor::_parsePositionnalArgument(char* argv[], int* index) {
+inline void Argparsor::_parsePositionnalArgument(int argc, char* argv[], int* index, bool hasEndOption) {
+    // find not exists positionnal argument
     std::list<Argument*>::iterator it;
     for (it = _arguments.begin(); it != _arguments.end(); ++it) {
-        // assign to first not used positional argument
-        if ((*it)->_type == Argument::POSITIONAL_ARGUMENT && (*it)->_isExist == false) {
-            (*it)->_argument = argv[*index];
-            (*it)->_isExist = true;
+        if ((*it)->_isExist == false && (*it)->_isPositionnalArgument()) {
             break;
         }
     }
-    if (it == _arguments.end()) {
+    if (it != _arguments.end()) {
+        Argument& argument = *(*it);
+        if (argument._type == Argument::POSITIONAL_ARGUMENT) {
+            argument._argument = argv[*index];
+        }
+        else if (argument._type == Argument::NUMBER_POSITIONAL_ARGUMENT) {
+            if (*index + argument._nargs > static_cast<unsigned int>(argc)) {
+                throw ParseArgumentException(argument._nameOrFlags.front().c_str(), "bad number of argument");
+            }
+            for (unsigned int i = *index; i < (*index + argument._nargs); ++i) {
+                argument.push_back(argv[i]);
+            }
+            *index += argument._nargs - 1;
+        }
+        else if (argument._type == Argument::INFINITE_POSITIONAL_ARGUMENT) {
+            std::size_t countArg = 0;
+            for (int i = *index; i < argc; ++i) {
+                if (!hasEndOption && _endOfInfiniteArgument(argv[i])) {
+                    break;
+                }
+                (*it)->push_back(argv[i]);
+                ++countArg;
+            }
+            *index += countArg - 1;
+        }
+        else if (argument._type == Argument::INFINITE_NUMBER_POSITIONAL_ARGUMENT) {
+            std::size_t countArg = 0;
+            for (int i = *index; i < argc; i += argument._nargs) {
+                if (!hasEndOption && _endOfInfiniteArgument(argv[i])) {
+                    break;
+                }
+                if (i + argument._nargs > static_cast<unsigned int>(argc)) {
+                    throw ParseArgumentException(argument._nameOrFlags.front().c_str(), "bad number of argument");
+                }
+                ArgumentElement newNumberArgument;
+                for (unsigned int j = i; j < i + argument._nargs; ++j) {
+                    newNumberArgument.push_back(argv[j]);
+                    ++countArg;
+                }
+                argument.push_back(newNumberArgument);
+            }
+            *index += countArg - 1;
+        }
+        argument._isExist = true;
+    }
+    else {
         if (_isStrict) {
             throw ParseArgumentException(argv[*index], "invalid additional argument");
         }
@@ -2735,6 +2814,8 @@ inline Argument::operator std::vector<std::string>() const {
         case SIMPLE_OPTION:
             ret.push_back(_argument);
             break;
+        case NUMBER_POSITIONAL_ARGUMENT:
+        case INFINITE_POSITIONAL_ARGUMENT:
         case NUMBER_OPTION:
         case MULTI_OPTION:
         case INFINITE_OPTION:
@@ -2745,6 +2826,7 @@ inline Argument::operator std::vector<std::string>() const {
             break;
         case MULTI_NUMBER_OPTION:
         case MULTI_NUMBER_INFINITE_OPTION:
+        case INFINITE_NUMBER_POSITIONAL_ARGUMENT:
             for (std::size_t i = 0; i < size(); ++i) {
                 for (std::size_t j = 0; j < at(i).size(); ++j) {
                     ret.push_back(at(i).at(j)._argument);
@@ -2778,7 +2860,7 @@ inline Argument::operator std::vector<std::vector<std::string> >() const {
 }
 
 inline Argument& Argument::flag(const char* flag_) {
-    if (_type == POSITIONAL_ARGUMENT) {
+    if (_isPositionnalArgument()) {
         throw ArgumentException(flag_, "can't add flag in positionnal argument");
     }
     validFormatFlag(flag_);
@@ -2818,25 +2900,23 @@ inline void Argument::validFormatFlag(const char* flag) {
 }
 
 inline bool Argument::compareOption(const Argument* first, const Argument* second) {
-    if (first->_type == Argument::POSITIONAL_ARGUMENT && first->_isRequired &&
-        second->_type == Argument::POSITIONAL_ARGUMENT && second->_isRequired) {
+    if (first->_isPositionnalArgument() && first->_isRequired && second->_isPositionnalArgument() &&
+        second->_isRequired) {
         return false;
     }
-    else if (first->_type == Argument::POSITIONAL_ARGUMENT && first->_isRequired &&
-             second->_type == Argument::POSITIONAL_ARGUMENT) {
+    else if (first->_isPositionnalArgument() && first->_isRequired && second->_isPositionnalArgument()) {
         return true;
     }
-    else if (first->_type == Argument::POSITIONAL_ARGUMENT && second->_type == Argument::POSITIONAL_ARGUMENT &&
-             second->_isRequired) {
+    else if (first->_isPositionnalArgument() && second->_isPositionnalArgument() && second->_isRequired) {
         return false;
     }
-    else if (first->_type == Argument::POSITIONAL_ARGUMENT && second->_type == Argument::POSITIONAL_ARGUMENT) {
+    else if (first->_isPositionnalArgument() && second->_isPositionnalArgument()) {
         return false;
     }
-    else if (first->_type == Argument::POSITIONAL_ARGUMENT) {
+    else if (first->_isPositionnalArgument()) {
         return false;
     }
-    else if (second->_type == Argument::POSITIONAL_ARGUMENT) {
+    else if (second->_isPositionnalArgument()) {
         return true;
     }
     if (isShortOption(first->_nameOrFlags.front().c_str()) && isShortOption(second->_nameOrFlags.front().c_str())) {
@@ -2951,10 +3031,27 @@ inline std::string Argument::_metavarDefault() {
 }
 
 inline void Argument::_typeConstructor() {
-    if (_type == Argument::POSITIONAL_ARGUMENT) {
-        throw ArgumentException(_nameOrFlags.front().c_str(), "positional argument cannot use action or nargs");
+    if (_isPositionnalArgument()) {
+        if (_nargs == 1 && _action == Action::NONE) {
+            _type = Argument::POSITIONAL_ARGUMENT;
+        }
+        else if ((_nargs == '+' && _action == Action::NONE) || (_nargs == 1 && _action == Action::INFINITE)) {
+            _nargs = 1;
+            _action = Action::INFINITE;
+            _type = Argument::INFINITE_POSITIONAL_ARGUMENT;
+        }
+        else if (_nargs > 1 && _action == Action::NONE) {
+            _type = Argument::NUMBER_POSITIONAL_ARGUMENT;
+        }
+        else if (_nargs > 1 && _action == Action::INFINITE) {
+            _type = Argument::INFINITE_NUMBER_POSITIONAL_ARGUMENT;
+        }
+        else {
+            throw ArgumentException(_nameOrFlags.front().c_str(),
+                                    "positional argument cannot use with this action or this nargs");
+        }
     }
-    if (_nargs == 0 || _action == Action::STORE_TRUE) {
+    else if (_nargs == 0 || _action == Action::STORE_TRUE) {
         _nargs = 0;
         _type = Argument::BOOLEAN_OPTION;
     }
@@ -3026,7 +3123,7 @@ inline void Argument::_defaultsConstructor() {
             _argument = _defaults.front();
             _default = _defaults.front();
         }
-        if (_type == Argument::NUMBER_OPTION) {
+        if (_type == Argument::NUMBER_POSITIONAL_ARGUMENT || _type == Argument::NUMBER_OPTION) {
             if (_defaults.size() != _nargs) {
                 throw ArgumentException(_nameOrFlags.front().c_str(),
                                         "invalid number of argument with number of default argument");
@@ -3040,8 +3137,8 @@ inline void Argument::_defaultsConstructor() {
                 push_back(ArgumentElement(_defaults[i].c_str(), _defaults[i].c_str()));
             }
         }
-        if (_type == Argument::MULTI_OPTION || _type == Argument::INFINITE_OPTION ||
-            _type == Argument::MULTI_INFINITE_OPTION) {
+        if (_type == Argument::INFINITE_POSITIONAL_ARGUMENT || _type == Argument::MULTI_OPTION ||
+            _type == Argument::INFINITE_OPTION || _type == Argument::MULTI_INFINITE_OPTION) {
             _default = "";
             for (std::size_t i = 0; i < _defaults.size(); ++i) {
                 if (i > 0) {
@@ -3051,7 +3148,8 @@ inline void Argument::_defaultsConstructor() {
                 push_back(ArgumentElement(_defaults[i].c_str(), _defaults[i].c_str()));
             }
         }
-        if (_type == Argument::MULTI_NUMBER_OPTION || _type == Argument::MULTI_NUMBER_INFINITE_OPTION) {
+        if (_type == Argument::INFINITE_NUMBER_POSITIONAL_ARGUMENT || _type == Argument::MULTI_NUMBER_OPTION ||
+            _type == Argument::MULTI_NUMBER_INFINITE_OPTION) {
             if (_defaults.size() % _nargs != 0) {
                 throw ArgumentException(_nameOrFlags.front().c_str(),
                                         "invalid number of argument with number of default argument");

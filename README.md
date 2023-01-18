@@ -20,12 +20,10 @@ enum eLogLevel {
 
 void argToLogLevel(eLogLevel& logLevel, bool /*isExist*/, const std::string& argument) {
     static const std::pair<std::string, eLogLevel> pairLogLevels[] = {
-        std::pair<std::string, eLogLevel>("DEBUG", DEBUG),
-        std::pair<std::string, eLogLevel>("INFO", INFO),
-        std::pair<std::string, eLogLevel>("WARNING", WARNING),
-        std::pair<std::string, eLogLevel>("ERROR", ERROR)
-    };
-    static const std::map<std::string, eLogLevel> logLevels(pairLogLevels, pairLogLevels + sizeof(pairLogLevels) / sizeof(*pairLogLevels));
+        std::pair<std::string, eLogLevel>("DEBUG", DEBUG), std::pair<std::string, eLogLevel>("INFO", INFO),
+        std::pair<std::string, eLogLevel>("WARNING", WARNING), std::pair<std::string, eLogLevel>("ERROR", ERROR)};
+    static const std::map<std::string, eLogLevel> logLevels(
+        pairLogLevels, pairLogLevels + sizeof(pairLogLevels) / sizeof(*pairLogLevels));
 
     logLevel = logLevels.at(argument);
 }
@@ -35,10 +33,16 @@ int main(int argc, char* argv[]) {
 
     mblet::Argparsor args;
     args.addArgument("ARGUMENT").help("help of argument").required(true);
-    args.addArgument("-v").flag("--version").help("help of version option")
-        .action(args.VERSION).defaults("Version: 0.0.0");
-    args.addArgument("--option").help("help of option");
-    args.addArgument("--log-level").help("help of log-level").metavar("LEVEL")
+    args.addArgument("-v")
+        .flag("--version")
+        .help("help of version option")
+        .action(args.VERSION)
+        .defaults("Version: 0.0.0");
+    args.addArgument(args.vector("-o", "--option")).help("help of option");
+    args.addArgument("--log-level")
+        .flag("-l")
+        .help("help of log-level")
+        .metavar("LEVEL")
         .valid(new mblet::Argparsor::ValidChoise(args.vector("DEBUG", "INFO", "WARNING", "ERROR")))
         .defaults("INFO")
         .dest(logLevel, argToLogLevel);
@@ -66,7 +70,7 @@ int main(int argc, char* argv[]) {
         std::cout << std::endl;
     }
     catch (const mblet::Argparsor::ParseArgumentException& e) {
-        std::cerr << args.getBynaryName() << ": " << e.what();
+        std::cerr << args.getBinaryName() << ": " << e.what();
         std::cerr << " -- '" << e.argument() << "'" << std::endl;
         return 1; // END
     }
@@ -78,20 +82,21 @@ int main(int argc, char* argv[]) {
 $ ./a.out --version
 Version: 0.0.0
 $ ./a.out -h
-usage: a.out [-h] [-v] [--log-level LEVEL] [--option OPTION] -- ARGUMENT
+usage: a.out [-h] [-l LEVEL] [-o OPTION] [-v] -- ARGUMENT
 
 positional arguments:
   ARGUMENT              help of argument (required)
 
 optional arguments:
   -h, --help            show this help message and exit
+  -l, --log-level LEVEL
+                        help of log-level (default: INFO)
+  -o, --option OPTION   help of option
   -v, --version         help of version option
-  --log-level LEVEL     help of log-level (default: INFO)
-  --option OPTION       help of option
 $ ./a.out
 ./a.out: argument is required -- 'ARGUMENT'
 $ ./a.out 42 --log-level Foo
-./a.out: "Foo" is not a choise value ("DEBUG", "INFO", "WARNING", "ERROR") -- '--log-level'
+./a.out: "Foo" is not a choise value ("DEBUG", "INFO", "WARNING", "ERROR") -- '-l'
 $ ./a.out 42
 ARGUMENT: 42
 --log-level: INFO
@@ -185,7 +190,7 @@ void parseArguments(
 
 ## Vector
 
-Vector is a object can be initialize with initialize string list or single string or for C++98 with `vector` method.
+Vector is a object can be initialize with initialize string list or single string or for C++98 with `vector` static method.
 
 ```cpp
 mblet::Argparsor args;
@@ -196,60 +201,64 @@ args.addArgument(args.vector("-s", "--simple"));     // C++98
 args.addArgument((const char*[]){"-s", "--simple"}); // C++98
 ```
 
-## Action
+## AddArgument methods
+
+### Action
 
 List of action
 
-### DEFAULT
+#### DEFAULT
 
 This just stores the argument’s value. This is the default action.  
 Example at [docs/examples.md/none](docs/examples.md#none).
 
-### APPEND
+#### APPEND
 
 This stores a list, and appends each argument value to the list. It is useful to allow an option to be specified multiple times. If the default value is non-empty, the default elements will be present in the parsed value for the option, with any values from the command line appended after those default values.  
 Example at [docs/examples.md/append](docs/examples.md#append).
 
-### EXTEND
+#### EXTEND
 
 This stores a list, and extends each argument value to the list.  
 Example at [docs/examples.md/extend](docs/examples.md#extend).
 
-### HELP
+#### HELP
 
 This case used for create the help text.  
-⚠ Can only use this action after constructor with false parameter.
+⚠ Can only use this action after constructor with false parameter.  
+
 ```cpp
 mblet::Argparsor args(false);
 ```
+
 Example at [docs/examples.md/help](docs/examples.md#help).
 
-### INFINITE
+#### INFINITE
 
 This stores a list.  
 Example at [docs/examples.md/infinite](docs/examples.md#infinite).
 
-### STORE_FALSE
+#### STORE_FALSE
 
 This case used for storing the values `false` respectively.  
 Example at [docs/examples.md/storefalse](docs/examples.md#storefalse).
 
-### STORE_TRUE
+#### STORE_TRUE
 
 This case used for storing the values `true` respectively.  
 Example at [docs/examples.md/storetrue](docs/examples.md#storetrue).
 
-### VERSION
+#### VERSION
 
 This case used for storing the version text with `defaults` method.  
 Example at [docs/examples.md/version](docs/examples.md#version).
 
-## Valid
+### Valid
 
 You can check format of argument with IValid interface object.  
 Example of Custom Valid at [docs/examples.md/custom-valid-transform](docs/examples.md#custom-valid-transform).
 
-### ValidNumber
+#### ValidNumber
 
 Check if arguments are number.
 
@@ -257,7 +266,7 @@ Check if arguments are number.
 args.addArgument("--arg").valid(new mblet::Argparsor::ValidNumber());
 ```
 
-### ValidMinMax
+#### ValidMinMax
 
 Check if arguments are number and if in range of min-max.
 
@@ -265,7 +274,7 @@ Check if arguments are number and if in range of min-max.
 args.addArgument("--arg").valid(new mblet::Argparsor::ValidMinMax(0, 100));
 ```
 
-### ValidChoise
+#### ValidChoise
 
 Check if arguments are in choise.
 
@@ -273,7 +282,7 @@ Check if arguments are in choise.
 args.addArgument("--arg").valid(new mblet::Argparsor::ValidChoise(args.vector("foo", "bar")));
 ```
 
-### ValidPath
+#### ValidPath
 
 Check if arguments are valid path/dir/file.
 
@@ -283,10 +292,10 @@ args.addArgument("--arg").valid(new mblet::Argparsor::ValidPath(mblet::Argparsor
 args.addArgument("--arg").valid(new mblet::Argparsor::ValidPath(mblet::Argparsor::ValidPath::IS_FILE));
 ```
 
-## Dest
+### Dest
 
 Argument filler  
-Example at [docs/dest.md](docs/dest.md).
+Examples at [docs/dest.md](docs/dest.md).
 
 ```cpp
 unsigned long value;
@@ -392,4 +401,82 @@ Get the arguments if not used at not strict mode with `parseArguments`.
 
 ```cpp
 const std::vector<std::string>& getAdditionalArguments() const;
+```
+
+## Map methods
+
+### IsExist
+
+Check if argument is exists in command line.
+
+```cpp
+bool isExist() const;
+```
+
+### IsRequired
+
+Check if argument is required.
+
+```cpp
+bool isRequired() const;
+```
+
+### Count
+
+Get the count of flags is used.
+
+```cpp
+std::size_t count() const;
+```
+
+### GetNargs
+
+Get the nargs of argument.
+
+```cpp
+std::size_t getNargs() const;
+```
+
+### GetHelp
+
+Get the help message.
+
+```cpp
+const std::string& getHelp();
+```
+
+### getMetavar
+
+Get the metavar message.
+
+```cpp
+const std::string& getMetavar();
+```
+
+### getNameOrFlags
+
+Get the name or flags.
+
+```cpp
+const std::vector<std::string>& getNameOrFlags();
+```
+
+### getDefaults
+
+
+
+```cpp
+const std::vector<std::string>& getDefaults();
+```
+
+### getAction
+
+```cpp
+Action::eAction getAction();
+```
+
+### getString
+
+```cpp
+std::string getString();
 ```

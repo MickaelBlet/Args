@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.5)
 
-project(argparsor VERSION 3.2.1 LANGUAGES CXX)
+project(argparsor VERSION 3.3.0 LANGUAGES CXX)
 
 # OPTIONS
 option(BUILD_EXAMPLE "Build example binaries" OFF)

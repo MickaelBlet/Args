@@ -231,6 +231,44 @@ GTEST_TEST(parseArguments, parseException) {
             },
             mblet::Argparsor::ParseArgumentException);
     }
+    {
+        const char* argv[] = {"binaryName", "arg"};
+        const int argc = sizeof(argv) / sizeof(*argv);
+
+        mblet::Argparsor args;
+        args.addArgument("ARG").nargs(2);
+        EXPECT_THROW(
+            {
+                try {
+                    args.parseArguments(argc, const_cast<char**>(argv), true, true);
+                }
+                catch (const mblet::Argparsor::ParseArgumentException& e) {
+                    EXPECT_STREQ(e.what(), "bad number of argument");
+                    EXPECT_STREQ(e.argument(), "ARG");
+                    throw;
+                }
+            },
+            mblet::Argparsor::ParseArgumentException);
+    }
+    {
+        const char* argv[] = {"binaryName", "arg"};
+        const int argc = sizeof(argv) / sizeof(*argv);
+
+        mblet::Argparsor args;
+        args.addArgument("ARG").action(args.INFINITE).nargs(2);
+        EXPECT_THROW(
+            {
+                try {
+                    args.parseArguments(argc, const_cast<char**>(argv), true, true);
+                }
+                catch (const mblet::Argparsor::ParseArgumentException& e) {
+                    EXPECT_STREQ(e.what(), "bad number of argument");
+                    EXPECT_STREQ(e.argument(), "ARG");
+                    throw;
+                }
+            },
+            mblet::Argparsor::ParseArgumentException);
+    }
 }
 
 GTEST_TEST(parseArguments, endOfInfiniteArgument) {
@@ -409,6 +447,47 @@ GTEST_TEST(parseArguments, allType) {
     std::vector<std::vector<std::string> > vv = args["--multi-infinite-number"];
     EXPECT_EQ(vv.size(), 3);
     EXPECT_EQ(vv.front().size(), 2);
+}
+
+GTEST_TEST(parseArguments, argumentNumber) {
+    const char* argv[] = {"binaryName", "0", "1", "2"};
+    const int argc = sizeof(argv) / sizeof(*argv);
+
+    mblet::Argparsor args;
+    args.addArgument("argument").nargs(3);
+    args.parseArguments(argc, const_cast<char**>(argv), true, false);
+    EXPECT_EQ(args["argument"][0].getNumber(), 0);
+    EXPECT_EQ(args["argument"][1].getNumber(), 1);
+    EXPECT_EQ(args["argument"][2].getNumber(), 2);
+}
+
+GTEST_TEST(parseArguments, argumentInfinite) {
+    const char* argv[] = {"binaryName", "0", "1", "2", "-b"};
+    const int argc = sizeof(argv) / sizeof(*argv);
+
+    mblet::Argparsor args;
+    args.addArgument("argument").nargs('+');
+    args.addArgument("-b").action(args.STORE_TRUE);
+    args.parseArguments(argc, const_cast<char**>(argv), true, false);
+    EXPECT_EQ(args["argument"][0].getNumber(), 0);
+    EXPECT_EQ(args["argument"][1].getNumber(), 1);
+    EXPECT_EQ(args["argument"][2].getNumber(), 2);
+}
+
+GTEST_TEST(parseArguments, argumentInfiniteNumber) {
+    const char* argv[] = {"binaryName", "0", "1", "2", "0", "1", "2", "-b"};
+    const int argc = sizeof(argv) / sizeof(*argv);
+
+    mblet::Argparsor args;
+    args.addArgument("argument").nargs('+').nargs(3);
+    args.addArgument("-b").action(args.STORE_TRUE);
+    args.parseArguments(argc, const_cast<char**>(argv), true, false);
+    EXPECT_EQ(args["argument"][0][0].getNumber(), 0);
+    EXPECT_EQ(args["argument"][0][1].getNumber(), 1);
+    EXPECT_EQ(args["argument"][0][2].getNumber(), 2);
+    EXPECT_EQ(args["argument"][1][0].getNumber(), 0);
+    EXPECT_EQ(args["argument"][1][1].getNumber(), 1);
+    EXPECT_EQ(args["argument"][1][2].getNumber(), 2);
 }
 
 GTEST_TEST(parseArguments, help) {
