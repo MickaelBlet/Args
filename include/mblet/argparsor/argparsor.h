@@ -2,7 +2,7 @@
  * argparsor/argparsor.h
  *
  * Licensed under the MIT License <http://opensource.org/licenses/MIT>.
- * Copyright (c) 2022-2023 BLET Mickaël.
+ * Copyright (c) 2022-2023 BLET Mickael.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -183,6 +183,15 @@ class Argparsor {
     }
 
     /**
+     * @brief Set the version message
+     *
+     * @param version
+     */
+    void setVersion(const char* version) {
+        _version = version;
+    }
+
+    /**
      * @brief Set the Usage Widths.
      * default values:
      * padWidth: 2,
@@ -249,7 +258,7 @@ class Argparsor {
                          const char* v5 = NULL, const char* v6 = NULL, const char* v7 = NULL, const char* v8 = NULL,
                          const char* v9 = NULL, const char* v10 = NULL) {
         const char* args[] = {v1, v2, v3, v4, v5, v6, v7, v8, v9, v10};
-        return args;
+        return Vector(args);
     }
 
   private:
@@ -321,6 +330,7 @@ class Argparsor {
     std::size_t _usageArgsWidth;
     std::size_t _usageSepWidth;
     std::size_t _usageHelpWidth;
+    std::string _version;
     std::string _description;
     std::string _epilog;
 

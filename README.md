@@ -2,7 +2,7 @@
 
 Parse and stock options from argc and argv.  
 Inspired from python library [python.readthedocs.io/library/argparse](https://python.readthedocs.io/en/latest/library/argparse.html).  
-Examples at [docs/examples.md](docs/examples.md).
+Documentations at [documentation](#documentations).
 
 ## Quick Start
 
@@ -18,7 +18,7 @@ enum eLogLevel {
     ERROR
 };
 
-void argToLogLevel(eLogLevel& logLevel, bool /*isExist*/, const std::string& argument) {
+void argToLogLevel(eLogLevel& logLevel, bool /*isExists*/, const std::string& argument) {
     static const std::pair<std::string, eLogLevel> pairLogLevels[] = {
         std::pair<std::string, eLogLevel>("DEBUG", DEBUG), std::pair<std::string, eLogLevel>("INFO", INFO),
         std::pair<std::string, eLogLevel>("WARNING", WARNING), std::pair<std::string, eLogLevel>("ERROR", ERROR)};
@@ -32,25 +32,23 @@ int main(int argc, char* argv[]) {
     eLogLevel logLevel = INFO;
 
     mblet::Argparsor args;
+    args.setVersion("Version: 0.0.0");
     args.addArgument("ARGUMENT").help("help of argument").required(true);
-    args.addArgument("-v")
-        .flag("--version")
-        .help("help of version option")
-        .action(args.VERSION)
-        .defaults("Version: 0.0.0");
-    args.addArgument(args.vector("-o", "--option")).help("help of option");
+    args.addArgument("-v").flag("--version").help("help of version option").action(args.VERSION);
+    args.addArgument(args.vector("-o", "--option")).help("help of option").nargs(2).metavar("OPT1 OPT2");
     args.addArgument("--log-level")
         .flag("-l")
         .help("help of log-level")
         .metavar("LEVEL")
         .valid(new mblet::Argparsor::ValidChoise(args.vector("DEBUG", "INFO", "WARNING", "ERROR")))
         .defaults("INFO")
-        .dest(logLevel, argToLogLevel);
+        .dest(logLevel, &argToLogLevel); // fill logLevel by argToLogLevel
     try {
         args.parseArguments(argc, argv, true);
         std::cout << "ARGUMENT: " << args["ARGUMENT"] << '\n';
+        // check if option is exists
         if (args["--option"]) {
-            std::cout << "--option: " << args["--option"] << '\n';
+            std::cout << "--option: " << args["--option"][0] << ", " << args["--option"][1] << '\n';
         }
         std::cout << "--log-level: ";
         switch (logLevel) {
@@ -82,7 +80,7 @@ int main(int argc, char* argv[]) {
 $ ./a.out --version
 Version: 0.0.0
 $ ./a.out -h
-usage: a.out [-h] [-l LEVEL] [-o OPTION] [-v] -- ARGUMENT
+usage: a.out [-h] [-l LEVEL] [-o OPT1 OPT2] [-v] -- ARGUMENT
 
 positional arguments:
   ARGUMENT              help of argument (required)
@@ -91,7 +89,8 @@ optional arguments:
   -h, --help            show this help message and exit
   -l, --log-level LEVEL
                         help of log-level (default: INFO)
-  -o, --option OPTION   help of option
+  -o, --option OPT1 OPT2
+                        help of option
   -v, --version         help of version option
 $ ./a.out
 ./a.out: argument is required -- 'ARGUMENT'
@@ -100,9 +99,11 @@ $ ./a.out 42 --log-level Foo
 $ ./a.out 42
 ARGUMENT: 42
 --log-level: INFO
-$ ./a.out 42 --log-level DEBUG --option Bar
+$ ./a.out 42 --log-level=DEBUG --option Foo
+./a.out: bad number of argument -- 'option'
+$ ./a.out 42 -lDEBUG -o Foo Bar
 ARGUMENT: 42
---option: Bar
+--option: Foo, Bar
 --log-level: DEBUG
 ```
 
@@ -201,282 +202,71 @@ args.addArgument(args.vector("-s", "--simple"));     // C++98
 args.addArgument((const char*[]){"-s", "--simple"}); // C++98
 ```
 
-## AddArgument methods
-
-### Action
-
-List of action
-
-#### DEFAULT
-
-This just stores the argument’s value. This is the default action.  
-Example at [docs/examples.md/none](docs/examples.md#none).
-
-#### APPEND
-
-This stores a list, and appends each argument value to the list. It is useful to allow an option to be specified multiple times. If the default value is non-empty, the default elements will be present in the parsed value for the option, with any values from the command line appended after those default values.  
-Example at [docs/examples.md/append](docs/examples.md#append).
-
-#### EXTEND
-
-This stores a list, and extends each argument value to the list.  
-Example at [docs/examples.md/extend](docs/examples.md#extend).
-
-#### HELP
-
-This case used for create the help text.  
-⚠ Can only use this action after constructor with false parameter.  
-
-```cpp
-mblet::Argparsor args(false);
-```
-
-Example at [docs/examples.md/help](docs/examples.md#help).
-
-#### INFINITE
-
-This stores a list.  
-Example at [docs/examples.md/infinite](docs/examples.md#infinite).
-
-#### STORE_FALSE
-
-This case used for storing the values `false` respectively.  
-Example at [docs/examples.md/storefalse](docs/examples.md#storefalse).
-
-#### STORE_TRUE
-
-This case used for storing the values `true` respectively.  
-Example at [docs/examples.md/storetrue](docs/examples.md#storetrue).
-
-#### VERSION
-
-This case used for storing the version text with `defaults` method.  
-Example at [docs/examples.md/version](docs/examples.md#version).
-
-### Valid
-
-You can check format of argument with IValid interface object.  
-Example of Custom Valid at [docs/examples.md/custom-valid-transform](docs/examples.md#custom-valid-transform).
-
-#### ValidNumber
-
-Check if arguments are number.
-
-```cpp
-args.addArgument("--arg").valid(new mblet::Argparsor::ValidNumber());
-```
-
-#### ValidMinMax
-
-Check if arguments are number and if in range of min-max.
-
-```cpp
-args.addArgument("--arg").valid(new mblet::Argparsor::ValidMinMax(0, 100));
-```
-
-#### ValidChoise
-
-Check if arguments are in choise.
-
-```cpp
-args.addArgument("--arg").valid(new mblet::Argparsor::ValidChoise(args.vector("foo", "bar")));
-```
-
-#### ValidPath
-
-Check if arguments are valid path/dir/file.
-
-```cpp
-args.addArgument("--arg").valid(new mblet::Argparsor::ValidPath());
-args.addArgument("--arg").valid(new mblet::Argparsor::ValidPath(mblet::Argparsor::ValidPath::IS_DIR));
-args.addArgument("--arg").valid(new mblet::Argparsor::ValidPath(mblet::Argparsor::ValidPath::IS_FILE));
-```
-
-### Dest
-
-Argument filler  
-Examples at [docs/dest.md](docs/dest.md).
-
-```cpp
-unsigned long value;
-args.addArgument("--arg").dest(value);
-```
-
-## Setter
-
-### Usage
-
-Replace usage message
-
-```cpp
-void setUsage(const char* usage);
-```
-
-### Usage width column
-
-Change the width of usage column.  
-Example at [docs/usageWidth.md](docs/usageWidth.md).
-
-```cpp
-void setUsageWidth(std::size_t padWidth, std::size_t argsWidth, std::size_t sepWidth, std::size_t helpWidth);
-```
-
-### Description
-
-Define a description message in usage.
-
-```cpp
-void setDescription(const char* description);
-```
-
-### Epilog
-
-Define a epilog message in usage.
-
-```cpp
-void setEpilog(const char* epilog);
-```
-
-## Getter
-
-### isAlternative
-
-Check if alternative mode is activated after `parseArguments` method.
-
-```cpp
-bool isAlternative() const;
-```
-
-### isStrict
-
-Check if strict mode is activated after `parseArguments` method.
-
-```cpp
-bool isStrict() const;
-```
-
-### getBinaryName
-
-Return argv[0] after `parseArguments` method.
-
-```cpp
-const std::string& getBinaryName() const;
-```
-
-### getUsage
-
-Get the usage message.
-
-```cpp
-std::string getUsage() const;
-```
-
-### getVersion
-
-Get the version message.
-
-```cpp
-std::string getVersion() const;
-```
-
-### argumentExists
-
-Check if argument was added
-
-```cpp
-bool argumentExists(const std::string& nameOrFlag) const;
-```
-
-### getArgument
-
-Get argument object from key
-
-```cpp
-const Argument& getArgument(const std::string& nameOrFlag) const;
-```
-
-### getAdditionalArguments
-
-Get the arguments if not used at not strict mode with `parseArguments`.
-
-```cpp
-const std::vector<std::string>& getAdditionalArguments() const;
-```
-
-## Map methods
-
-### IsExist
-
-Check if argument is exists in command line.
-
-```cpp
-bool isExist() const;
-```
-
-### IsRequired
-
-Check if argument is required.
-
-```cpp
-bool isRequired() const;
-```
-
-### Count
-
-Get the count of flags is used.
-
-```cpp
-std::size_t count() const;
-```
-
-### GetNargs
-
-Get the nargs of argument.
-
-```cpp
-std::size_t getNargs() const;
-```
-
-### GetHelp
-
-Get the help message.
-
-```cpp
-const std::string& getHelp();
-```
-
-### getMetavar
-
-Get the metavar message.
-
-```cpp
-const std::string& getMetavar();
-```
-
-### getNameOrFlags
-
-Get the name or flags.
-
-```cpp
-const std::vector<std::string>& getNameOrFlags();
-```
-
-### getDefaults
-
-
-
-```cpp
-const std::vector<std::string>& getDefaults();
-```
-
-### getAction
-
-```cpp
-Action::eAction getAction();
-```
-
-### getString
-
-```cpp
-std::string getString();
-```
+## Documentations
+
+### Argparsor
+
+#### Basic
+
+| Methods | Links |
+|---------|-------|
+| addArgument | [docs/argument.md#addargument](docs/argument.md#addargument) |
+| parseArguments | [docs/parse.md#parseargument](docs/parse.md#parseargument) |
+
+#### Access
+
+| Methods | Links |
+|---------|-------|
+| argumentExists | [docs/argument.md#argumentexists](docs/argument.md#argumentexists) |
+| getAdditionnalArguments | [docs/parse.md#getadditionnalarguments](docs/parse.md#getadditionnalarguments) |
+| getArgument/operator[] | [docs/argument.md#getargument](docs/argument.md#getargument) |
+| getBinaryName | [docs/parse.md#getbinaryname](docs/parse.md#getbinaryname) |
+| getUsage | [docs/usage.md#getusage](docs/usage.md#getusage) |
+| getVersion | [docs/usage.md#getversion](docs/usage.md#getversion) |
+| isAlternative | [docs/parse.md#isalternative](docs/parse.md#isalternative) |
+| isStrict | [docs/parse.md#isstrict](docs/parse.md#isstrict) |
+| setDescription | [docs/usage.md#setdescription](docs/usage.md#setdescription) |
+| setEpilog | [docs/usage.md#setepilog](docs/usage.md#setepilog) |
+| setUsage | [docs/usage.md#setusage](docs/usage.md#setusage) |
+| setUsageWidth | [docs/usage.md#setusagewidth](docs/usage.md#setusagewidth) |
+| vector | [docs/usage.md#vector](docs/usage.md#vector) |
+
+### Argument
+
+#### Definition
+
+| Methods | Links |
+|---------|-------|
+| flag | [docs/argument.md#flag](docs/argument.md#flag) |
+| action | [docs/argument.md#action](docs/argument.md#action) |
+| help | [docs/argument.md#help](docs/argument.md#help) |
+| required | [docs/argument.md#required](docs/argument.md#required) |
+| metavar | [docs/argument.md#metavar](docs/argument.md#metavar) |
+| nargs | [docs/argument.md#nargs](docs/argument.md#nargs) |
+| defaults | [docs/argument.md#defaults](docs/argument.md#defaults) |
+| *valid* | [docs/argument.md#valid](docs/argument.md#valid) |
+| *dest* | [docs/argument.md#dest](docs/argument.md#dest) |
+
+#### Access
+
+| Methods | Links |
+|---------|-------|
+| *count* | [docs/argument.md#count](docs/argument.md#count) |
+| isExists | [docs/argument.md#isexists](docs/argument.md#isexists) |
+| isNumber | [docs/argument.md#isnumber](docs/argument.md#isnumber) |
+| isRequired | [docs/argument.md#isrequired](docs/argument.md#isrequired) |
+| getNargs | [docs/argument.md#getnargs](docs/argument.md#getnargs) |
+| getHelp | [docs/argument.md#gethelp](docs/argument.md#gethelp) |
+| getMetavar | [docs/argument.md#getmetavar](docs/argument.md#getmetavar) |
+| getNameOrFlags | [docs/argument.md#getnameorflags](docs/argument.md#getnameorflags) |
+| getDefaults | [docs/argument.md#getdefaults](docs/argument.md#getdefaults) |
+| getAction | [docs/argument.md#getaction](docs/argument.md#getaction) |
+| getString | [docs/argument.md#getstring](docs/argument.md#getstring) |
+| getNumber | [docs/argument.md#getnumber](docs/argument.md#getnumber) |
+| operator bool() | [docs/argument.md#operator-bool](docs/argument.md#operator-bool) |
+| operator std::string() | [docs/argument.md#operator-string](docs/argument.md#operator-string) |
+| operator\<\< | [docs/argument.md#operator-t](docs/argument.md#operator-stream-insertion) |
+
+### Examples
+
+[docs/examples.md](docs/examples.md).

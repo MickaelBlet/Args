@@ -2,7 +2,7 @@
  * MockC
  *
  * Licensed under the MIT License <http://opensource.org/licenses/MIT>.
- * Copyright (c) 2021 BLET Mickaël.
+ * Copyright (c) 2021-2023 BLET Mickael.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -81,7 +81,7 @@ struct MockCGuardReverse {
 #define MOCKC_GUARD_REVERSE(n) \
     MockCGuardReverse<MOCKC_CAT_(MockC_, n)> MOCKC_CAT_(mockCGuardReverse_, n)(MOCKC_CAT_(MockC_, n)::instance());
 
-#define MOCKC_(i, n, f)                                                                                          \
+#define MOCKC_(i, n, f, a)                                                                                       \
                                                                                                                  \
     struct MOCKC_CAT_(MockC_, n) {                                                                               \
         typedef GMOCK_RESULT_(, f) (*func_t)(MOCKC_CAT2_(MOCKC_REPEAT_, i, _)(MOCKC_ARG_DECLARATION_, f));       \
@@ -112,7 +112,7 @@ struct MockCGuardReverse {
         const std::string str;                                                                                   \
     };                                                                                                           \
                                                                                                                  \
-    GMOCK_RESULT_(, f) n(MOCKC_CAT2_(MOCKC_REPEAT_, i, _)(MOCKC_ARG_DECLARATION_, f)) {                          \
+    GMOCK_RESULT_(, f) n(MOCKC_CAT2_(MOCKC_REPEAT_, i, _)(MOCKC_ARG_DECLARATION_, f)) a {                        \
         if (MOCKC_CAT_(MockC_, n)::instance().isActive) {                                                        \
             MOCKC_GUARD_REVERSE(n);                                                                              \
             return MOCKC_CAT_(MockC_, n)::instance().n(MOCKC_CAT2_(MOCKC_REPEAT_, i, _)(MOCKC_ARG_, f));         \
@@ -128,7 +128,7 @@ struct MockCGuardReverse {
 
 #else // ! MOCKC_DLFCN
 
-#define MOCKC_(i, n, f)                                                                              \
+#define MOCKC_(i, n, f, a)                                                                           \
     struct MOCKC_CAT_(MockC_, n) {                                                                   \
         MOCKC_CAT_(MOCK_METHOD, i)(n, f);                                                            \
         static MOCKC_CAT_(MockC_, n) & instance() {                                                  \
@@ -136,7 +136,7 @@ struct MockCGuardReverse {
             return singleton;                                                                        \
         }                                                                                            \
     };                                                                                               \
-    GMOCK_RESULT_(, f) n(MOCKC_CAT2_(MOCKC_REPEAT_, i, _)(MOCKC_ARG_DECLARATION_, f)) {              \
+    GMOCK_RESULT_(, f) n(MOCKC_CAT2_(MOCKC_REPEAT_, i, _)(MOCKC_ARG_DECLARATION_, f)) a {            \
         return MOCKC_CAT_(MockC_, n)::instance().n(MOCKC_CAT2_(MOCKC_REPEAT_, i, _)(MOCKC_ARG_, f)); \
     }
 
@@ -144,21 +144,33 @@ struct MockCGuardReverse {
 
 #define MOCKC_INSTANCE(n) MOCKC_CAT_(MockC_, n)::instance()
 
-#define MOCKC_METHOD0(n, f) MOCKC_(0, n, f)
-#define MOCKC_METHOD1(n, f) MOCKC_(1, n, f)
-#define MOCKC_METHOD2(n, f) MOCKC_(2, n, f)
-#define MOCKC_METHOD3(n, f) MOCKC_(3, n, f)
-#define MOCKC_METHOD4(n, f) MOCKC_(4, n, f)
-#define MOCKC_METHOD5(n, f) MOCKC_(5, n, f)
-#define MOCKC_METHOD6(n, f) MOCKC_(6, n, f)
-#define MOCKC_METHOD7(n, f) MOCKC_(7, n, f)
-#define MOCKC_METHOD8(n, f) MOCKC_(8, n, f)
-#define MOCKC_METHOD9(n, f) MOCKC_(9, n, f)
-#define MOCKC_METHOD10(n, f) MOCKC_(10, n, f)
+#define MOCKC_METHOD0(n, f) MOCKC_(0, n, f, )
+#define MOCKC_METHOD1(n, f) MOCKC_(1, n, f, )
+#define MOCKC_METHOD2(n, f) MOCKC_(2, n, f, )
+#define MOCKC_METHOD3(n, f) MOCKC_(3, n, f, )
+#define MOCKC_METHOD4(n, f) MOCKC_(4, n, f, )
+#define MOCKC_METHOD5(n, f) MOCKC_(5, n, f, )
+#define MOCKC_METHOD6(n, f) MOCKC_(6, n, f, )
+#define MOCKC_METHOD7(n, f) MOCKC_(7, n, f, )
+#define MOCKC_METHOD8(n, f) MOCKC_(8, n, f, )
+#define MOCKC_METHOD9(n, f) MOCKC_(9, n, f, )
+#define MOCKC_METHOD10(n, f) MOCKC_(10, n, f, )
+#define MOCKC_ATTRIBUTE_METHOD0(n, f, a) MOCKC_(0, n, f, a)
+#define MOCKC_ATTRIBUTE_METHOD1(n, f, a) MOCKC_(1, n, f, a)
+#define MOCKC_ATTRIBUTE_METHOD2(n, f, a) MOCKC_(2, n, f, a)
+#define MOCKC_ATTRIBUTE_METHOD3(n, f, a) MOCKC_(3, n, f, a)
+#define MOCKC_ATTRIBUTE_METHOD4(n, f, a) MOCKC_(4, n, f, a)
+#define MOCKC_ATTRIBUTE_METHOD5(n, f, a) MOCKC_(5, n, f, a)
+#define MOCKC_ATTRIBUTE_METHOD6(n, f, a) MOCKC_(6, n, f, a)
+#define MOCKC_ATTRIBUTE_METHOD7(n, f, a) MOCKC_(7, n, f, a)
+#define MOCKC_ATTRIBUTE_METHOD8(n, f, a) MOCKC_(8, n, f, a)
+#define MOCKC_ATTRIBUTE_METHOD9(n, f, a) MOCKC_(9, n, f, a)
+#define MOCKC_ATTRIBUTE_METHOD10(n, f, a) MOCKC_(10, n, f, a)
 
 #define MOCKC_EXPECT_CALL(n, p) EXPECT_CALL(MOCKC_INSTANCE(n), n p)
 
 #if __cplusplus >= 201103L
+
 #define MOCKC_DECLTYPE_METHOD0(n)                 \
     using MOCKC_CAT_(decltype_, n) = decltype(n); \
     MOCKC_METHOD0(n, MOCKC_CAT_(decltype_, n))
@@ -192,7 +204,9 @@ struct MockCGuardReverse {
 #define MOCKC_DECLTYPE_METHOD10(n)                \
     using MOCKC_CAT_(decltype_, n) = decltype(n); \
     MOCKC_METHOD10(n, MOCKC_CAT_(decltype_, n))
+
 #else
+
 #define MOCKC_DECLTYPE_METHOD0()  /* not supported with version < cpp11 */
 #define MOCKC_DECLTYPE_METHOD1()  /* not supported with version < cpp11 */
 #define MOCKC_DECLTYPE_METHOD2()  /* not supported with version < cpp11 */
@@ -204,6 +218,7 @@ struct MockCGuardReverse {
 #define MOCKC_DECLTYPE_METHOD8()  /* not supported with version < cpp11 */
 #define MOCKC_DECLTYPE_METHOD9()  /* not supported with version < cpp11 */
 #define MOCKC_DECLTYPE_METHOD10() /* not supported with version < cpp11 */
-#endif                            // __cplusplus >= 201103L
+
+#endif // __cplusplus >= 201103L
 
 #endif // _MOCKC_H_

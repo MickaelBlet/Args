@@ -1,4 +1,6 @@
-# UsageWidth
+# Usage
+
+## setUsageWidth
 
 <img src="images/headerUsageWidth.drawio.png" />
 

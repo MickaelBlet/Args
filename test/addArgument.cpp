@@ -217,10 +217,10 @@ GTEST_TEST(addArgument, argumentException) {
 GTEST_TEST(addArgument, helpOption) {
     mblet::Argparsor args(false);
     args.addArgument(args.vector("-h", "--help", "--help-me-please", "-?")).action(mblet::Argparsor::HELP);
-    EXPECT_FALSE(args["-h"]);
-    EXPECT_FALSE(args["--help"]);
-    EXPECT_FALSE(args["--help-me-please"]);
-    EXPECT_FALSE(args["-?"]);
+    EXPECT_EQ(args["-h"].isExists(), false);
+    EXPECT_EQ(args["--help"].isExists(), false);
+    EXPECT_EQ(args["--help-me-please"].isExists(), false);
+    EXPECT_EQ(args["-?"].isExists(), false);
 }
 
 GTEST_TEST(addArgument, versionOption) {
@@ -228,30 +228,30 @@ GTEST_TEST(addArgument, versionOption) {
     args.addArgument(args.vector("-v", "--version"))
         .action(mblet::Argparsor::VERSION)
         .defaults(args.vector("multline", "version: 0.0.0"));
-    EXPECT_EQ(args["-v"].getDefault(), "multline\nversion: 0.0.0");
-    EXPECT_EQ(args["--version"].getDefault(), "multline\nversion: 0.0.0");
+    EXPECT_EQ(args["-v"].getDefault(), std::string("multline\nversion: 0.0.0"));
+    EXPECT_EQ(args["--version"].getDefault(), std::string("multline\nversion: 0.0.0"));
 }
 
 GTEST_TEST(addArgument, positionnalArgument) {
     mblet::Argparsor args;
     args.addArgument("argument1").defaults("default");
-    EXPECT_EQ(args["argument1"].getString(), "default");
+    EXPECT_EQ(args["argument1"].getString(), std::string("default"));
 }
 
 GTEST_TEST(addArgument, storeTrueFalse) {
     mblet::Argparsor args;
     args.addArgument(args.vector("-b", "--bool", "-c")).action(mblet::Argparsor::STORE_TRUE);
-    EXPECT_FALSE(args["-b"]);
-    EXPECT_FALSE(args["--bool"]);
-    EXPECT_FALSE(args["-c"]);
+    EXPECT_EQ(args["-b"].isExists(), false);
+    EXPECT_EQ(args["--bool"].isExists(), false);
+    EXPECT_EQ(args["-c"].isExists(), false);
     args.addArgument("--unbool").action(mblet::Argparsor::STORE_FALSE);
-    EXPECT_FALSE(!args["--unbool"]);
+    EXPECT_EQ(!args["--unbool"].isExists(), true);
 }
 
 GTEST_TEST(addArgument, append) {
     mblet::Argparsor args;
     args.addArgument("--append").action(mblet::Argparsor::APPEND);
-    EXPECT_FALSE(args["--append"]);
+    EXPECT_EQ(args["--append"].isExists(), false);
 }
 
 GTEST_TEST(addArgument, positionnal) {

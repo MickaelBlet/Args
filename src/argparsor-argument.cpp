@@ -2,7 +2,7 @@
  * argparsor-argument.cpp
  *
  * Licensed under the MIT License <http://opensource.org/licenses/MIT>.
- * Copyright (c) 2022-2023 BLET Mickaël.
+ * Copyright (c) 2022-2023 BLET Mickael.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -234,20 +234,20 @@ Argument& Argument::flag(const char* flag_) {
     if (_isPositionnalArgument()) {
         throw ArgumentException(flag_, "can't add flag in positionnal argument");
     }
-    validFormatFlag(flag_);
+    _validFormatFlag(flag_);
     if (_argparsor.argumentExists(flag_)) {
         throw ArgumentException(flag_, "invalid flag already exist");
     }
     _nameOrFlags.push_back(flag_);
     _sortNameOrFlags();
     _argparsor._argumentFromName.insert(std::pair<std::string, Argument**>(flag_, _this));
-    _argparsor._arguments.sort(&Argument::compareOption);
+    _argparsor._arguments.sort(&Argument::_compareOption);
     return *this;
 }
 
 Argument& Argument::required(bool required_) {
     _isRequired = required_;
-    _argparsor._arguments.sort(&Argument::compareOption);
+    _argparsor._arguments.sort(&Argument::_compareOption);
     return *this;
 }
 
@@ -255,7 +255,7 @@ void Argument::_sortNameOrFlags() {
     std::sort(_nameOrFlags.begin(), _nameOrFlags.end(), &compareFlag);
 }
 
-void Argument::validFormatFlag(const char* flag) {
+void Argument::_validFormatFlag(const char* flag) {
     if (flag[0] != '-') {
         throw ArgumentException(flag, "invalid flag not start by '-' character");
     }
@@ -270,7 +270,7 @@ void Argument::validFormatFlag(const char* flag) {
     }
 }
 
-bool Argument::compareOption(const Argument* first, const Argument* second) {
+bool Argument::_compareOption(const Argument* first, const Argument* second) {
     if (first->_isPositionnalArgument() && first->_isRequired && second->_isPositionnalArgument() &&
         second->_isRequired) {
         return false;

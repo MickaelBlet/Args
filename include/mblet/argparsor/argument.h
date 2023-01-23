@@ -2,7 +2,7 @@
  * argparsor/argument.h
  *
  * Licensed under the MIT License <http://opensource.org/licenses/MIT>.
- * Copyright (c) 2022-2023 BLET Mickaël.
+ * Copyright (c) 2022-2023 BLET Mickael.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -26,8 +26,8 @@
 #ifndef _MBLET_ARGPARSOR_ARGUMENT_H_
 #define _MBLET_ARGPARSOR_ARGUMENT_H_
 
-#include <cstdlib>
-#include <cstring>
+#include <cstdlib> // stdtod
+#include <cstring> // memcpy
 #include <string>
 #include <vector>
 
@@ -329,7 +329,7 @@ class Argument : public ArgumentElement {
      */
     virtual ~Argument();
 
-    bool isExist() const {
+    bool isExists() const {
         return _isExist;
     }
 
@@ -511,7 +511,7 @@ class Argument : public ArgumentElement {
      */
     template<typename T>
     Argument& dest(std::vector<std::vector<T> >& dest,
-                   void (*toDest)(std::vector<std::vector<T> >& dest, bool isExist,
+                   void (*toDest)(std::vector<std::vector<T> >& dest, bool isExists,
                                   const std::vector<std::vector<std::string> >& arguments) = NULL) {
         bool validDeletable = _validDeletable;
         _validDeletable = false;
@@ -528,7 +528,7 @@ class Argument : public ArgumentElement {
      * @return reference of new argument
      */
     template<typename T>
-    Argument& dest(std::vector<T>& dest, void (*toDest)(std::vector<T>& dest, bool isExist,
+    Argument& dest(std::vector<T>& dest, void (*toDest)(std::vector<T>& dest, bool isExists,
                                                         const std::vector<std::string>& arguments) = NULL) {
         bool validDeletable = _validDeletable;
         _validDeletable = false;
@@ -545,7 +545,7 @@ class Argument : public ArgumentElement {
      * @return reference of new argument
      */
     template<typename T>
-    Argument& dest(T& dest, void (*toDest)(T& dest, bool isExist, const std::string& argument) = NULL) {
+    Argument& dest(T& dest, void (*toDest)(T& dest, bool isExists, const std::string& argument) = NULL) {
         bool validDeletable = _validDeletable;
         _validDeletable = false;
         Argument* argumentType = new ArgumentType<T>(this, dest, toDest);
@@ -611,9 +611,9 @@ class Argument : public ArgumentElement {
 
     void _sortNameOrFlags();
 
-    static void validFormatFlag(const char* flag);
+    static void _validFormatFlag(const char* flag);
 
-    static bool compareOption(const Argument* first, const Argument* second);
+    static bool _compareOption(const Argument* first, const Argument* second);
 
     Argparsor& _argparsor;
 

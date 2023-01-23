@@ -4,10 +4,8 @@
 
 int main(int argc, char* argv[]) {
     mblet::Argparsor args;
-    args.addArgument(args.vector("-v", "--version"))
-        .action(args.VERSION)
-        .help("custom help option message")
-        .defaults(args.vector("multi line", "Version: 0.0.0"));
+    args.setVersion("multi line\nVersion: 0.0.0");
+    args.addArgument("-v").flag("--version").action(args.VERSION).help("custom help version message");
     args.parseArguments(argc, argv);
     std::cout << "do nothing" << std::endl;
     return 0;

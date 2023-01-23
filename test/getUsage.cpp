@@ -5,10 +5,10 @@
 GTEST_TEST(getUsage, custom) {
     mblet::Argparsor args;
     args.setUsage("foo");
-    EXPECT_EQ(args.getUsage(), "foo");
+    EXPECT_EQ(args.getUsage(), std::string("foo"));
 }
 
-GTEST_TEST(getUsage, compareOption) {
+GTEST_TEST(getUsage, _compareOption) {
     mblet::Argparsor args(false);
     args.addArgument(args.vector("-h", "--help")).action(mblet::Argparsor::HELP).help("custom help option message");
     args.addArgument("NOTREQUIRED1").help("help of positional argument");
@@ -56,7 +56,7 @@ GTEST_TEST(getUsage, compareOption) {
     usage << "  --long1               help of long1 option\n";
     usage << "  --long3               help of long3 option\n";
     usage << "  --long4               help of long4 option\n";
-    usage << "  --long5               help of long5 option\n";
+    usage << "  --long5               help of long5 option";
 
     EXPECT_EQ(args.getUsage(), usage.str());
 }
@@ -86,7 +86,7 @@ GTEST_TEST(getUsage, widthUsage) {
         << "-h, --help  show this\n"
         << "            help\n"
         << "            message\n"
-        << "            and exit\n";
+        << "            and exit";
     EXPECT_EQ(args.getUsage(), oss.str());
     args.setDescription("                                                      ");
 
@@ -115,7 +115,7 @@ GTEST_TEST(getUsage, widthUsage) {
         << "-h, --help  show this\n"
         << "            help\n"
         << "            message\n"
-        << "            and exit\n";
+        << "            and exit";
     EXPECT_EQ(args.getUsage(), oss.str());
 }
 
@@ -217,7 +217,7 @@ GTEST_TEST(getUsage, allTypeArgument) {
     usage << "  --notbool             help of notbool option\n";
     usage << "  --number Arg1 Arg2    help of number option (default: 0, 1)\n";
     usage << "\n";
-    usage << "custom epilog message\n";
+    usage << "custom epilog message";
 
     EXPECT_EQ(args.getUsage(), usage.str());
 }

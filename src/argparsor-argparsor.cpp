@@ -2,7 +2,7 @@
  * argparsor-argparsor.cpp
  *
  * Licensed under the MIT License <http://opensource.org/licenses/MIT>.
- * Copyright (c) 2022-2023 BLET Mickaël.
+ * Copyright (c) 2022-2023 BLET Mickael.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -221,150 +221,146 @@ std::string Argparsor::getUsage() const {
             index += argument.size() + 1;
         }
     }
-    oss << '\n';
     // description
     if (!_description.empty()) {
-        index = 0;
         oss << '\n';
         std::vector<std::string> lines = s_multilineWrap(_description, indexMax);
         for (std::size_t i = 0; i < lines.size(); ++i) {
-            oss << lines[i];
             oss << '\n';
+            oss << lines[i];
         }
     }
     // optionnal
     if (!_arguments.empty()) {
-        std::list<std::pair<std::string, std::string> > positionals;
-        std::list<std::pair<std::string, std::string> > optionnals;
-        for (it = _arguments.begin(); it != _arguments.end(); ++it) {
-            std::list<std::pair<std::string, std::string> >* listOption = NULL;
-            switch ((*it)->_type) {
-                case Argument::POSITIONAL_ARGUMENT:
-                case Argument::NUMBER_POSITIONAL_ARGUMENT:
-                case Argument::INFINITE_POSITIONAL_ARGUMENT:
-                case Argument::INFINITE_NUMBER_POSITIONAL_ARGUMENT:
-                    positionals.push_back(std::pair<std::string, std::string>("", ""));
-                    listOption = &positionals;
-                    break;
-                default:
-                    optionnals.push_back(std::pair<std::string, std::string>("", ""));
-                    listOption = &optionnals;
-                    break;
-            }
-            std::string& optionStr = listOption->back().first;
-            std::string& helpStr = listOption->back().second;
-            for (std::size_t i = 0; i < (*it)->_nameOrFlags.size(); ++i) {
-                if (i > 0) {
-                    optionStr += ", ";
+        if (hasPositionnal) {
+            index = 0;
+            oss << "\n\npositional arguments:\n";
+            for (it = _arguments.begin(); it != _arguments.end(); ++it) {
+                if (!(*it)->_isPositionnalArgument()) {
+                    continue;
                 }
-                optionStr += (*it)->_nameOrFlags[i];
-            }
-            switch ((*it)->_type) {
-                case Argument::SIMPLE_OPTION:
-                case Argument::NUMBER_OPTION:
-                case Argument::INFINITE_OPTION:
-                case Argument::MULTI_OPTION:
-                case Argument::MULTI_INFINITE_OPTION:
-                case Argument::MULTI_NUMBER_OPTION:
-                case Argument::MULTI_NUMBER_INFINITE_OPTION:
-                    if ((*it)->_metavar.empty()) {
-                        optionStr += " " + (*it)->_metavarDefault();
-                    }
-                    else {
-                        optionStr += " " + (*it)->_metavar;
-                    }
-                    break;
-                default:
-                    break;
-            }
-            helpStr += (*it)->_help;
-            if ((*it)->_isRequired) {
-                helpStr += " (required)";
-            }
-            else {
-                if (!(*it)->_default.empty() && (*it)->_action != Action::VERSION) {
-                    helpStr += " (default: " + (*it)->_default + ")";
+                if (index != 0) {
+                    oss << '\n';
                 }
-            }
-            helpStr += "\n";
-        }
-        // calculate width max
-        std::size_t max = 0;
-        std::list<std::pair<std::string, std::string> >::iterator optIt;
-        for (optIt = positionals.begin(); optIt != positionals.end(); ++optIt) {
-            if (max < optIt->first.size()) {
-                max = optIt->first.size();
-            }
-        }
-        for (optIt = optionnals.begin(); optIt != optionnals.end(); ++optIt) {
-            if (max < optIt->first.size()) {
-                max = optIt->first.size();
-            }
-        }
-        if (!positionals.empty()) {
-            oss << "\npositional arguments:\n";
-            for (optIt = positionals.begin(); optIt != positionals.end(); ++optIt) {
+                index++;
                 oss << std::string(_usagePadWidth, ' ');
-                if (optIt->first.size() + _usageSepWidth > _usageArgsWidth + _usageSepWidth) {
-                    oss << optIt->first;
+                if ((*it)->_nameOrFlags.front().size() + _usageSepWidth <= _usageArgsWidth + _usageSepWidth) {
+                    oss.width(_usageArgsWidth + _usageSepWidth);
+                    oss.flags(std::ios::left);
+                    oss << (*it)->_nameOrFlags.front();
+                    oss.width(0);
+                }
+                else {
+                    oss << (*it)->_nameOrFlags.front();
                     oss << '\n';
                     oss << std::string(_usagePadWidth + _usageArgsWidth + _usageSepWidth, ' ');
                 }
-                else {
-                    oss.width(_usageArgsWidth + _usageSepWidth);
-                    oss.flags(std::ios::left);
-                    oss << optIt->first;
-                    oss.width(0);
+                std::ostringstream ossHelp("");
+                ossHelp << (*it)->_help;
+                if ((*it)->_isRequired) {
+                    ossHelp << " (required)";
                 }
-                std::vector<std::string> lines = s_multilineWrap(optIt->second, _usageHelpWidth);
+                else {
+                    if (!(*it)->_default.empty()) {
+                        ossHelp << " (default: " + (*it)->_default + ")";
+                    }
+                }
+                std::vector<std::string> lines = s_multilineWrap(ossHelp.str(), _usageHelpWidth);
                 for (std::size_t i = 0; i < lines.size(); ++i) {
-                    oss << lines[i];
-                    oss << '\n';
-                    if (i + 1 < lines.size()) {
+                    if (i != 0) {
+                        oss << '\n';
                         oss << std::string(_usagePadWidth + _usageArgsWidth + _usageSepWidth, ' ');
                     }
+                    oss << lines[i];
                 }
             }
         }
-        if (!optionnals.empty()) {
-            oss << "\noptional arguments:\n";
-            for (optIt = optionnals.begin(); optIt != optionnals.end(); ++optIt) {
+        if (hasOption) {
+            index = 0;
+            oss << "\n\noptional arguments:\n";
+            for (it = _arguments.begin(); it != _arguments.end(); ++it) {
+                if ((*it)->_isPositionnalArgument()) {
+                    continue;
+                }
+                if (index != 0) {
+                    oss << '\n';
+                }
+                index++;
+                std::ostringstream ossArgument("");
+                for (std::size_t i = 0; i < (*it)->_nameOrFlags.size(); ++i) {
+                    if (i != 0) {
+                        ossArgument << ", ";
+                    }
+                    ossArgument << (*it)->_nameOrFlags[i];
+                }
+                switch ((*it)->_type) {
+                    case Argument::SIMPLE_OPTION:
+                    case Argument::NUMBER_OPTION:
+                    case Argument::INFINITE_OPTION:
+                    case Argument::MULTI_OPTION:
+                    case Argument::MULTI_INFINITE_OPTION:
+                    case Argument::MULTI_NUMBER_OPTION:
+                    case Argument::MULTI_NUMBER_INFINITE_OPTION:
+                        if ((*it)->_metavar.empty()) {
+                            ossArgument << ' ';
+                            ossArgument << (*it)->_metavarDefault();
+                        }
+                        else {
+                            ossArgument << ' ';
+                            ossArgument << (*it)->_metavar;
+                        }
+                        break;
+                    default:
+                        break;
+                }
+                const std::string option = ossArgument.str();
                 oss << std::string(_usagePadWidth, ' ');
-                if (optIt->first.size() + _usageSepWidth > _usageArgsWidth + _usageSepWidth) {
-                    oss << optIt->first;
+                if (option.size() + _usageSepWidth <= _usageArgsWidth + _usageSepWidth) {
+                    oss.width(_usageArgsWidth + _usageSepWidth);
+                    oss.flags(std::ios::left);
+                    oss << option;
+                    oss.width(0);
+                }
+                else {
+                    oss << option;
                     oss << '\n';
                     oss << std::string(_usagePadWidth + _usageArgsWidth + _usageSepWidth, ' ');
                 }
-                else {
-                    oss.width(_usageArgsWidth + _usageSepWidth);
-                    oss.flags(std::ios::left);
-                    oss << optIt->first;
-                    oss.width(0);
+                std::ostringstream ossHelp("");
+                ossHelp << (*it)->_help;
+                if ((*it)->_isRequired) {
+                    ossHelp << " (required)";
                 }
-                std::vector<std::string> lines = s_multilineWrap(optIt->second, _usageHelpWidth);
+                else {
+                    if (!(*it)->_default.empty()) {
+                        ossHelp << " (default: " + (*it)->_default + ")";
+                    }
+                }
+                std::vector<std::string> lines = s_multilineWrap(ossHelp.str(), _usageHelpWidth);
                 for (std::size_t i = 0; i < lines.size(); ++i) {
-                    oss << lines[i];
-                    oss << '\n';
-                    if (i + 1 < lines.size()) {
+                    if (i != 0) {
+                        oss << '\n';
                         oss << std::string(_usagePadWidth + _usageArgsWidth + _usageSepWidth, ' ');
                     }
+                    oss << lines[i];
                 }
             }
         }
     }
     // epilog
     if (!_epilog.empty()) {
-        oss << '\n' << _epilog << '\n';
+        oss << '\n';
+        std::vector<std::string> lines = s_multilineWrap(_epilog, indexMax);
+        for (std::size_t i = 0; i < lines.size(); ++i) {
+            oss << '\n';
+            oss << lines[i];
+        }
     }
     return oss.str();
 }
 
 std::string Argparsor::getVersion() const {
-    std::ostringstream oss("");
-    if (_versionOption != NULL) {
-        oss << _versionOption->_default << std::endl;
-    }
-    return oss.str();
+    return _version;
 }
 
 void Argparsor::parseArguments(int argc, char* argv[], bool alternative, bool strict) {
@@ -395,14 +391,14 @@ void Argparsor::parseArguments(int argc, char* argv[], bool alternative, bool st
     }
     // check help option
     if (_helpOption != NULL && _helpOption->_isExist) {
-        std::cout << getUsage() << std::flush;
-        this->~Argparsor();
+        std::cout << getUsage() << std::endl;
+        this->~Argparsor(); // call destructor before exit
         exit(0);
     }
     // check version option
     if (_versionOption != NULL && _versionOption->_isExist) {
-        std::cout << getVersion() << std::flush;
-        this->~Argparsor();
+        std::cout << getVersion() << std::endl;
+        this->~Argparsor(); // call destructor before exit
         exit(0);
     }
     // check require option
@@ -513,7 +509,7 @@ Argument& Argparsor::addArgument(const Vector& nameOrFlags) {
         std::vector<std::string> newFlags;
 
         for (std::size_t i = 0; i < nameOrFlags.size(); ++i) {
-            Argument::validFormatFlag(nameOrFlags[i].c_str());
+            Argument::_validFormatFlag(nameOrFlags[i].c_str());
             if (_argumentFromName.find(nameOrFlags.front()) != _argumentFromName.end()) {
                 throw ArgumentException(nameOrFlags.front().c_str(), "invalid flag already exist");
             }
@@ -533,7 +529,7 @@ Argument& Argparsor::addArgument(const Vector& nameOrFlags) {
     for (std::size_t i = 0; i < argument->_nameOrFlags.size(); ++i) {
         _argumentFromName.insert(std::pair<std::string, Argument**>(argument->_nameOrFlags[i], addrNewArgument));
     }
-    _arguments.sort(&Argument::compareOption);
+    _arguments.sort(&Argument::_compareOption);
     return **addrNewArgument;
 }
 

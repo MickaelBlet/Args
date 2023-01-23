@@ -6,7 +6,7 @@
  * argparsor.h
  *
  * Licensed under the MIT License <http://opensource.org/licenses/MIT>.
- * Copyright (c) 2022-2023 BLET Mickaël.
+ * Copyright (c) 2022-2023 BLET Mickael.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -35,7 +35,7 @@
  * argparsor/action.h
  *
  * Licensed under the MIT License <http://opensource.org/licenses/MIT>.
- * Copyright (c) 2022-2023 BLET Mickaël.
+ * Copyright (c) 2022-2023 BLET Mickael.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -87,7 +87,7 @@ struct Action {
  * argparsor/argparsor.h
  *
  * Licensed under the MIT License <http://opensource.org/licenses/MIT>.
- * Copyright (c) 2022-2023 BLET Mickaël.
+ * Copyright (c) 2022-2023 BLET Mickael.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -123,7 +123,7 @@ struct Action {
  * argparsor/argument.h
  *
  * Licensed under the MIT License <http://opensource.org/licenses/MIT>.
- * Copyright (c) 2022-2023 BLET Mickaël.
+ * Copyright (c) 2022-2023 BLET Mickael.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -147,8 +147,8 @@ struct Action {
 #ifndef _MBLET_ARGPARSOR_ARGUMENT_H_
 #define _MBLET_ARGPARSOR_ARGUMENT_H_
 
-#include <cstdlib>
-#include <cstring>
+#include <cstdlib> // stdtod
+#include <cstring> // memcpy
 #include <string>
 #include <vector>
 
@@ -159,7 +159,7 @@ struct Action {
  * argparsor/exception.h
  *
  * Licensed under the MIT License <http://opensource.org/licenses/MIT>.
- * Copyright (c) 2022-2023 BLET Mickaël.
+ * Copyright (c) 2022-2023 BLET Mickael.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -250,7 +250,7 @@ struct ParseArgumentValidException : public ParseArgumentException {
  * argparsor/valid.h
  *
  * Licensed under the MIT License <http://opensource.org/licenses/MIT>.
- * Copyright (c) 2022-2023 BLET Mickaël.
+ * Copyright (c) 2022-2023 BLET Mickael.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -418,7 +418,7 @@ class ValidPath : public IValid {
  * argparsor/vector.h
  *
  * Licensed under the MIT License <http://opensource.org/licenses/MIT>.
- * Copyright (c) 2022-2023 BLET Mickaël.
+ * Copyright (c) 2022-2023 BLET Mickael.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -803,7 +803,7 @@ class Argument : public ArgumentElement {
      */
     virtual ~Argument();
 
-    bool isExist() const {
+    bool isExists() const {
         return _isExist;
     }
 
@@ -985,7 +985,7 @@ class Argument : public ArgumentElement {
      */
     template<typename T>
     Argument& dest(std::vector<std::vector<T> >& dest,
-                   void (*toDest)(std::vector<std::vector<T> >& dest, bool isExist,
+                   void (*toDest)(std::vector<std::vector<T> >& dest, bool isExists,
                                   const std::vector<std::vector<std::string> >& arguments) = NULL) {
         bool validDeletable = _validDeletable;
         _validDeletable = false;
@@ -1002,7 +1002,7 @@ class Argument : public ArgumentElement {
      * @return reference of new argument
      */
     template<typename T>
-    Argument& dest(std::vector<T>& dest, void (*toDest)(std::vector<T>& dest, bool isExist,
+    Argument& dest(std::vector<T>& dest, void (*toDest)(std::vector<T>& dest, bool isExists,
                                                         const std::vector<std::string>& arguments) = NULL) {
         bool validDeletable = _validDeletable;
         _validDeletable = false;
@@ -1019,7 +1019,7 @@ class Argument : public ArgumentElement {
      * @return reference of new argument
      */
     template<typename T>
-    Argument& dest(T& dest, void (*toDest)(T& dest, bool isExist, const std::string& argument) = NULL) {
+    Argument& dest(T& dest, void (*toDest)(T& dest, bool isExists, const std::string& argument) = NULL) {
         bool validDeletable = _validDeletable;
         _validDeletable = false;
         Argument* argumentType = new ArgumentType<T>(this, dest, toDest);
@@ -1085,9 +1085,9 @@ class Argument : public ArgumentElement {
 
     void _sortNameOrFlags();
 
-    static void validFormatFlag(const char* flag);
+    static void _validFormatFlag(const char* flag);
 
-    static bool compareOption(const Argument* first, const Argument* second);
+    static bool _compareOption(const Argument* first, const Argument* second);
 
     Argparsor& _argparsor;
 
@@ -1450,6 +1450,15 @@ class Argparsor {
     }
 
     /**
+     * @brief Set the version message
+     *
+     * @param version
+     */
+    void setVersion(const char* version) {
+        _version = version;
+    }
+
+    /**
      * @brief Set the Usage Widths.
      * default values:
      * padWidth: 2,
@@ -1516,7 +1525,7 @@ class Argparsor {
                          const char* v5 = NULL, const char* v6 = NULL, const char* v7 = NULL, const char* v8 = NULL,
                          const char* v9 = NULL, const char* v10 = NULL) {
         const char* args[] = {v1, v2, v3, v4, v5, v6, v7, v8, v9, v10};
-        return args;
+        return Vector(args);
     }
 
   private:
@@ -1588,6 +1597,7 @@ class Argparsor {
     std::size_t _usageArgsWidth;
     std::size_t _usageSepWidth;
     std::size_t _usageHelpWidth;
+    std::string _version;
     std::string _description;
     std::string _epilog;
 
@@ -1641,7 +1651,7 @@ class Argparsor : public argparsor::Argparsor, public argparsor::Action {
  * argparsor-argparsor.cpp
  *
  * Licensed under the MIT License <http://opensource.org/licenses/MIT>.
- * Copyright (c) 2022-2023 BLET Mickaël.
+ * Copyright (c) 2022-2023 BLET Mickael.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -1675,7 +1685,7 @@ class Argparsor : public argparsor::Argparsor, public argparsor::Action {
  * argparsor/utils.h
  *
  * Licensed under the MIT License <http://opensource.org/licenses/MIT>.
- * Copyright (c) 2022-2023 BLET Mickaël.
+ * Copyright (c) 2022-2023 BLET Mickael.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -1990,150 +2000,146 @@ inline std::string Argparsor::getUsage() const {
             index += argument.size() + 1;
         }
     }
-    oss << '\n';
     // description
     if (!_description.empty()) {
-        index = 0;
         oss << '\n';
         std::vector<std::string> lines = s_multilineWrap(_description, indexMax);
         for (std::size_t i = 0; i < lines.size(); ++i) {
-            oss << lines[i];
             oss << '\n';
+            oss << lines[i];
         }
     }
     // optionnal
     if (!_arguments.empty()) {
-        std::list<std::pair<std::string, std::string> > positionals;
-        std::list<std::pair<std::string, std::string> > optionnals;
-        for (it = _arguments.begin(); it != _arguments.end(); ++it) {
-            std::list<std::pair<std::string, std::string> >* listOption = NULL;
-            switch ((*it)->_type) {
-                case Argument::POSITIONAL_ARGUMENT:
-                case Argument::NUMBER_POSITIONAL_ARGUMENT:
-                case Argument::INFINITE_POSITIONAL_ARGUMENT:
-                case Argument::INFINITE_NUMBER_POSITIONAL_ARGUMENT:
-                    positionals.push_back(std::pair<std::string, std::string>("", ""));
-                    listOption = &positionals;
-                    break;
-                default:
-                    optionnals.push_back(std::pair<std::string, std::string>("", ""));
-                    listOption = &optionnals;
-                    break;
-            }
-            std::string& optionStr = listOption->back().first;
-            std::string& helpStr = listOption->back().second;
-            for (std::size_t i = 0; i < (*it)->_nameOrFlags.size(); ++i) {
-                if (i > 0) {
-                    optionStr += ", ";
+        if (hasPositionnal) {
+            index = 0;
+            oss << "\n\npositional arguments:\n";
+            for (it = _arguments.begin(); it != _arguments.end(); ++it) {
+                if (!(*it)->_isPositionnalArgument()) {
+                    continue;
                 }
-                optionStr += (*it)->_nameOrFlags[i];
-            }
-            switch ((*it)->_type) {
-                case Argument::SIMPLE_OPTION:
-                case Argument::NUMBER_OPTION:
-                case Argument::INFINITE_OPTION:
-                case Argument::MULTI_OPTION:
-                case Argument::MULTI_INFINITE_OPTION:
-                case Argument::MULTI_NUMBER_OPTION:
-                case Argument::MULTI_NUMBER_INFINITE_OPTION:
-                    if ((*it)->_metavar.empty()) {
-                        optionStr += " " + (*it)->_metavarDefault();
-                    }
-                    else {
-                        optionStr += " " + (*it)->_metavar;
-                    }
-                    break;
-                default:
-                    break;
-            }
-            helpStr += (*it)->_help;
-            if ((*it)->_isRequired) {
-                helpStr += " (required)";
-            }
-            else {
-                if (!(*it)->_default.empty() && (*it)->_action != Action::VERSION) {
-                    helpStr += " (default: " + (*it)->_default + ")";
+                if (index != 0) {
+                    oss << '\n';
                 }
-            }
-            helpStr += "\n";
-        }
-        // calculate width max
-        std::size_t max = 0;
-        std::list<std::pair<std::string, std::string> >::iterator optIt;
-        for (optIt = positionals.begin(); optIt != positionals.end(); ++optIt) {
-            if (max < optIt->first.size()) {
-                max = optIt->first.size();
-            }
-        }
-        for (optIt = optionnals.begin(); optIt != optionnals.end(); ++optIt) {
-            if (max < optIt->first.size()) {
-                max = optIt->first.size();
-            }
-        }
-        if (!positionals.empty()) {
-            oss << "\npositional arguments:\n";
-            for (optIt = positionals.begin(); optIt != positionals.end(); ++optIt) {
+                index++;
                 oss << std::string(_usagePadWidth, ' ');
-                if (optIt->first.size() + _usageSepWidth > _usageArgsWidth + _usageSepWidth) {
-                    oss << optIt->first;
+                if ((*it)->_nameOrFlags.front().size() + _usageSepWidth <= _usageArgsWidth + _usageSepWidth) {
+                    oss.width(_usageArgsWidth + _usageSepWidth);
+                    oss.flags(std::ios::left);
+                    oss << (*it)->_nameOrFlags.front();
+                    oss.width(0);
+                }
+                else {
+                    oss << (*it)->_nameOrFlags.front();
                     oss << '\n';
                     oss << std::string(_usagePadWidth + _usageArgsWidth + _usageSepWidth, ' ');
                 }
-                else {
-                    oss.width(_usageArgsWidth + _usageSepWidth);
-                    oss.flags(std::ios::left);
-                    oss << optIt->first;
-                    oss.width(0);
+                std::ostringstream ossHelp("");
+                ossHelp << (*it)->_help;
+                if ((*it)->_isRequired) {
+                    ossHelp << " (required)";
                 }
-                std::vector<std::string> lines = s_multilineWrap(optIt->second, _usageHelpWidth);
+                else {
+                    if (!(*it)->_default.empty()) {
+                        ossHelp << " (default: " + (*it)->_default + ")";
+                    }
+                }
+                std::vector<std::string> lines = s_multilineWrap(ossHelp.str(), _usageHelpWidth);
                 for (std::size_t i = 0; i < lines.size(); ++i) {
-                    oss << lines[i];
-                    oss << '\n';
-                    if (i + 1 < lines.size()) {
+                    if (i != 0) {
+                        oss << '\n';
                         oss << std::string(_usagePadWidth + _usageArgsWidth + _usageSepWidth, ' ');
                     }
+                    oss << lines[i];
                 }
             }
         }
-        if (!optionnals.empty()) {
-            oss << "\noptional arguments:\n";
-            for (optIt = optionnals.begin(); optIt != optionnals.end(); ++optIt) {
+        if (hasOption) {
+            index = 0;
+            oss << "\n\noptional arguments:\n";
+            for (it = _arguments.begin(); it != _arguments.end(); ++it) {
+                if ((*it)->_isPositionnalArgument()) {
+                    continue;
+                }
+                if (index != 0) {
+                    oss << '\n';
+                }
+                index++;
+                std::ostringstream ossArgument("");
+                for (std::size_t i = 0; i < (*it)->_nameOrFlags.size(); ++i) {
+                    if (i != 0) {
+                        ossArgument << ", ";
+                    }
+                    ossArgument << (*it)->_nameOrFlags[i];
+                }
+                switch ((*it)->_type) {
+                    case Argument::SIMPLE_OPTION:
+                    case Argument::NUMBER_OPTION:
+                    case Argument::INFINITE_OPTION:
+                    case Argument::MULTI_OPTION:
+                    case Argument::MULTI_INFINITE_OPTION:
+                    case Argument::MULTI_NUMBER_OPTION:
+                    case Argument::MULTI_NUMBER_INFINITE_OPTION:
+                        if ((*it)->_metavar.empty()) {
+                            ossArgument << ' ';
+                            ossArgument << (*it)->_metavarDefault();
+                        }
+                        else {
+                            ossArgument << ' ';
+                            ossArgument << (*it)->_metavar;
+                        }
+                        break;
+                    default:
+                        break;
+                }
+                const std::string option = ossArgument.str();
                 oss << std::string(_usagePadWidth, ' ');
-                if (optIt->first.size() + _usageSepWidth > _usageArgsWidth + _usageSepWidth) {
-                    oss << optIt->first;
+                if (option.size() + _usageSepWidth <= _usageArgsWidth + _usageSepWidth) {
+                    oss.width(_usageArgsWidth + _usageSepWidth);
+                    oss.flags(std::ios::left);
+                    oss << option;
+                    oss.width(0);
+                }
+                else {
+                    oss << option;
                     oss << '\n';
                     oss << std::string(_usagePadWidth + _usageArgsWidth + _usageSepWidth, ' ');
                 }
-                else {
-                    oss.width(_usageArgsWidth + _usageSepWidth);
-                    oss.flags(std::ios::left);
-                    oss << optIt->first;
-                    oss.width(0);
+                std::ostringstream ossHelp("");
+                ossHelp << (*it)->_help;
+                if ((*it)->_isRequired) {
+                    ossHelp << " (required)";
                 }
-                std::vector<std::string> lines = s_multilineWrap(optIt->second, _usageHelpWidth);
+                else {
+                    if (!(*it)->_default.empty()) {
+                        ossHelp << " (default: " + (*it)->_default + ")";
+                    }
+                }
+                std::vector<std::string> lines = s_multilineWrap(ossHelp.str(), _usageHelpWidth);
                 for (std::size_t i = 0; i < lines.size(); ++i) {
-                    oss << lines[i];
-                    oss << '\n';
-                    if (i + 1 < lines.size()) {
+                    if (i != 0) {
+                        oss << '\n';
                         oss << std::string(_usagePadWidth + _usageArgsWidth + _usageSepWidth, ' ');
                     }
+                    oss << lines[i];
                 }
             }
         }
     }
     // epilog
     if (!_epilog.empty()) {
-        oss << '\n' << _epilog << '\n';
+        oss << '\n';
+        std::vector<std::string> lines = s_multilineWrap(_epilog, indexMax);
+        for (std::size_t i = 0; i < lines.size(); ++i) {
+            oss << '\n';
+            oss << lines[i];
+        }
     }
     return oss.str();
 }
 
 inline std::string Argparsor::getVersion() const {
-    std::ostringstream oss("");
-    if (_versionOption != NULL) {
-        oss << _versionOption->_default << std::endl;
-    }
-    return oss.str();
+    return _version;
 }
 
 inline void Argparsor::parseArguments(int argc, char* argv[], bool alternative, bool strict) {
@@ -2164,14 +2170,14 @@ inline void Argparsor::parseArguments(int argc, char* argv[], bool alternative, 
     }
     // check help option
     if (_helpOption != NULL && _helpOption->_isExist) {
-        std::cout << getUsage() << std::flush;
-        this->~Argparsor();
+        std::cout << getUsage() << std::endl;
+        this->~Argparsor(); // call destructor before exit
         exit(0);
     }
     // check version option
     if (_versionOption != NULL && _versionOption->_isExist) {
-        std::cout << getVersion() << std::flush;
-        this->~Argparsor();
+        std::cout << getVersion() << std::endl;
+        this->~Argparsor(); // call destructor before exit
         exit(0);
     }
     // check require option
@@ -2282,7 +2288,7 @@ inline Argument& Argparsor::addArgument(const Vector& nameOrFlags) {
         std::vector<std::string> newFlags;
 
         for (std::size_t i = 0; i < nameOrFlags.size(); ++i) {
-            Argument::validFormatFlag(nameOrFlags[i].c_str());
+            Argument::_validFormatFlag(nameOrFlags[i].c_str());
             if (_argumentFromName.find(nameOrFlags.front()) != _argumentFromName.end()) {
                 throw ArgumentException(nameOrFlags.front().c_str(), "invalid flag already exist");
             }
@@ -2302,7 +2308,7 @@ inline Argument& Argparsor::addArgument(const Vector& nameOrFlags) {
     for (std::size_t i = 0; i < argument->_nameOrFlags.size(); ++i) {
         _argumentFromName.insert(std::pair<std::string, Argument**>(argument->_nameOrFlags[i], addrNewArgument));
     }
-    _arguments.sort(&Argument::compareOption);
+    _arguments.sort(&Argument::_compareOption);
     return **addrNewArgument;
 }
 
@@ -2628,7 +2634,7 @@ inline void Argparsor::_parsePositionnalArgument(int argc, char* argv[], int* in
  * argparsor-argument.cpp
  *
  * Licensed under the MIT License <http://opensource.org/licenses/MIT>.
- * Copyright (c) 2022-2023 BLET Mickaël.
+ * Copyright (c) 2022-2023 BLET Mickael.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -2863,20 +2869,20 @@ inline Argument& Argument::flag(const char* flag_) {
     if (_isPositionnalArgument()) {
         throw ArgumentException(flag_, "can't add flag in positionnal argument");
     }
-    validFormatFlag(flag_);
+    _validFormatFlag(flag_);
     if (_argparsor.argumentExists(flag_)) {
         throw ArgumentException(flag_, "invalid flag already exist");
     }
     _nameOrFlags.push_back(flag_);
     _sortNameOrFlags();
     _argparsor._argumentFromName.insert(std::pair<std::string, Argument**>(flag_, _this));
-    _argparsor._arguments.sort(&Argument::compareOption);
+    _argparsor._arguments.sort(&Argument::_compareOption);
     return *this;
 }
 
 inline Argument& Argument::required(bool required_) {
     _isRequired = required_;
-    _argparsor._arguments.sort(&Argument::compareOption);
+    _argparsor._arguments.sort(&Argument::_compareOption);
     return *this;
 }
 
@@ -2884,7 +2890,7 @@ inline void Argument::_sortNameOrFlags() {
     std::sort(_nameOrFlags.begin(), _nameOrFlags.end(), &compareFlag);
 }
 
-inline void Argument::validFormatFlag(const char* flag) {
+inline void Argument::_validFormatFlag(const char* flag) {
     if (flag[0] != '-') {
         throw ArgumentException(flag, "invalid flag not start by '-' character");
     }
@@ -2899,7 +2905,7 @@ inline void Argument::validFormatFlag(const char* flag) {
     }
 }
 
-inline bool Argument::compareOption(const Argument* first, const Argument* second) {
+inline bool Argument::_compareOption(const Argument* first, const Argument* second) {
     if (first->_isPositionnalArgument() && first->_isRequired && second->_isPositionnalArgument() &&
         second->_isRequired) {
         return false;
@@ -3196,7 +3202,7 @@ inline void Argument::_defaultsConstructor() {
  * argparsor-exception.cpp
  *
  * Licensed under the MIT License <http://opensource.org/licenses/MIT>.
- * Copyright (c) 2022-2023 BLET Mickaël.
+ * Copyright (c) 2022-2023 BLET Mickael.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -3280,7 +3286,7 @@ inline ParseArgumentValidException::~ParseArgumentValidException() throw() {}
  * argparsor-valid.cpp
  *
  * Licensed under the MIT License <http://opensource.org/licenses/MIT>.
- * Copyright (c) 2022-2023 BLET Mickaël.
+ * Copyright (c) 2022-2023 BLET Mickael.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal

@@ -24,7 +24,7 @@ int main(int argc, char* argv[]) {
 
         std::vector<CustomStruct> extendNumber;
 
-        static void toExtendNumber(std::vector<CustomStruct>& extendNumber, bool /*isExist*/,
+        static void toExtendNumber(std::vector<CustomStruct>& extendNumber, bool /*isExists*/,
                                    const std::vector<std::string>& arguments) {
             for (std::size_t i = 0; i < arguments.size(); i += 2) {
                 CustomStruct number = {arguments[i], ::strtod(arguments[i + 1].c_str(), NULL)};
@@ -39,14 +39,11 @@ int main(int argc, char* argv[]) {
     options.c = false;
 
     Argparsor args(false); // disable automatic help option
+    args.setVersion("Version: 0.0.0");
     args.setDescription("custom description message");
     args.setEpilog("custom epilog message");
     args.addArgument("-h").flag("--help").action(args.HELP).help("custom help option message");
-    args.addArgument("-v")
-        .flag("--version")
-        .help("help of version option")
-        .action(args.VERSION)
-        .defaults("Version: 0.0.0");
+    args.addArgument("-v").flag("--version").help("help of version option").action(args.VERSION);
     args.addArgument("NOTREQUIRED").help("help of positional argument").defaults("foo").dest(options.notrequired);
     args.addArgument("REQUIRED")
         .help("help of required positional argument")

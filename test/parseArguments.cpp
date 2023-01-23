@@ -289,10 +289,10 @@ GTEST_TEST(parseArguments, endOfInfiniteArgument) {
     args.addArgument("-s").nargs(1);
     args.addArgument("--infinite").nargs('+').defaults(args.vector("0", "1", "2", "3"));
     args.parseArguments(argc, const_cast<char**>(argv), true, true);
-    EXPECT_EQ(args["-b"].getString(), "true");
-    EXPECT_EQ(args["-r"].getString(), "false");
-    EXPECT_EQ(args["-s"].getString(), "Simple");
-    EXPECT_EQ(args["--infinite"][0].getString(), "-o");
+    EXPECT_EQ(args["-b"].getString(), std::string("true"));
+    EXPECT_EQ(args["-r"].getString(), std::string("false"));
+    EXPECT_EQ(args["-s"].getString(), std::string("Simple"));
+    EXPECT_EQ(args["--infinite"][0].getString(), std::string("-o"));
 }
 
 GTEST_TEST(parseArguments, allType) {
@@ -374,42 +374,42 @@ GTEST_TEST(parseArguments, allType) {
         .valid(new ValidTest());
 
     args.parseArguments(argc, const_cast<char**>(argv), true, false);
-    EXPECT_EQ(args["REQUIRED"].getString(), "ISREQUIRED");
-    EXPECT_EQ(args["-b"].getString(), "true");
-    EXPECT_EQ(args["--notbool"].getString(), "false");
-    EXPECT_EQ(args["--simple"].getString(), "SIMPLE");
-    EXPECT_EQ(retSimple, "SIMPLE");
-    EXPECT_EQ(args["--number"][0].getString(), "FOO");
-    EXPECT_EQ(args["--number"][1].getString(), "BAR");
-    EXPECT_EQ(args["--infinite"].getString(), "A, B, C, D, E");
-    EXPECT_EQ(args["--infinite"][0].getString(), "A");
-    EXPECT_EQ(args["--infinite"][1].getString(), "B");
-    EXPECT_EQ(args["--infinite"][2].getString(), "C");
-    EXPECT_EQ(args["--infinite"][3].getString(), "D");
-    EXPECT_EQ(args["--infinite"][4].getString(), "E");
-    EXPECT_EQ(args["-m"][0].getString(), "A");
-    EXPECT_EQ(args["-m"][1].getString(), "B");
-    EXPECT_EQ(args["-m"][2].getString(), "C");
-    EXPECT_EQ(args["--multi2"][0].getString(), "A");
-    EXPECT_EQ(args["--multi-number"].getString(), "(A, B), (C, D)");
-    EXPECT_EQ(args["--multi-number"][0][0].getString(), "A");
-    EXPECT_EQ(args["--multi-number"][0][1].getString(), "B");
-    EXPECT_EQ(args["--multi-number"][1][0].getString(), "C");
-    EXPECT_EQ(args["--multi-number"][1][1].getString(), "D");
-    EXPECT_EQ(args["--multi-infinite"][0].getString(), "A");
-    EXPECT_EQ(args["--multi-infinite"][1].getString(), "B");
-    EXPECT_EQ(args["--multi-infinite"][2].getString(), "C");
-    EXPECT_EQ(args["--multi-infinite"][3].getString(), "D");
-    EXPECT_EQ(args["--multi-infinite"][4].getString(), "E");
-    EXPECT_EQ(args["--multi-infinite-number"][0][0].getString(), "A");
-    EXPECT_EQ(args["--multi-infinite-number"][0][1].getString(), "B");
-    EXPECT_EQ(args["--multi-infinite-number"][1][0].getString(), "C");
-    EXPECT_EQ(args["--multi-infinite-number"][1][1].getString(), "D");
-    EXPECT_EQ(args["--multi-infinite-number"][2][0].getString(), "E");
-    EXPECT_EQ(args["--multi-infinite-number"][2][1].getString(), "F");
+    EXPECT_EQ(args["REQUIRED"].getString(), std::string("ISREQUIRED"));
+    EXPECT_EQ(args["-b"].getString(), std::string("true"));
+    EXPECT_EQ(args["--notbool"].getString(), std::string("false"));
+    EXPECT_EQ(args["--simple"].getString(), std::string("SIMPLE"));
+    EXPECT_EQ(retSimple, std::string("SIMPLE"));
+    EXPECT_EQ(args["--number"][0].getString(), std::string("FOO"));
+    EXPECT_EQ(args["--number"][1].getString(), std::string("BAR"));
+    EXPECT_EQ(args["--infinite"].getString(), std::string("A, B, C, D, E"));
+    EXPECT_EQ(args["--infinite"][0].getString(), std::string("A"));
+    EXPECT_EQ(args["--infinite"][1].getString(), std::string("B"));
+    EXPECT_EQ(args["--infinite"][2].getString(), std::string("C"));
+    EXPECT_EQ(args["--infinite"][3].getString(), std::string("D"));
+    EXPECT_EQ(args["--infinite"][4].getString(), std::string("E"));
+    EXPECT_EQ(args["-m"][0].getString(), std::string("A"));
+    EXPECT_EQ(args["-m"][1].getString(), std::string("B"));
+    EXPECT_EQ(args["-m"][2].getString(), std::string("C"));
+    EXPECT_EQ(args["--multi2"][0].getString(), std::string("A"));
+    EXPECT_EQ(args["--multi-number"].getString(), std::string("(A, B), (C, D)"));
+    EXPECT_EQ(args["--multi-number"][0][0].getString(), std::string("A"));
+    EXPECT_EQ(args["--multi-number"][0][1].getString(), std::string("B"));
+    EXPECT_EQ(args["--multi-number"][1][0].getString(), std::string("C"));
+    EXPECT_EQ(args["--multi-number"][1][1].getString(), std::string("D"));
+    EXPECT_EQ(args["--multi-infinite"][0].getString(), std::string("A"));
+    EXPECT_EQ(args["--multi-infinite"][1].getString(), std::string("B"));
+    EXPECT_EQ(args["--multi-infinite"][2].getString(), std::string("C"));
+    EXPECT_EQ(args["--multi-infinite"][3].getString(), std::string("D"));
+    EXPECT_EQ(args["--multi-infinite"][4].getString(), std::string("E"));
+    EXPECT_EQ(args["--multi-infinite-number"][0][0].getString(), std::string("A"));
+    EXPECT_EQ(args["--multi-infinite-number"][0][1].getString(), std::string("B"));
+    EXPECT_EQ(args["--multi-infinite-number"][1][0].getString(), std::string("C"));
+    EXPECT_EQ(args["--multi-infinite-number"][1][1].getString(), std::string("D"));
+    EXPECT_EQ(args["--multi-infinite-number"][2][0].getString(), std::string("E"));
+    EXPECT_EQ(args["--multi-infinite-number"][2][1].getString(), std::string("F"));
     std::vector<std::string> partOfInfiniteNumber = args["--multi-infinite-number"][0];
-    EXPECT_EQ(partOfInfiniteNumber[0], "A");
-    EXPECT_EQ(partOfInfiniteNumber[1], "B");
+    EXPECT_EQ(partOfInfiniteNumber[0], std::string("A"));
+    EXPECT_EQ(partOfInfiniteNumber[1], std::string("B"));
 
     EXPECT_THROW(
         {
@@ -498,10 +498,10 @@ GTEST_TEST(parseArguments, help) {
     testing::internal::CaptureStdout();
     EXPECT_EXIT({ args.parseArguments(argc, const_cast<char**>(argv)); }, ::testing::ExitedWithCode(0), ".*");
     EXPECT_EQ(testing::internal::GetCapturedStdout(),
-              "usage: binaryName [-h]\n"
-              "\n"
-              "optional arguments:\n"
-              "  -h, --help            show this help message and exit\n");
+              std::string("usage: binaryName [-h]\n"
+                          "\n"
+                          "optional arguments:\n"
+                          "  -h, --help            show this help message and exit\n"));
 }
 
 GTEST_TEST(parseArguments, version) {
@@ -509,10 +509,11 @@ GTEST_TEST(parseArguments, version) {
     const int argc = sizeof(argv) / sizeof(*argv);
 
     mblet::Argparsor args;
-    args.addArgument("--version").action(mblet::Argparsor::VERSION).defaults("version: 0.0.0");
+    args.setVersion("version: 0.0.0");
+    args.addArgument("--version").action(mblet::Argparsor::VERSION);
     testing::internal::CaptureStdout();
     EXPECT_EXIT({ args.parseArguments(argc, const_cast<char**>(argv)); }, ::testing::ExitedWithCode(0), ".*");
-    EXPECT_EQ(testing::internal::GetCapturedStdout(), "version: 0.0.0\n");
+    EXPECT_EQ(testing::internal::GetCapturedStdout(), std::string("version: 0.0.0\n"));
 }
 
 GTEST_TEST(parseArguments, argumentRequired) {
@@ -619,7 +620,7 @@ GTEST_TEST(parseArguments, validException) {
     }
 }
 
-MOCKC_METHOD2(stat, int(const char* __file, struct stat* __buf))
+MOCKC_ATTRIBUTE_METHOD2(stat, int(const char* __restrict __file, struct stat* __restrict __buf), throw())
 ACTION_P(actionStat, st_mode) {
     arg1->st_mode = st_mode;
     return 0;
@@ -724,8 +725,8 @@ GTEST_TEST(parseArguments, standartValid) {
         mblet::Argparsor args;
         args.addArgument("--option").nargs(2).valid(new mblet::Argparsor::ValidChoise(args.vector("0", "100")));
         args.parseArguments(argc, const_cast<char**>(argv));
-        EXPECT_EQ(args["--option"][0].getString(), "0");
-        EXPECT_EQ(args["--option"][1].getString(), "100");
+        EXPECT_EQ(args["--option"][0].getString(), std::string("0"));
+        EXPECT_EQ(args["--option"][1].getString(), std::string("100"));
     }
     {
         MOCKC_EXPECT_CALL(stat, (_, _)).WillOnce(Return(-1));
@@ -797,6 +798,6 @@ GTEST_TEST(parseArguments, standartValid) {
             .nargs(1)
             .valid(new mblet::Argparsor::ValidPath(mblet::Argparsor::ValidPath::IS_FILE));
         args.parseArguments(argc, const_cast<char**>(argv));
-        EXPECT_EQ(args["--option"].getString(), ".");
+        EXPECT_EQ(args["--option"].getString(), std::string("."));
     }
 }

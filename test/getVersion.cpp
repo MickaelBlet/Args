@@ -4,11 +4,12 @@
 
 GTEST_TEST(getVersion, empty) {
     mblet::Argparsor argparsor;
-    EXPECT_EQ(argparsor.getVersion(), "");
+    EXPECT_EQ(argparsor.getVersion(), std::string(""));
 }
 
 GTEST_TEST(getVersion, version) {
     mblet::Argparsor argparsor;
-    argparsor.addArgument("-v").action(mblet::Argparsor::VERSION).defaults("Version 0.0.0");
-    EXPECT_EQ(argparsor.getVersion(), "Version 0.0.0\n");
+    argparsor.setVersion("Version 0.0.0");
+    argparsor.addArgument("-v").action(mblet::Argparsor::VERSION);
+    EXPECT_EQ(argparsor.getVersion(), std::string("Version 0.0.0"));
 }
