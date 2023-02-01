@@ -216,6 +216,7 @@ Argument::operator std::vector<std::vector<std::string> >() const {
     switch (_type) {
         case MULTI_NUMBER_OPTION:
         case MULTI_NUMBER_INFINITE_OPTION:
+        case INFINITE_NUMBER_POSITIONAL_ARGUMENT:
             for (std::size_t i = 0; i < size(); ++i) {
                 ret.push_back(std::vector<std::string>());
                 for (std::size_t j = 0; j < at(i).size(); ++j) {
@@ -242,6 +243,21 @@ Argument& Argument::flag(const char* flag_) {
     _sortNameOrFlags();
     _argparsor._argumentFromName.insert(std::pair<std::string, Argument**>(flag_, _this));
     _argparsor._arguments.sort(&Argument::_compareOption);
+    return *this;
+}
+
+Argument& Argument::action(enum Action::eAction action_) {
+    // reset help option
+    if (_action == Action::HELP) {
+        _argparsor._helpOption = NULL;
+    }
+    // reset version option
+    if (_action == Action::VERSION) {
+        _argparsor._versionOption = NULL;
+    }
+    _action = action_;
+    _typeConstructor();
+    _defaultsConstructor();
     return *this;
 }
 
@@ -544,15 +560,6 @@ void Argument::_defaultsConstructor() {
                 _default += ")";
                 push_back(newNumberArgument);
             }
-        }
-    }
-    else if (_type == Argument::VERSION_OPTION) {
-        clear();
-        for (std::size_t i = 0; i < _defaults.size(); ++i) {
-            if (i > 0) {
-                _default += "\n";
-            }
-            _default += _defaults[i];
         }
     }
 }

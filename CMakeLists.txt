@@ -15,6 +15,7 @@ add_library("${PROJECT_NAME}"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/argparsor-argparsor.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/argparsor-argument.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/argparsor-exception.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/argparsor-usage.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/argparsor-valid.cpp"
 )
 

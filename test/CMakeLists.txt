@@ -8,6 +8,8 @@ set(test_source_files
     "${CMAKE_CURRENT_SOURCE_DIR}/getUsage.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/getVersion.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/parseArguments.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/removeArguments.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/updateArgument.cpp"
 )
 
 if(BUILD_COVERAGE)

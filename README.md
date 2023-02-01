@@ -35,12 +35,12 @@ int main(int argc, char* argv[]) {
     args.setVersion("Version: 0.0.0");
     args.addArgument("ARGUMENT").help("help of argument").required(true);
     args.addArgument("-v").flag("--version").help("help of version option").action(args.VERSION);
-    args.addArgument(args.vector("-o", "--option")).help("help of option").nargs(2).metavar("OPT1 OPT2");
+    args.addArgument({"-o", "--option"}).help("help of option").nargs(2).metavar("OPT1 OPT2");
     args.addArgument("--log-level")
         .flag("-l")
         .help("help of log-level")
         .metavar("LEVEL")
-        .valid(new mblet::Argparsor::ValidChoise(args.vector("DEBUG", "INFO", "WARNING", "ERROR")))
+        .valid(new mblet::Argparsor::ValidChoise({"DEBUG", "INFO", "WARNING", "ERROR"}))
         .defaults("INFO")
         .dest(logLevel, &argToLogLevel); // fill logLevel by argToLogLevel
     try {

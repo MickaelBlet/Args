@@ -34,6 +34,7 @@
 #include "mblet/argparsor/action.h"
 #include "mblet/argparsor/argument.h"
 #include "mblet/argparsor/exception.h"
+#include "mblet/argparsor/usage.h"
 #include "mblet/argparsor/vector.h"
 
 namespace mblet {
@@ -41,23 +42,43 @@ namespace mblet {
 namespace argparsor {
 
 class Argument;
+class Usage;
 
 /**
  * @brief Object for parse the main arguments
  */
-class Argparsor {
+class Argparsor : public Usage {
     friend class Argument;
+    friend class Usage;
 
   public:
     /**
      * @brief Construct a new Argparsor object
      */
-    Argparsor(bool help);
+    Argparsor(bool addHelp);
 
     /**
      * @brief Destroy the Argparsor object
      */
     virtual ~Argparsor();
+
+    /**
+     * @brief Set the version message
+     *
+     * @param version
+     */
+    void setVersion(const char* version) {
+        _version = version;
+    }
+
+    /**
+     * @brief Get the Version
+     *
+     * @return std::string
+     */
+    const std::string& getVersion() const {
+        return _version;
+    }
 
     /**
      * @brief Get the status of alternative
@@ -85,20 +106,6 @@ class Argparsor {
     const std::string& getBinaryName() const {
         return _binaryName;
     }
-
-    /**
-     * @brief Get the Usage
-     *
-     * @return std::string
-     */
-    std::string getUsage() const;
-
-    /**
-     * @brief Get the Version
-     *
-     * @return std::string
-     */
-    std::string getVersion() const;
 
     /**
      * @brief Check if argument exist
@@ -174,62 +181,6 @@ class Argparsor {
     }
 
     /**
-     * @brief Set the usage message
-     *
-     * @param usage
-     */
-    void setUsage(const char* usage) {
-        _usage = usage;
-    }
-
-    /**
-     * @brief Set the version message
-     *
-     * @param version
-     */
-    void setVersion(const char* version) {
-        _version = version;
-    }
-
-    /**
-     * @brief Set the Usage Widths.
-     * default values:
-     * padWidth: 2,
-     * argsWidth: 20,
-     * sepWidth: 2,
-     * helpWidth: 56
-     *
-     * @param padWidth width of padding to first column of usage message
-     * @param argsWidth width of first column of usage message
-     * @param sepWidth width of column separator of usage message
-     * @param helpWidth width of second column of usage message
-     */
-    void setUsageWidth(std::size_t padWidth, std::size_t argsWidth, std::size_t sepWidth, std::size_t helpWidth) {
-        _usagePadWidth = padWidth;
-        _usageArgsWidth = argsWidth;
-        _usageSepWidth = sepWidth;
-        _usageHelpWidth = helpWidth;
-    }
-
-    /**
-     * @brief Set the description in usage message
-     *
-     * @param description
-     */
-    void setDescription(const char* description) {
-        _description = description;
-    }
-
-    /**
-     * @brief Set the epilog in usage message
-     *
-     * @param epilog
-     */
-    void setEpilog(const char* epilog) {
-        _epilog = epilog;
-    }
-
-    /**
      * @brief Convert argument strings to objects and assign them as attributes of the argparsor map.
      * Previous calls to add_argument() determine exactly what objects are created and how they are assigned
      * @param argc
@@ -245,21 +196,30 @@ class Argparsor {
      *
      * @param nameOrFlags Either a name or a list of option strings, e.g. foo or -f, --foo
      *
-     * @return ref of new argument object
+     * @return Argument& ref of new argument object
      */
     Argument& addArgument(const Vector& nameOrFlags);
 
     /**
-     * @brief Construct a vector object from str parameters
+     * @brief Get the ref. of argument from name or flag
      *
-     * @return Vector
+     * @param nameOrFlag
+     * @return Argument& ref argument object
      */
-    static Vector vector(const char* v1 = NULL, const char* v2 = NULL, const char* v3 = NULL, const char* v4 = NULL,
-                         const char* v5 = NULL, const char* v6 = NULL, const char* v7 = NULL, const char* v8 = NULL,
-                         const char* v9 = NULL, const char* v10 = NULL) {
-        const char* args[] = {v1, v2, v3, v4, v5, v6, v7, v8, v9, v10};
-        return Vector(args);
+    Argument& updateArgument(const std::string& nameOrFlag) {
+        std::map<std::string, Argument**>::iterator it = _argumentFromName.find(nameOrFlag);
+        if (it == _argumentFromName.end()) {
+            throw AccessDeniedException(nameOrFlag.c_str(), "argument not found");
+        }
+        return **(it->second);
     }
+
+    /**
+     * @brief Remove previously addArgument
+     *
+     * @param nameOrFlags Either a name or a list of option strings, e.g. foo or -f, --foo
+     */
+    void removeArguments(const Vector& nameOrFlags);
 
   private:
     Argparsor(const Argparsor&);            // disable copy constructor
@@ -325,14 +285,7 @@ class Argparsor {
     Argument* _helpOption;
     Argument* _versionOption;
 
-    std::string _usage;
-    std::size_t _usagePadWidth;
-    std::size_t _usageArgsWidth;
-    std::size_t _usageSepWidth;
-    std::size_t _usageHelpWidth;
     std::string _version;
-    std::string _description;
-    std::string _epilog;
 
     bool _isAlternative;
     bool _isStrict;

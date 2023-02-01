@@ -39,6 +39,7 @@
 namespace mblet {
 
 class Argparsor;
+class Usage;
 
 namespace argparsor {
 
@@ -242,6 +243,7 @@ class ArgumentElement : public std::vector<ArgumentElement> {
     friend class ::mblet::Argparsor;
     friend class Argparsor;
     friend class Argument;
+    friend class Usage;
 
   public:
     ArgumentElement();
@@ -310,6 +312,7 @@ class ArgumentVectorVectorType;
 class Argument : public ArgumentElement {
     friend class ::mblet::Argparsor;
     friend class Argparsor;
+    friend class Usage;
 
   public:
     /**
@@ -404,6 +407,12 @@ class Argument : public ArgumentElement {
      */
     operator std::vector<std::vector<std::string> >() const;
 
+    /**
+     * @brief tranform to number
+     *
+     * @tparam T
+     * @return T
+     */
     template<typename T>
     operator T() const {
         return getNumber();
@@ -431,12 +440,7 @@ class Argument : public ArgumentElement {
      * @param action_
      * @return this reference
      */
-    Argument& action(enum Action::eAction action_) {
-        _action = action_;
-        _typeConstructor();
-        _defaultsConstructor();
-        return *this;
-    }
+    Argument& action(enum Action::eAction action_);
 
     /**
      * @brief A brief description of what the argument does

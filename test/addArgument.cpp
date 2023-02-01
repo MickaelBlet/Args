@@ -225,11 +225,12 @@ GTEST_TEST(addArgument, helpOption) {
 
 GTEST_TEST(addArgument, versionOption) {
     mblet::Argparsor args;
-    args.addArgument(args.vector("-v", "--version"))
-        .action(mblet::Argparsor::VERSION)
-        .defaults(args.vector("multline", "version: 0.0.0"));
-    EXPECT_EQ(args["-v"].getDefault(), std::string("multline\nversion: 0.0.0"));
-    EXPECT_EQ(args["--version"].getDefault(), std::string("multline\nversion: 0.0.0"));
+    args.addArgument(args.vector("-v", "--version")).action(mblet::Argparsor::VERSION);
+    EXPECT_EQ(args["-v"].getAction(), mblet::Argparsor::VERSION);
+    args.removeArguments("-v");
+    args.removeArguments("--version");
+    EXPECT_EQ(args.argumentExists("-v"), false);
+    EXPECT_EQ(args.argumentExists("--version"), false);
 }
 
 GTEST_TEST(addArgument, positionnalArgument) {

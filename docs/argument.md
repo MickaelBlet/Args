@@ -111,10 +111,13 @@ Example at [examples.md/extend](examples.md#extend).
 #### HELP
 
 This case used for create the help flag.  
-⚠ Can only use this action after constructor with false parameter.  
+⚠ Can only use this action after constructor with false parameter or remove the last help flags.  
 
 ```cpp
 mblet::Argparsor args(false);
+// or
+// mblet::Argparsor args;
+// args.removeArgument(args.vector("-h", "--help"));
 ```
 
 Example at [examples.md/help](examples.md#help).
@@ -231,7 +234,7 @@ template<typename T>
 Argument& dest(T& dest, void (*toDest)(T& dest, bool isExist, const std::string& argument) = NULL);
 ```
 
-Define a reference of object for insert the value after parseArguments method.  
+Define a reference of object for insert the value after [parseArguments](parse.md#parsearguments) method.  
 Action can be changed by `toDest` parameter with your function.
 
 ```cpp
@@ -247,11 +250,15 @@ Examples at [dest.md](dest.md).
 std::string getString() const;
 ```
 
+Get the string format of this argument.
+
 ### isNumber
 
 ```cpp
 bool isNumber() const;
 ```
+
+Check if this argument is a number ("1234aaa" return *true* with 1234 like number).
 
 ### getNumber
 
@@ -259,11 +266,15 @@ bool isNumber() const;
 double getNumber() const;
 ```
 
+Get Number if [isNumber](#isnumber).
+
 ### isExists
 
 ```cpp
 bool isExists() const;
 ```
+
+After [parseArguments](parse.md#parsearguments) method check if this argument is present in *argv*.
 
 ### isRequired
 
@@ -271,11 +282,15 @@ bool isExists() const;
 bool isRequired() const;
 ```
 
+Get [required](#required) option.
+
 ### count
 
 ```cpp
 std::size_t count() const;
 ```
+
+After [parseArguments](parse.md#parsearguments) method check if number of this argument in *argv*.
 
 ### getNargs
 
@@ -283,11 +298,15 @@ std::size_t count() const;
 std::size_t getNargs() const;
 ```
 
+Get [nargs](#nargs) option.
+
 ### getHelp
 
 ```cpp
 const std::string& getHelp() const;
 ```
+
+Get [help](#help-1) option.
 
 ### getMetavar
 
@@ -295,11 +314,15 @@ const std::string& getHelp() const;
 const std::string& getMetavar() const;
 ```
 
+Get [metavar](#metavar) option.
+
 ### getNameOrFlags
 
 ```cpp
 const std::vector<std::string>& getNameOrFlags() const;
 ```
+
+Get the name or flag(s) of this argument.
 
 ### getDefaults
 
@@ -307,11 +330,15 @@ const std::vector<std::string>& getNameOrFlags() const;
 const std::vector<std::string>& getDefaults() const
 ```
 
+Get the default(s) value(s) of this argument.
+
 ### getAction
 
 ```cpp
 Action::eAction getAction() const;
 ```
+
+Get [action](#action) option.
 
 ### operator bool()
 

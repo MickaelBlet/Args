@@ -41,26 +41,25 @@ class Vector : public std::vector<std::string> {
     template<std::size_t S>
     Vector(const char* (&v)[S]) :
         std::vector<std::string>() {
+        std::vector<std::string>::reserve(S);
         for (std::size_t i = 0; i < S; ++i) {
-            if (v[i] != NULL) {
-                std::vector<std::string>::push_back(v[i]);
-            }
+            std::vector<std::string>::push_back(v[i]);
         }
     }
 
     template<std::size_t S>
     Vector(const char* const (&v)[S]) :
         std::vector<std::string>() {
+        std::vector<std::string>::reserve(S);
         for (std::size_t i = 0; i < S; ++i) {
-            if (v[i] != NULL) {
-                std::vector<std::string>::push_back(v[i]);
-            }
+            std::vector<std::string>::push_back(v[i]);
         }
     }
 
     template<std::size_t S>
     Vector(const std::string (&v)[S]) :
         std::vector<std::string>() {
+        std::vector<std::string>::reserve(S);
         for (std::size_t i = 0; i < S; ++i) {
             std::vector<std::string>::push_back(v[i]);
         }

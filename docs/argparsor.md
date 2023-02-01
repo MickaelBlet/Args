@@ -1,10 +1,28 @@
 # Argparsor
 
+## Constructor
+
+```cpp
+Argparsor(bool addHelp);
+```
+
+If `addhelp` is true generate a action help argument with the flags -h and --help.
+
+## Destructor
+
+```cpp
+virtual ~Argparsor();
+```
+
+Delete all new object.
+
 ## isAlternative
 
 ```cpp
 bool isAlternative() const;
 ```
+
+Use this after [parseArguments](#parseArguments) method for check if alternative mode was activated.
 
 ## isStrict
 
@@ -12,28 +30,33 @@ bool isAlternative() const;
 bool isStrict() const;
 ```
 
+Use this after [parseArguments](#parseArguments) method for check if strict mode was activated.
+
 ## getBinaryName
 
 ```cpp
 const std::string& getBinaryName() const;
 ```
 
+Use this after [parseArguments](#parseArguments) method for get the binary name (argv[0]).
+
 ## getUsage
 
 ```cpp
-bool getUsage() const;
+std::string getUsage() const;
 ```
 
-## isAlternative
+## getVersion
 
 ```cpp
-bool isAlternative() const;
+std::string getVersion() const;
 ```
 
-## isAlternative
+## argumentExists
 
 ```cpp
-bool isAlternative() const;
+bool argumentExists(const std::string& nameOrFlag) const;
+bool argumentExists(const char* nameOrFlag) const;
 ```
 
 ## isAlternative
