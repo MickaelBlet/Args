@@ -494,26 +494,64 @@ GTEST_TEST(parseArguments, help) {
     const char* argv[] = {"binaryName", "--help"};
     const int argc = sizeof(argv) / sizeof(*argv);
 
-    mblet::Argparsor args;
-    testing::internal::CaptureStdout();
-    EXPECT_EXIT({ args.parseArguments(argc, const_cast<char**>(argv)); }, ::testing::ExitedWithCode(0), ".*");
-    EXPECT_EQ(testing::internal::GetCapturedStdout(),
-              std::string("usage: binaryName [-h]\n"
-                          "\n"
-                          "optional arguments:\n"
-                          "  -h, --help            show this help message and exit\n"));
+    {
+        mblet::Argparsor args;
+        EXPECT_THROW(
+            {
+                try {
+                    args.parseArguments(argc, const_cast<char**>(argv), false, false, true);
+                }
+                catch (const mblet::Argparsor::UsageException& e) {
+                    EXPECT_STREQ(e.what(),
+                                 "usage: binaryName [-h]\n"
+                                 "\n"
+                                 "optional arguments:\n"
+                                 "  -h, --help            show this help message and exit");
+                    throw;
+                }
+            },
+            mblet::Argparsor::UsageException);
+    }
+    {
+        mblet::Argparsor args;
+        testing::internal::CaptureStdout();
+        EXPECT_EXIT({ args.parseArguments(argc, const_cast<char**>(argv)); }, ::testing::ExitedWithCode(0), ".*");
+        EXPECT_EQ(testing::internal::GetCapturedStdout(),
+                  std::string("usage: binaryName [-h]\n"
+                              "\n"
+                              "optional arguments:\n"
+                              "  -h, --help            show this help message and exit\n"));
+    }
 }
 
 GTEST_TEST(parseArguments, version) {
     const char* argv[] = {"binaryName", "--version"};
     const int argc = sizeof(argv) / sizeof(*argv);
 
-    mblet::Argparsor args;
-    args.setVersion("version: 0.0.0");
-    args.addArgument("--version").action(mblet::Argparsor::VERSION);
-    testing::internal::CaptureStdout();
-    EXPECT_EXIT({ args.parseArguments(argc, const_cast<char**>(argv)); }, ::testing::ExitedWithCode(0), ".*");
-    EXPECT_EQ(testing::internal::GetCapturedStdout(), std::string("version: 0.0.0\n"));
+    {
+        mblet::Argparsor args;
+        args.setVersion("version: 0.0.0");
+        args.addArgument("--version").action(mblet::Argparsor::VERSION);
+        EXPECT_THROW(
+            {
+                try {
+                    args.parseArguments(argc, const_cast<char**>(argv), false, false, false, true);
+                }
+                catch (const mblet::Argparsor::VersionException& e) {
+                    EXPECT_STREQ(e.what(), "version: 0.0.0");
+                    throw;
+                }
+            },
+            mblet::Argparsor::VersionException);
+    }
+    {
+        mblet::Argparsor args;
+        args.setVersion("version: 0.0.0");
+        args.addArgument("--version").action(mblet::Argparsor::VERSION);
+        testing::internal::CaptureStdout();
+        EXPECT_EXIT({ args.parseArguments(argc, const_cast<char**>(argv)); }, ::testing::ExitedWithCode(0), ".*");
+        EXPECT_EQ(testing::internal::GetCapturedStdout(), std::string("version: 0.0.0\n"));
+    }
 }
 
 GTEST_TEST(parseArguments, argumentRequired) {

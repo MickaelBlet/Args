@@ -74,12 +74,30 @@ class Usage {
     }
 
     /**
+     * @brief Get the description message
+     *
+     * @return const std::string&
+     */
+    const std::string& getDescription() const {
+        return _description;
+    }
+
+    /**
      * @brief Set the epilog in usage message
      *
      * @param epilog
      */
     void setEpilog(const char* epilog) {
         _epilog = epilog;
+    }
+
+    /**
+     * @brief Get the epilog message
+     *
+     * @return const std::string&
+     */
+    const std::string& getEpilog() const {
+        return _epilog;
     }
 
     /**

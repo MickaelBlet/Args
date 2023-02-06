@@ -69,7 +69,8 @@ Argparsor::~Argparsor() {
     }
 }
 
-void Argparsor::parseArguments(int argc, char* argv[], bool alternative, bool strict) {
+void Argparsor::parseArguments(int argc, char* argv[], bool alternative, bool strict, bool usageException,
+                               bool versionException) {
     _binaryName = argv[0];
     _isAlternative = alternative;
     _isStrict = strict;
@@ -97,15 +98,25 @@ void Argparsor::parseArguments(int argc, char* argv[], bool alternative, bool st
     }
     // check help option
     if (_helpOption != NULL && _helpOption->_isExist) {
-        std::cout << getUsage() << std::endl;
-        this->~Argparsor(); // call destructor before exit
-        exit(0);
+        if (usageException) {
+            throw UsageException(getUsage().c_str());
+        }
+        else {
+            std::cout << getUsage() << std::endl;
+            this->~Argparsor(); // call destructor before exit
+            exit(0);
+        }
     }
     // check version option
     if (_versionOption != NULL && _versionOption->_isExist) {
-        std::cout << getVersion() << std::endl;
-        this->~Argparsor(); // call destructor before exit
-        exit(0);
+        if (versionException) {
+            throw VersionException(getVersion().c_str());
+        }
+        else {
+            std::cout << getVersion() << std::endl;
+            this->~Argparsor(); // call destructor before exit
+            exit(0);
+        }
     }
     // check require option
     std::list<Argument*>::iterator it;

@@ -39,6 +39,16 @@ const char* Exception::what() const throw() {
     return _str.c_str();
 }
 
+UsageException::UsageException(const char* message) :
+    Exception(message) {}
+
+UsageException::~UsageException() throw() {}
+
+VersionException::VersionException(const char* message) :
+    Exception(message) {}
+
+VersionException::~VersionException() throw() {}
+
 ArgumentException::ArgumentException(const char* message) :
     Exception(message),
     _argument() {}

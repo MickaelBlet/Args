@@ -193,7 +193,7 @@ std::string Usage::getUsage() const {
                 if (index != 0) {
                     oss << '\n';
                 }
-                index++;
+                ++index;
                 oss << std::string(_usagePadWidth, ' ');
                 if ((*it)->_nameOrFlags.front().size() + _usageSepWidth <= _usageArgsWidth + _usageSepWidth) {
                     oss.width(_usageArgsWidth + _usageSepWidth);
@@ -236,7 +236,7 @@ std::string Usage::getUsage() const {
                 if (index != 0) {
                     oss << '\n';
                 }
-                index++;
+                ++index;
                 std::ostringstream ossArgument("");
                 for (std::size_t i = 0; i < (*it)->_nameOrFlags.size(); ++i) {
                     if (i != 0) {

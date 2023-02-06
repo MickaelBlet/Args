@@ -204,6 +204,22 @@ class Exception : public std::exception {
 };
 
 /**
+ * @brief Usage exception from Exception
+ */
+struct UsageException : public Exception {
+    UsageException(const char* message);
+    virtual ~UsageException() throw();
+};
+
+/**
+ * @brief Version exception from Exception
+ */
+struct VersionException : public Exception {
+    VersionException(const char* message);
+    virtual ~VersionException() throw();
+};
+
+/**
  * @brief Argument exception from Exception
  */
 class ArgumentException : public Exception {
@@ -1381,12 +1397,30 @@ class Usage {
     }
 
     /**
+     * @brief Get the description message
+     *
+     * @return const std::string&
+     */
+    const std::string& getDescription() const {
+        return _description;
+    }
+
+    /**
      * @brief Set the epilog in usage message
      *
      * @param epilog
      */
     void setEpilog(const char* epilog) {
         _epilog = epilog;
+    }
+
+    /**
+     * @brief Get the epilog message
+     *
+     * @return const std::string&
+     */
+    const std::string& getEpilog() const {
+        return _epilog;
     }
 
     /**
@@ -1459,14 +1493,14 @@ class Argparsor : public Usage {
      *
      * @param version
      */
-    void setVersion(const char* version) {
+    void setVersion(const std::string& version) {
         _version = version;
     }
 
     /**
-     * @brief Get the Version
+     * @brief Get the version message
      *
-     * @return std::string
+     * @return const std::string&
      */
     const std::string& getVersion() const {
         return _version;
@@ -1510,16 +1544,6 @@ class Argparsor : public Usage {
     }
 
     /**
-     * @brief Check if argument exist
-     *
-     * @param nameOrFlag
-     * @return [true] argument is in map, [false] argument is not in map
-     */
-    bool argumentExists(const char* nameOrFlag) const {
-        return argumentExists(std::string(nameOrFlag));
-    }
-
-    /**
      * @brief Get the argument object
      *
      * @param nameOrFlag
@@ -1531,26 +1555,6 @@ class Argparsor : public Usage {
             throw AccessDeniedException(nameOrFlag.c_str(), "argument not found");
         }
         return **(cit->second);
-    }
-
-    /**
-     * @brief Get the argument object
-     *
-     * @param nameOrFlag
-     * @return const Argument&
-     */
-    const Argument& getArgument(const char* nameOrFlag) const {
-        return getArgument(std::string(nameOrFlag));
-    }
-
-    /**
-     * @brief Override bracket operator with getArgument
-     *
-     * @param nameOrFlag
-     * @return const Argument&
-     */
-    const Argument& operator[](const char* nameOrFlag) const {
-        return getArgument(nameOrFlag);
     }
 
     /**
@@ -1574,14 +1578,19 @@ class Argparsor : public Usage {
 
     /**
      * @brief Convert argument strings to objects and assign them as attributes of the argparsor map.
-     * Previous calls to add_argument() determine exactly what objects are created and how they are assigned
+     * Previous calls to addArgument() determine exactly what objects are created and how they are assigned
      * @param argc
      * @param argv
      * @param alternative Active parsing for accept long option with only one '-' character
      * @param strict Active exception if not all argument is used else you can take additionnal argument with
      *        getAdditionalArguments method
+     * @param usageException Throw a UsageException when help action is present in arguments else exit(0) the your
+     * program after output usage at stdout
+     * @param versionException Throw a VersionException when version action is present in arguments else exit(0) the
+     * your program after output version at stdout
      */
-    void parseArguments(int argc, char* argv[], bool alternative = false, bool strict = false);
+    void parseArguments(int argc, char* argv[], bool alternative = false, bool strict = false,
+                        bool usageException = false, bool versionException = false);
 
     /**
      * @brief Define how a single command-line argument should be parsed
@@ -1607,7 +1616,7 @@ class Argparsor : public Usage {
     }
 
     /**
-     * @brief Remove previously addArgument
+     * @brief Remove previously arguments
      *
      * @param nameOrFlags Either a name or a list of option strings, e.g. foo or -f, --foo
      */
@@ -1706,6 +1715,8 @@ class Argparsor : public argparsor::Argparsor, public argparsor::Action {
     ~Argparsor() {}
 
     typedef argparsor::Exception Exception;
+    typedef argparsor::UsageException UsageException;
+    typedef argparsor::VersionException VersionException;
     typedef argparsor::ArgumentException ArgumentException;
     typedef argparsor::ParseArgumentException ParseArgumentException;
     typedef argparsor::ParseArgumentRequiredException ParseArgumentRequiredException;
@@ -1718,6 +1729,9 @@ class Argparsor : public argparsor::Argparsor, public argparsor::Action {
     typedef argparsor::ValidMinMax ValidMinMax;
     typedef argparsor::ValidPath ValidPath;
 
+/**
+ * @brief Generate static vector methods
+ */
 #define _ARGPARSOR_VECTOR_CAT_IMPL_(x, y) x##y
 #define _ARGPARSOR_VECTOR_CAT_(x, y) _ARGPARSOR_VECTOR_CAT_IMPL_(x, y)
 #define _ARGPARSOR_VECTOR_CAT2_(x, y, z) _ARGPARSOR_VECTOR_CAT_(_ARGPARSOR_VECTOR_CAT_(x, y), z)
@@ -2012,7 +2026,8 @@ inline Argparsor::~Argparsor() {
     }
 }
 
-inline void Argparsor::parseArguments(int argc, char* argv[], bool alternative, bool strict) {
+inline void Argparsor::parseArguments(int argc, char* argv[], bool alternative, bool strict, bool usageException,
+                                      bool versionException) {
     _binaryName = argv[0];
     _isAlternative = alternative;
     _isStrict = strict;
@@ -2040,15 +2055,25 @@ inline void Argparsor::parseArguments(int argc, char* argv[], bool alternative, 
     }
     // check help option
     if (_helpOption != NULL && _helpOption->_isExist) {
-        std::cout << getUsage() << std::endl;
-        this->~Argparsor(); // call destructor before exit
-        exit(0);
+        if (usageException) {
+            throw UsageException(getUsage().c_str());
+        }
+        else {
+            std::cout << getUsage() << std::endl;
+            this->~Argparsor(); // call destructor before exit
+            exit(0);
+        }
     }
     // check version option
     if (_versionOption != NULL && _versionOption->_isExist) {
-        std::cout << getVersion() << std::endl;
-        this->~Argparsor(); // call destructor before exit
-        exit(0);
+        if (versionException) {
+            throw VersionException(getVersion().c_str());
+        }
+        else {
+            std::cout << getVersion() << std::endl;
+            this->~Argparsor(); // call destructor before exit
+            exit(0);
+        }
     }
     // check require option
     std::list<Argument*>::iterator it;
@@ -3163,6 +3188,16 @@ inline const char* Exception::what() const throw() {
     return _str.c_str();
 }
 
+inline UsageException::UsageException(const char* message) :
+    Exception(message) {}
+
+inline UsageException::~UsageException() throw() {}
+
+inline VersionException::VersionException(const char* message) :
+    Exception(message) {}
+
+inline VersionException::~VersionException() throw() {}
+
 inline ArgumentException::ArgumentException(const char* message) :
     Exception(message),
     _argument() {}
@@ -3403,7 +3438,7 @@ inline std::string Usage::getUsage() const {
                 if (index != 0) {
                     oss << '\n';
                 }
-                index++;
+                ++index;
                 oss << std::string(_usagePadWidth, ' ');
                 if ((*it)->_nameOrFlags.front().size() + _usageSepWidth <= _usageArgsWidth + _usageSepWidth) {
                     oss.width(_usageArgsWidth + _usageSepWidth);
@@ -3446,7 +3481,7 @@ inline std::string Usage::getUsage() const {
                 if (index != 0) {
                     oss << '\n';
                 }
-                index++;
+                ++index;
                 std::ostringstream ossArgument("");
                 for (std::size_t i = 0; i < (*it)->_nameOrFlags.size(); ++i) {
                     if (i != 0) {

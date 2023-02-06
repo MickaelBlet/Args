@@ -1,5 +1,29 @@
 # Usage
 
+## setUsage
+
+```cpp
+void setUsage(const char* usage);
+```
+
+## getUsage
+
+```cpp
+std::string getUsage() const;
+```
+
+## setDescription
+
+```cpp
+void setDescription(const char* description);
+```
+
+## setEpilog
+
+```cpp
+void setEpilog(const char* epilog);
+```
+
 ## setUsageWidth
 
 <img src="images/headerUsageWidth.drawio.png" />

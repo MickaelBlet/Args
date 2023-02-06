@@ -47,6 +47,22 @@ class Exception : public std::exception {
 };
 
 /**
+ * @brief Usage exception from Exception
+ */
+struct UsageException : public Exception {
+    UsageException(const char* message);
+    virtual ~UsageException() throw();
+};
+
+/**
+ * @brief Version exception from Exception
+ */
+struct VersionException : public Exception {
+    VersionException(const char* message);
+    virtual ~VersionException() throw();
+};
+
+/**
  * @brief Argument exception from Exception
  */
 class ArgumentException : public Exception {

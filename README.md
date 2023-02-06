@@ -44,7 +44,7 @@ int main(int argc, char* argv[]) {
         .defaults("INFO")
         .dest(logLevel, &argToLogLevel); // fill logLevel by argToLogLevel
     try {
-        args.parseArguments(argc, argv, true);
+        args.parseArguments(argc, argv, true, true, true, true);
         std::cout << "ARGUMENT: " << args["ARGUMENT"] << '\n';
         // check if option is exists
         if (args["--option"]) {
@@ -66,6 +66,12 @@ int main(int argc, char* argv[]) {
                 break;
         }
         std::cout << std::endl;
+    }
+    catch (const mblet::Argparsor::VersionException& e) {
+        std::cout << e.what() << std::endl;
+    }
+    catch (const mblet::Argparsor::UsageException& e) {
+        std::cout << e.what() << std::endl;
     }
     catch (const mblet::Argparsor::ParseArgumentException& e) {
         std::cerr << args.getBinaryName() << ": " << e.what();
@@ -175,17 +181,27 @@ args.addArgument({"-E", "--example"}) // Either a name or a list of option strin
     .dest(doublesFromArg);            // Fill argument in destination
 ```
 
+#### Definitions
+
+|Methods|||
+|---|---|---|
+| [flag](docs/argument.md#flag) | [action](docs/argument.md#action) | [help](docs/argument.md#help-1) |
+| [required](docs/argument.md#required) | [metavar](docs/argument.md#metavar) | [nargs](docs/argument.md#nargs) |
+| [defaults](docs/argument.md#defaults) | [valid](docs/argument.md#valid) | [dest](docs/argument.md#dest) |
+
 ### parseArguments
 
 Convert argument strings to objects and assign them as attributes of the argparsor map.  
-Previous calls to add_argument() determine exactly what objects are created and how they are assigned.
+Previous calls to [addArgument](docs/argparsor.md#addargument) determine exactly what objects are created and how they are assigned.
 
 ```cpp
 void parseArguments(
     int argc,
     char* argv[],
-    bool alternative = false, // active parsing for accept long option with only one '-' character
-    bool strict = false       // active exception if not all argument is used else you can take additionnal argument with getAdditionalArguments method
+    bool alternative = false,     // Active parsing for accept long option with only one '-' character
+    bool strict = false,          // Active exception if not all argument is used else you can take additionnal argument with getAdditionalArguments method
+    bool usageException = false,  // Throw a UsageException when help action is present in arguments else exit(0) the your program after output usage at stdout
+    bool versionException = false // Throw a VersionException when version action is present in arguments else exit(0) the your program after output version at stdout
 );
 ```
 

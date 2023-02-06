@@ -42,6 +42,8 @@ class Argparsor : public argparsor::Argparsor, public argparsor::Action {
     ~Argparsor() {}
 
     typedef argparsor::Exception Exception;
+    typedef argparsor::UsageException UsageException;
+    typedef argparsor::VersionException VersionException;
     typedef argparsor::ArgumentException ArgumentException;
     typedef argparsor::ParseArgumentException ParseArgumentException;
     typedef argparsor::ParseArgumentRequiredException ParseArgumentRequiredException;
@@ -54,6 +56,9 @@ class Argparsor : public argparsor::Argparsor, public argparsor::Action {
     typedef argparsor::ValidMinMax ValidMinMax;
     typedef argparsor::ValidPath ValidPath;
 
+/**
+ * @brief Generate static vector methods
+ */
 #define _ARGPARSOR_VECTOR_CAT_IMPL_(x, y) x##y
 #define _ARGPARSOR_VECTOR_CAT_(x, y) _ARGPARSOR_VECTOR_CAT_IMPL_(x, y)
 #define _ARGPARSOR_VECTOR_CAT2_(x, y, z) _ARGPARSOR_VECTOR_CAT_(_ARGPARSOR_VECTOR_CAT_(x, y), z)

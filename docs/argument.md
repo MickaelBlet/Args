@@ -1,67 +1,6 @@
 # Argument
 
-## addArgument
-
-```cpp
-Argument& addArgument(const Vector& nameOrFlags);
-```
-
-Create a Argument object for use the definition methods.
-
-Example:
-```cpp
-Argparsor args;
-args.addArgument({"-a", "-b"});
-// args.addArgument(args.vector("-a", "-b")); // C++98
-```
-
-### Definition
-
-| Methods     | Links |
-|-------------|-------|
-| flag | [#flag](#flag) |
-| action | [#action](#action) |
-| help | [#help](#help-1) |
-| required | [#required](#required) |
-| metavar | [#metavar](#metavar) |
-| nargs | [#nargs](#nargs) |
-| defaults | [#defaults](#defaults) |
-| *valid* | [#valid](#valid) |
-| *dest* | [#dest](#dest) |
-
-## getArgument
-
-```cpp
-const Argument& getArgument(const char* nameOrFlag) const;
-const Argument& getArgument(const std::string& nameOrFlag) const;
-const Argument& operator[](const char* nameOrFlag) const;
-const Argument& operator[](const std::string& nameOrFlag) const;
-```
-
-Get a const ref. argument object if exists.
-
-### Access
-
-| Methods     | Links |
-|-------------|-------|
-| *count* | [#count](#count) |
-| isExists | [#isexists](#isexists) |
-| isRequired | [#isrequired](#isrequired) |
-| getNargs | [#getnargs](#getnargs) |
-| getHelp | [#gethelp](#gethelp) |
-| getMetavar | [#getmetavar](#getmetavar) |
-| getNameOrFlags | [#getnameorflags](#getnameorflags) |
-| getDefaults | [#getdefaults](#getdefaults) |
-| getAction | [#getaction](#getaction) |
-| getString | [#getstring](#getstring) |
-| getNumber | [#getnumber](#getnumber) |
-| operator bool() | [#operator-bool](#operator-bool) |
-| operator std::string() | [#operator-string](#operator-string) |
-| operator\<\< | [#operator-stream-insertion](#operator-stream-insertion) |
-
-## Argument object methods
-
-### flag
+## flag
 
 ```cpp
 Argument& flag(const char* flag_);
@@ -75,7 +14,7 @@ Argparsor args;
 args.addArgument("-f").flag("--foo");
 ```
 
-### action
+## action
 
 ```cpp
 Argument& action(enum Action::eAction action_);
@@ -93,22 +32,22 @@ Action list:
 - [STORE_TRUE](#store_true)
 - [VERSION](#version)
 
-#### NONE
+### NONE
 
-This just stores the argument’s value. This is the default action.  
+This just stores the argument’s value. **This is the default action**.  
 Example at [examples.md/none](examples.md#none).
 
-#### APPEND
+### APPEND
 
 This stores a list, and appends each argument value to the list. It is useful to allow an option to be specified multiple times. If the default value is non-empty, the default elements will be present in the parsed value for the option, with any values from the command line appended after those default values.  
 Example at [examples.md/append](examples.md#append).
 
-#### EXTEND
+### EXTEND
 
 This stores a list, and extends each argument value to the list.  
 Example at [examples.md/extend](examples.md#extend).
 
-#### HELP
+### HELP
 
 This case used for create the help flag.  
 ⚠ Can only use this action after constructor with false parameter or remove the last help flags.  
@@ -122,27 +61,27 @@ mblet::Argparsor args(false);
 
 Example at [examples.md/help](examples.md#help).
 
-#### INFINITE
+### INFINITE
 
 This stores a list.  
 Example at [examples.md/infinite](examples.md#infinite).
 
-#### STORE_FALSE
+### STORE_FALSE
 
 This case used for storing the values `false` respectively.  
 Example at [examples.md/storefalse](examples.md#storefalse).
 
-#### STORE_TRUE
+### STORE_TRUE
 
 This case used for storing the values `true` respectively.  
 Example at [examples.md/storetrue](examples.md#storetrue).
 
-#### VERSION
+### VERSION
 
 This case used for define the version flag.  
 Example at [examples.md/version](examples.md#version).
 
-### help
+## help
 
 ```cpp
 Argument& help(const char* help_);
@@ -150,7 +89,7 @@ Argument& help(const char* help_);
 
 Set the help description massge for this argument.
 
-### required
+## required
 
 ```cpp
 Argument& required(bool required_);
@@ -158,7 +97,7 @@ Argument& required(bool required_);
 
 Whether or not the command-line argument may be omitted.
 
-### metavar
+## metavar
 
 ```cpp
 Argument& metavar(const char* metavar_);
@@ -166,7 +105,7 @@ Argument& metavar(const char* metavar_);
 
 A name for the argument in usage messages.
 
-### nargs
+## nargs
 
 ```cpp
 Argument& nargs(std::size_t nargs_);
@@ -174,48 +113,48 @@ Argument& nargs(std::size_t nargs_);
 
 The number of command-line arguments that should be consumed by this object.
 
-### defaults
+## defaults
 
 ```cpp
 Argument& defaults(const Vector& defaults_);
 ```
 
-### valid
+Define the defaults string values.
+
+## valid
 
 ```cpp
 Argument& valid(IValid* pValid, bool isDeletable = true);
 ```
 
-You can check format of argument with IValid interface object.  
+You can check format of argument with IValid interface.  
 Example of Custom Valid at [examples.md/custom-valid-transform](examples.md#custom-valid-transform).
 
-#### ValidNumber
-
-Check if arguments are number.
+### ValidNumber
 
 ```cpp
 args.addArgument("--arg").valid(new mblet::Argparsor::ValidNumber());
 ```
 
-#### ValidMinMax
+Check if arguments are number.
 
-Check if arguments are number and if in range of min-max.
+### ValidMinMax
 
 ```cpp
 args.addArgument("--arg").valid(new mblet::Argparsor::ValidMinMax(0, 100));
 ```
 
-#### ValidChoise
+Check if arguments are number and if in range of min-max.
 
-Check if arguments are in choise.
+### ValidChoise
 
 ```cpp
 args.addArgument("--arg").valid(new mblet::Argparsor::ValidChoise(args.vector("foo", "bar")));
 ```
 
-#### ValidPath
+Check if arguments are in choise.
 
-Check if arguments are valid path/dir/file.
+### ValidPath
 
 ```cpp
 args.addArgument("--arg").valid(new mblet::Argparsor::ValidPath());
@@ -223,7 +162,9 @@ args.addArgument("--arg").valid(new mblet::Argparsor::ValidPath(mblet::Argparsor
 args.addArgument("--arg").valid(new mblet::Argparsor::ValidPath(mblet::Argparsor::ValidPath::IS_FILE));
 ```
 
-### dest
+Check if arguments are valid path/dir/file.
+
+## dest
 
 ```cpp
 template<typename T>
@@ -244,7 +185,7 @@ args.addArgument("--arg").dest(value);
 
 Examples at [dest.md](dest.md).
 
-### getString
+## getString
 
 ```cpp
 std::string getString() const;
@@ -252,15 +193,15 @@ std::string getString() const;
 
 Get the string format of this argument.
 
-### isNumber
+## isNumber
 
 ```cpp
 bool isNumber() const;
 ```
 
-Check if this argument is a number ("1234aaa" return *true* with 1234 like number).
+Check if this argument is a number ("1234aaa" is true with 1234 like number).
 
-### getNumber
+## getNumber
 
 ```cpp
 double getNumber() const;
@@ -268,7 +209,7 @@ double getNumber() const;
 
 Get Number if [isNumber](#isnumber).
 
-### isExists
+## isExists
 
 ```cpp
 bool isExists() const;
@@ -276,7 +217,7 @@ bool isExists() const;
 
 After [parseArguments](parse.md#parsearguments) method check if this argument is present in *argv*.
 
-### isRequired
+## isRequired
 
 ```cpp
 bool isRequired() const;
@@ -284,7 +225,7 @@ bool isRequired() const;
 
 Get [required](#required) option.
 
-### count
+## count
 
 ```cpp
 std::size_t count() const;
@@ -292,7 +233,7 @@ std::size_t count() const;
 
 After [parseArguments](parse.md#parsearguments) method check if number of this argument in *argv*.
 
-### getNargs
+## getNargs
 
 ```cpp
 std::size_t getNargs() const;
@@ -300,7 +241,7 @@ std::size_t getNargs() const;
 
 Get [nargs](#nargs) option.
 
-### getHelp
+## getHelp
 
 ```cpp
 const std::string& getHelp() const;
@@ -308,7 +249,7 @@ const std::string& getHelp() const;
 
 Get [help](#help-1) option.
 
-### getMetavar
+## getMetavar
 
 ```cpp
 const std::string& getMetavar() const;
@@ -316,7 +257,7 @@ const std::string& getMetavar() const;
 
 Get [metavar](#metavar) option.
 
-### getNameOrFlags
+## getNameOrFlags
 
 ```cpp
 const std::vector<std::string>& getNameOrFlags() const;
@@ -324,7 +265,7 @@ const std::vector<std::string>& getNameOrFlags() const;
 
 Get the name or flag(s) of this argument.
 
-### getDefaults
+## getDefaults
 
 ```cpp
 const std::vector<std::string>& getDefaults() const
@@ -332,7 +273,7 @@ const std::vector<std::string>& getDefaults() const
 
 Get the default(s) value(s) of this argument.
 
-### getAction
+## getAction
 
 ```cpp
 Action::eAction getAction() const;
@@ -340,33 +281,76 @@ Action::eAction getAction() const;
 
 Get [action](#action) option.
 
-### operator bool()
+## operator bool()
 
 ```cpp
 operator bool() const;
 ```
 
-### operator std::string()
+Operator constructor bool, check if argument object [isExists](#isexists).  
+For action [STORE_FALSE](#store_false) the effect is inversed.
+
+Example:
+
+```cpp
+if (args["--option"]) { // call operator bool()
+    std::cout << args["--option"] << std::endl;
+}
+```
+
+## operator std::string()
 
 ```cpp
 operator std::string() const;
 ```
 
-### operator std::vector\<std::string\>()
+Call [getString](#getstring) method.
+
+Example:
+
+```cpp
+std::string option = args["--option"];
+```
+
+## operator std::vector\<std::string\>()
 
 ```cpp
 operator std::vector<std::string>() const;
 ```
 
-### operator std::vector\<std::vector\<std::string\> \>()
+If the argument object contains a lot of one argument, you can get a std::vector of std::string.
+
+Example:
+
+```cpp
+std::vector<std::string> options = args["--options"];
+```
+
+## operator std::vector\<std::vector\<std::string\> \>()
 
 ```cpp
 operator std::vector<std::vector<std::string> >() const;
 ```
 
-### operator T()
+If the argument object contains a lot of one argument with number of argument ([nargs](#nargs)) bigger than one, you can get a std::vector of std::vector of std::string.
+
+Example:
+
+```cpp
+std::vector<std::vector<std::string> > options = args["--options"];
+```
+
+## operator T()
 
 ```cpp
 template<typename T>
 operator T() const;
+```
+
+Call the [getNumber](#getnumber) method with your custom type.
+
+Example:
+
+```cpp
+double option = args["--option"];
 ```

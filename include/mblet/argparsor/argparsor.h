@@ -67,14 +67,14 @@ class Argparsor : public Usage {
      *
      * @param version
      */
-    void setVersion(const char* version) {
+    void setVersion(const std::string& version) {
         _version = version;
     }
 
     /**
-     * @brief Get the Version
+     * @brief Get the version message
      *
-     * @return std::string
+     * @return const std::string&
      */
     const std::string& getVersion() const {
         return _version;
@@ -118,16 +118,6 @@ class Argparsor : public Usage {
     }
 
     /**
-     * @brief Check if argument exist
-     *
-     * @param nameOrFlag
-     * @return [true] argument is in map, [false] argument is not in map
-     */
-    bool argumentExists(const char* nameOrFlag) const {
-        return argumentExists(std::string(nameOrFlag));
-    }
-
-    /**
      * @brief Get the argument object
      *
      * @param nameOrFlag
@@ -139,26 +129,6 @@ class Argparsor : public Usage {
             throw AccessDeniedException(nameOrFlag.c_str(), "argument not found");
         }
         return **(cit->second);
-    }
-
-    /**
-     * @brief Get the argument object
-     *
-     * @param nameOrFlag
-     * @return const Argument&
-     */
-    const Argument& getArgument(const char* nameOrFlag) const {
-        return getArgument(std::string(nameOrFlag));
-    }
-
-    /**
-     * @brief Override bracket operator with getArgument
-     *
-     * @param nameOrFlag
-     * @return const Argument&
-     */
-    const Argument& operator[](const char* nameOrFlag) const {
-        return getArgument(nameOrFlag);
     }
 
     /**
@@ -182,14 +152,19 @@ class Argparsor : public Usage {
 
     /**
      * @brief Convert argument strings to objects and assign them as attributes of the argparsor map.
-     * Previous calls to add_argument() determine exactly what objects are created and how they are assigned
+     * Previous calls to addArgument() determine exactly what objects are created and how they are assigned
      * @param argc
      * @param argv
      * @param alternative Active parsing for accept long option with only one '-' character
      * @param strict Active exception if not all argument is used else you can take additionnal argument with
      *        getAdditionalArguments method
+     * @param usageException Throw a UsageException when help action is present in arguments else exit(0) the your
+     * program after output usage at stdout
+     * @param versionException Throw a VersionException when version action is present in arguments else exit(0) the
+     * your program after output version at stdout
      */
-    void parseArguments(int argc, char* argv[], bool alternative = false, bool strict = false);
+    void parseArguments(int argc, char* argv[], bool alternative = false, bool strict = false,
+                        bool usageException = false, bool versionException = false);
 
     /**
      * @brief Define how a single command-line argument should be parsed
@@ -215,7 +190,7 @@ class Argparsor : public Usage {
     }
 
     /**
-     * @brief Remove previously addArgument
+     * @brief Remove previously arguments
      *
      * @param nameOrFlags Either a name or a list of option strings, e.g. foo or -f, --foo
      */
