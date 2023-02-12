@@ -2,7 +2,8 @@
 
 Parse and stock options from argc and argv.  
 Inspired from python library [python.readthedocs.io/library/argparse](https://python.readthedocs.io/en/latest/library/argparse.html).  
-Documentations at [documentation](#documentations).
+Header only library at [single_include/mblet/argparsor.h](single_include/mblet/argparsor.h).  
+Documentations at [documentations](#documentations).
 
 ## Quick Start
 
@@ -35,16 +36,17 @@ int main(int argc, char* argv[]) {
     args.setVersion("Version: 0.0.0");
     args.addArgument("ARGUMENT").help("help of argument").required(true);
     args.addArgument("-v").flag("--version").help("help of version option").action(args.VERSION);
-    args.addArgument({"-o", "--option"}).help("help of option").nargs(2).metavar("OPT1 OPT2");
+    args.addArgument(args.vector("-o", "--option")).help("help of option").nargs(2).metavar("OPT1 OPT2");
     args.addArgument("--log-level")
         .flag("-l")
         .help("help of log-level")
         .metavar("LEVEL")
-        .valid(new mblet::Argparsor::ValidChoise({"DEBUG", "INFO", "WARNING", "ERROR"}))
+        .valid(new mblet::Argparsor::ValidChoise(args.vector("DEBUG", "INFO", "WARNING", "ERROR")))
         .defaults("INFO")
         .dest(logLevel, &argToLogLevel); // fill logLevel by argToLogLevel
     try {
-        args.parseArguments(argc, argv, true, true, true, true);
+        args.setStrict().setAlternative().setUsageException().setVersionException(); // activate all parse options
+        args.parseArguments(argc, argv);
         std::cout << "ARGUMENT: " << args["ARGUMENT"] << '\n';
         // check if option is exists
         if (args["--option"]) {
@@ -70,7 +72,7 @@ int main(int argc, char* argv[]) {
     catch (const mblet::Argparsor::VersionException& e) {
         std::cout << e.what() << std::endl;
     }
-    catch (const mblet::Argparsor::UsageException& e) {
+    catch (const mblet::Argparsor::HelpException& e) {
         std::cout << e.what() << std::endl;
     }
     catch (const mblet::Argparsor::ParseArgumentException& e) {
@@ -100,7 +102,7 @@ optional arguments:
   -v, --version         help of version option
 $ ./a.out
 ./a.out: argument is required -- 'ARGUMENT'
-$ ./a.out 42 --log-level Foo
+$ ./a.out 42 -log-level Foo
 ./a.out: "Foo" is not a choise value ("DEBUG", "INFO", "WARNING", "ERROR") -- '-l'
 $ ./a.out 42
 ARGUMENT: 42
@@ -220,68 +222,82 @@ args.addArgument((const char*[]){"-s", "--simple"}); // C++98
 
 ## Documentations
 
-### Argparsor
+| Argparsor Basic Methods |
+|---|
+|[addArgument](docs/argparsor.md#addargument)|
+|[parseArguments](docs/argparsor.md#parsearguments)|
 
-#### Basic
+| Argparsor Methods |
+|---|
+|[argumentExists](docs/argparsor.md#argumentexists)|
+|[clear](docs/argparsor.md#clear)|
+|[getAdditionalArguments](docs/argparsor.md#getadditionalarguments)|
+|[getArgument](docs/argparsor.md#getargument)|
+|[getBinaryName](docs/argparsor.md#getbinaryname)|
+|[getDescription](docs/argparsor.md#getdescription)|
+|[getEpilog](docs/argparsor.md#getepilog)|
+|[getUsage](docs/argparsor.md#getusage)|
+|[getVersion](docs/argparsor.md#getversion)|
+|[isAlternative](docs/argparsor.md#isalternative)|
+|[isHelpException](docs/argparsor.md#ishelpexception)|
+|[isStrict](docs/argparsor.md#isstrict)|
+|[isVersionException](docs/argparsor.md#isversionexception)|
+|[removeArguments](docs/argparsor.md#removearguments)|
+|[setAlternative](docs/argparsor.md#setalternative)|
+|[setBinaryName](docs/argparsor.md#setbinaryname)|
+|[setDescription](docs/argparsor.md#setdescription)|
+|[setEpilog](docs/argparsor.md#setepilog)|
+|[setHelpException](docs/argparsor.md#sethelpexception)|
+|[setStrict](docs/argparsor.md#setstrict)|
+|[setUsageWidth](docs/argparsor.md#setusagewidth)|
+|[setUsage](docs/argparsor.md#setusage)|
+|[setVersionException](docs/argparsor.md#setversionexception)|
+|[setVersion](docs/argparsor.md#setversion)|
+|[updateArgument](docs/argparsor.md#updateargument)|
 
-| Methods | Links |
-|---------|-------|
-| addArgument | [docs/argument.md#addargument](docs/argument.md#addargument) |
-| parseArguments | [docs/parse.md#parseargument](docs/parse.md#parseargument) |
+| Argparsor::Argument Construct Methods |
+|---|
+|[action](docs/argument.md#action)|
+|[dest](docs/argument.md#dest)|
+|[flag](docs/argument.md#flag)|
+|[help](docs/argument.md#help-1)|
+|[metavar](docs/argument.md#metavar)|
+|[nargs](docs/argument.md#nargs)|
+|[required](docs/argument.md#required)|
+|[valid](docs/argument.md#valid)|
+|[defaults](docs/argument.md#defaults)|
 
-#### Access
+| Argparsor::Argument::Action Types |
+|---|
+|[APPEND](docs/argument.md#append)|
+|[NONE](docs/argument.md#none)|
+|[EXTEND](docs/argument.md#extend)|
+|[HELP](docs/argument.md#help)|
+|[INFINITE](docs/argument.md#infinite)|
+|[STORE_FALSE](docs/argument.md#store_false)|
+|[STORE_TRUE](docs/argument.md#store_true)|
+|[VERSION](docs/argument.md#version)|
 
-| Methods | Links |
-|---------|-------|
-| argumentExists | [docs/argument.md#argumentexists](docs/argument.md#argumentexists) |
-| getAdditionnalArguments | [docs/parse.md#getadditionnalarguments](docs/parse.md#getadditionnalarguments) |
-| getArgument/operator[] | [docs/argument.md#getargument](docs/argument.md#getargument) |
-| getBinaryName | [docs/parse.md#getbinaryname](docs/parse.md#getbinaryname) |
-| getUsage | [docs/usage.md#getusage](docs/usage.md#getusage) |
-| getVersion | [docs/usage.md#getversion](docs/usage.md#getversion) |
-| isAlternative | [docs/parse.md#isalternative](docs/parse.md#isalternative) |
-| isStrict | [docs/parse.md#isstrict](docs/parse.md#isstrict) |
-| setDescription | [docs/usage.md#setdescription](docs/usage.md#setdescription) |
-| setEpilog | [docs/usage.md#setepilog](docs/usage.md#setepilog) |
-| setUsage | [docs/usage.md#setusage](docs/usage.md#setusage) |
-| setUsageWidth | [docs/usage.md#setusagewidth](docs/usage.md#setusagewidth) |
-| vector | [docs/usage.md#vector](docs/usage.md#vector) |
-
-### Argument
-
-#### Definition
-
-| Methods | Links |
-|---------|-------|
-| flag | [docs/argument.md#flag](docs/argument.md#flag) |
-| action | [docs/argument.md#action](docs/argument.md#action) |
-| help | [docs/argument.md#help](docs/argument.md#help) |
-| required | [docs/argument.md#required](docs/argument.md#required) |
-| metavar | [docs/argument.md#metavar](docs/argument.md#metavar) |
-| nargs | [docs/argument.md#nargs](docs/argument.md#nargs) |
-| defaults | [docs/argument.md#defaults](docs/argument.md#defaults) |
-| *valid* | [docs/argument.md#valid](docs/argument.md#valid) |
-| *dest* | [docs/argument.md#dest](docs/argument.md#dest) |
-
-#### Access
-
-| Methods | Links |
-|---------|-------|
-| *count* | [docs/argument.md#count](docs/argument.md#count) |
-| isExists | [docs/argument.md#isexists](docs/argument.md#isexists) |
-| isNumber | [docs/argument.md#isnumber](docs/argument.md#isnumber) |
-| isRequired | [docs/argument.md#isrequired](docs/argument.md#isrequired) |
-| getNargs | [docs/argument.md#getnargs](docs/argument.md#getnargs) |
-| getHelp | [docs/argument.md#gethelp](docs/argument.md#gethelp) |
-| getMetavar | [docs/argument.md#getmetavar](docs/argument.md#getmetavar) |
-| getNameOrFlags | [docs/argument.md#getnameorflags](docs/argument.md#getnameorflags) |
-| getDefaults | [docs/argument.md#getdefaults](docs/argument.md#getdefaults) |
-| getAction | [docs/argument.md#getaction](docs/argument.md#getaction) |
-| getString | [docs/argument.md#getstring](docs/argument.md#getstring) |
-| getNumber | [docs/argument.md#getnumber](docs/argument.md#getnumber) |
-| operator bool() | [docs/argument.md#operator-bool](docs/argument.md#operator-bool) |
-| operator std::string() | [docs/argument.md#operator-string](docs/argument.md#operator-string) |
-| operator\<\< | [docs/argument.md#operator-t](docs/argument.md#operator-stream-insertion) |
+| Argparsor::Argument Access Methods |
+|---|
+|[count](docs/argument.md#count)|
+|[getAction](docs/argument.md#getaction)|
+|[getDefault](docs/argument.md#getdefault)|
+|[getDefaults](docs/argument.md#getdefaults)|
+|[getHelp](docs/argument.md#gethelp)|
+|[getMetavar](docs/argument.md#getmetavar)|
+|[getNameOrFlags](docs/argument.md#getnameorflags)|
+|[getNargs](docs/argument.md#getnargs)|
+|[getNumber](docs/argument.md#getnumber)|
+|[getString](docs/argument.md#getstring)|
+|[isExists](docs/argument.md#isexists)|
+|[isNumber](docs/argument.md#isnumber)|
+|[isRequired](docs/argument.md#isrequired)|
+|[operator bool()](docs/argument.md#operator-bool)|
+|[operator std::string()](docs/argument.md#operator-stdstring)|
+|[operator std::vector\<std::string\>()](docs/argument.md#operator-stdvectorstdstring)|
+|[operator std::vector\<std::vector\<std::string\> \>()](docs/argument.md#operator-stdvectorstdvectorstdstring)|
+|[operator T()](docs/argument.md#operator-t)|
 
 ### Examples
 

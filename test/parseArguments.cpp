@@ -14,7 +14,8 @@ GTEST_TEST(parseArguments, parseException) {
         EXPECT_THROW(
             {
                 try {
-                    args.parseArguments(argc, const_cast<char**>(argv), true, true);
+                    args.setAlternative().setStrict();
+                    args.parseArguments(argc, const_cast<char**>(argv));
                 }
                 catch (const mblet::Argparsor::ParseArgumentException& e) {
                     EXPECT_STREQ(e.what(), "invalid option");
@@ -34,7 +35,8 @@ GTEST_TEST(parseArguments, parseException) {
         EXPECT_THROW(
             {
                 try {
-                    args.parseArguments(argc, const_cast<char**>(argv), true, true);
+                    args.setAlternative().setStrict();
+                    args.parseArguments(argc, const_cast<char**>(argv));
                 }
                 catch (const mblet::Argparsor::ParseArgumentException& e) {
                     EXPECT_STREQ(e.what(), "only last option can be use a parameter");
@@ -52,7 +54,8 @@ GTEST_TEST(parseArguments, parseException) {
         EXPECT_THROW(
             {
                 try {
-                    args.parseArguments(argc, const_cast<char**>(argv), true, true);
+                    args.setAlternative().setStrict();
+                    args.parseArguments(argc, const_cast<char**>(argv));
                 }
                 catch (const mblet::Argparsor::ParseArgumentException& e) {
                     EXPECT_STREQ(e.what(), "invalid option");
@@ -70,7 +73,8 @@ GTEST_TEST(parseArguments, parseException) {
         EXPECT_THROW(
             {
                 try {
-                    args.parseArguments(argc, const_cast<char**>(argv), true, true);
+                    args.setAlternative().setStrict();
+                    args.parseArguments(argc, const_cast<char**>(argv));
                 }
                 catch (const mblet::Argparsor::ParseArgumentException& e) {
                     EXPECT_STREQ(e.what(), "invalid option");
@@ -89,7 +93,8 @@ GTEST_TEST(parseArguments, parseException) {
         EXPECT_THROW(
             {
                 try {
-                    args.parseArguments(argc, const_cast<char**>(argv), true, true);
+                    args.setAlternative().setStrict();
+                    args.parseArguments(argc, const_cast<char**>(argv));
                 }
                 catch (const mblet::Argparsor::ParseArgumentException& e) {
                     EXPECT_STREQ(e.what(), "option cannot use with argument");
@@ -108,7 +113,8 @@ GTEST_TEST(parseArguments, parseException) {
         EXPECT_THROW(
             {
                 try {
-                    args.parseArguments(argc, const_cast<char**>(argv), true, true);
+                    args.setAlternative().setStrict();
+                    args.parseArguments(argc, const_cast<char**>(argv));
                 }
                 catch (const mblet::Argparsor::ParseArgumentException& e) {
                     EXPECT_STREQ(e.what(), "option cannot use with only 1 argument");
@@ -127,7 +133,8 @@ GTEST_TEST(parseArguments, parseException) {
         EXPECT_THROW(
             {
                 try {
-                    args.parseArguments(argc, const_cast<char**>(argv), true, true);
+                    args.setAlternative().setStrict();
+                    args.parseArguments(argc, const_cast<char**>(argv));
                 }
                 catch (const mblet::Argparsor::ParseArgumentException& e) {
                     EXPECT_STREQ(e.what(), "bad number of argument");
@@ -146,7 +153,8 @@ GTEST_TEST(parseArguments, parseException) {
         EXPECT_THROW(
             {
                 try {
-                    args.parseArguments(argc, const_cast<char**>(argv), true, true);
+                    args.setAlternative().setStrict();
+                    args.parseArguments(argc, const_cast<char**>(argv));
                 }
                 catch (const mblet::Argparsor::ParseArgumentException& e) {
                     EXPECT_STREQ(e.what(), "bad number of argument");
@@ -165,7 +173,8 @@ GTEST_TEST(parseArguments, parseException) {
         EXPECT_THROW(
             {
                 try {
-                    args.parseArguments(argc, const_cast<char**>(argv), true, true);
+                    args.setAlternative().setStrict();
+                    args.parseArguments(argc, const_cast<char**>(argv));
                 }
                 catch (const mblet::Argparsor::ParseArgumentException& e) {
                     EXPECT_STREQ(e.what(), "bad number of argument");
@@ -184,7 +193,8 @@ GTEST_TEST(parseArguments, parseException) {
         EXPECT_THROW(
             {
                 try {
-                    args.parseArguments(argc, const_cast<char**>(argv), true, true);
+                    args.setAlternative().setStrict();
+                    args.parseArguments(argc, const_cast<char**>(argv));
                 }
                 catch (const mblet::Argparsor::ParseArgumentException& e) {
                     EXPECT_STREQ(e.what(), "bad number of argument");
@@ -203,7 +213,8 @@ GTEST_TEST(parseArguments, parseException) {
         EXPECT_THROW(
             {
                 try {
-                    args.parseArguments(argc, const_cast<char**>(argv), true, true);
+                    args.setAlternative().setStrict();
+                    args.parseArguments(argc, const_cast<char**>(argv));
                 }
                 catch (const mblet::Argparsor::ParseArgumentException& e) {
                     EXPECT_STREQ(e.what(), "bad number of argument");
@@ -221,7 +232,8 @@ GTEST_TEST(parseArguments, parseException) {
         EXPECT_THROW(
             {
                 try {
-                    args.parseArguments(argc, const_cast<char**>(argv), true, true);
+                    args.setAlternative().setStrict();
+                    args.parseArguments(argc, const_cast<char**>(argv));
                 }
                 catch (const mblet::Argparsor::ParseArgumentException& e) {
                     EXPECT_STREQ(e.what(), "invalid additional argument");
@@ -240,7 +252,8 @@ GTEST_TEST(parseArguments, parseException) {
         EXPECT_THROW(
             {
                 try {
-                    args.parseArguments(argc, const_cast<char**>(argv), true, true);
+                    args.setAlternative().setStrict();
+                    args.parseArguments(argc, const_cast<char**>(argv));
                 }
                 catch (const mblet::Argparsor::ParseArgumentException& e) {
                     EXPECT_STREQ(e.what(), "bad number of argument");
@@ -259,7 +272,8 @@ GTEST_TEST(parseArguments, parseException) {
         EXPECT_THROW(
             {
                 try {
-                    args.parseArguments(argc, const_cast<char**>(argv), true, true);
+                    args.setAlternative().setStrict();
+                    args.parseArguments(argc, const_cast<char**>(argv));
                 }
                 catch (const mblet::Argparsor::ParseArgumentException& e) {
                     EXPECT_STREQ(e.what(), "bad number of argument");
@@ -288,7 +302,8 @@ GTEST_TEST(parseArguments, endOfInfiniteArgument) {
     args.addArgument("-r").action(mblet::Argparsor::STORE_FALSE);
     args.addArgument("-s").nargs(1);
     args.addArgument("--infinite").nargs('+').defaults(args.vector("0", "1", "2", "3"));
-    args.parseArguments(argc, const_cast<char**>(argv), true, true);
+    args.setAlternative().setStrict();
+    args.parseArguments(argc, const_cast<char**>(argv));
     EXPECT_EQ(args["-b"].getString(), std::string("true"));
     EXPECT_EQ(args["-r"].getString(), std::string("false"));
     EXPECT_EQ(args["-s"].getString(), std::string("Simple"));
@@ -373,7 +388,8 @@ GTEST_TEST(parseArguments, allType) {
         .defaults(args.vector("0", "1", "2", "3"))
         .valid(new ValidTest());
 
-    args.parseArguments(argc, const_cast<char**>(argv), true, false);
+    args.setAlternative();
+    args.parseArguments(argc, const_cast<char**>(argv));
     EXPECT_EQ(args["REQUIRED"].getString(), std::string("ISREQUIRED"));
     EXPECT_EQ(args["-b"].getString(), std::string("true"));
     EXPECT_EQ(args["--notbool"].getString(), std::string("false"));
@@ -455,7 +471,8 @@ GTEST_TEST(parseArguments, argumentNumber) {
 
     mblet::Argparsor args;
     args.addArgument("argument").nargs(3);
-    args.parseArguments(argc, const_cast<char**>(argv), true, false);
+    args.setAlternative();
+    args.parseArguments(argc, const_cast<char**>(argv));
     EXPECT_EQ(args["argument"][0].getNumber(), 0);
     EXPECT_EQ(args["argument"][1].getNumber(), 1);
     EXPECT_EQ(args["argument"][2].getNumber(), 2);
@@ -468,7 +485,8 @@ GTEST_TEST(parseArguments, argumentInfinite) {
     mblet::Argparsor args;
     args.addArgument("argument").nargs('+');
     args.addArgument("-b").action(args.STORE_TRUE);
-    args.parseArguments(argc, const_cast<char**>(argv), true, false);
+    args.setAlternative();
+    args.parseArguments(argc, const_cast<char**>(argv));
     EXPECT_EQ(args["argument"][0].getNumber(), 0);
     EXPECT_EQ(args["argument"][1].getNumber(), 1);
     EXPECT_EQ(args["argument"][2].getNumber(), 2);
@@ -481,7 +499,8 @@ GTEST_TEST(parseArguments, argumentInfiniteNumber) {
     mblet::Argparsor args;
     args.addArgument("argument").nargs('+').nargs(3);
     args.addArgument("-b").action(args.STORE_TRUE);
-    args.parseArguments(argc, const_cast<char**>(argv), true, false);
+    args.setAlternative();
+    args.parseArguments(argc, const_cast<char**>(argv));
     EXPECT_EQ(args["argument"][0][0].getNumber(), 0);
     EXPECT_EQ(args["argument"][0][1].getNumber(), 1);
     EXPECT_EQ(args["argument"][0][2].getNumber(), 2);
@@ -499,9 +518,10 @@ GTEST_TEST(parseArguments, help) {
         EXPECT_THROW(
             {
                 try {
-                    args.parseArguments(argc, const_cast<char**>(argv), false, false, true);
+                    args.setHelpException();
+                    args.parseArguments(argc, const_cast<char**>(argv));
                 }
-                catch (const mblet::Argparsor::UsageException& e) {
+                catch (const mblet::Argparsor::HelpException& e) {
                     EXPECT_STREQ(e.what(),
                                  "usage: binaryName [-h]\n"
                                  "\n"
@@ -510,7 +530,7 @@ GTEST_TEST(parseArguments, help) {
                     throw;
                 }
             },
-            mblet::Argparsor::UsageException);
+            mblet::Argparsor::HelpException);
     }
     {
         mblet::Argparsor args;
@@ -535,7 +555,8 @@ GTEST_TEST(parseArguments, version) {
         EXPECT_THROW(
             {
                 try {
-                    args.parseArguments(argc, const_cast<char**>(argv), false, false, false, true);
+                    args.setVersionException();
+                    args.parseArguments(argc, const_cast<char**>(argv));
                 }
                 catch (const mblet::Argparsor::VersionException& e) {
                     EXPECT_STREQ(e.what(), "version: 0.0.0");

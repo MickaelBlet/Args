@@ -55,6 +55,8 @@ Argparsor::Argparsor(bool addHelp) :
     _versionOption(NULL),
     _isAlternative(false),
     _isStrict(false),
+    _isHelpException(false),
+    _isVersionException(false),
     _additionalArguments() {
     if (addHelp) {
         // define _helpOption
@@ -69,11 +71,15 @@ Argparsor::~Argparsor() {
     }
 }
 
-void Argparsor::parseArguments(int argc, char* argv[], bool alternative, bool strict, bool usageException,
-                               bool versionException) {
-    _binaryName = argv[0];
-    _isAlternative = alternative;
-    _isStrict = strict;
+void Argparsor::parseArguments(int argc, char* argv[]) {
+    // clear the arguments
+    for (std::list<Argument*>::iterator it = _arguments.begin(); it != _arguments.end(); ++it) {
+        (*it)->_clear();
+    }
+    // get argv[0] if filename is empty
+    if (_binaryName.empty()) {
+        _binaryName = argv[0];
+    }
     // save index of "--" if exist
     int endIndex = endOptionIndex(argc, argv);
     // foreach argument
@@ -98,23 +104,23 @@ void Argparsor::parseArguments(int argc, char* argv[], bool alternative, bool st
     }
     // check help option
     if (_helpOption != NULL && _helpOption->_isExist) {
-        if (usageException) {
-            throw UsageException(getUsage().c_str());
+        if (_isHelpException) {
+            throw HelpException(getUsage().c_str());
         }
         else {
             std::cout << getUsage() << std::endl;
-            this->~Argparsor(); // call destructor before exit
+            clear();
             exit(0);
         }
     }
     // check version option
     if (_versionOption != NULL && _versionOption->_isExist) {
-        if (versionException) {
+        if (_isVersionException) {
             throw VersionException(getVersion().c_str());
         }
         else {
             std::cout << getVersion() << std::endl;
-            this->~Argparsor(); // call destructor before exit
+            clear();
             exit(0);
         }
     }
@@ -295,6 +301,32 @@ void Argparsor::removeArguments(const Vector& nameOrFlags) {
         }
     }
     _arguments.sort(&Argument::_compareOption);
+}
+
+void Argparsor::clear() {
+    // delete all new element
+    for (std::list<Argument*>::iterator it = _arguments.begin(); it != _arguments.end(); ++it) {
+        delete (*it);
+    }
+    _arguments.clear();
+    _argumentFromName.clear();
+    _binaryName = "";
+    _helpOption = NULL;
+    _versionOption = NULL;
+    _version = "";
+    _isAlternative = false;
+    _isStrict = false;
+    _isHelpException = false;
+    _isVersionException = false;
+    _additionalArguments.clear();
+    // usage
+    _description = "";
+    _epilog = "";
+    _usage = "";
+    _usagePadWidth = 2;
+    _usageArgsWidth = 20;
+    _usageSepWidth = 2;
+    _usageHelpWidth = 56;
 }
 
 /*

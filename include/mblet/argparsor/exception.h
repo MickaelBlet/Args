@@ -49,9 +49,9 @@ class Exception : public std::exception {
 /**
  * @brief Usage exception from Exception
  */
-struct UsageException : public Exception {
-    UsageException(const char* message);
-    virtual ~UsageException() throw();
+struct HelpException : public Exception {
+    HelpException(const char* message);
+    virtual ~HelpException() throw();
 };
 
 /**

@@ -193,6 +193,14 @@ std::string getString() const;
 
 Get the string format of this argument.
 
+## getDefault
+
+```cpp
+const std::string& getDefault() const;
+```
+
+Get the default value of argument.
+
 ## isNumber
 
 ```cpp

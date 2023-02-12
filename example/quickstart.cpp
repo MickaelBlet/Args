@@ -35,7 +35,8 @@ int main(int argc, char* argv[]) {
         .defaults("INFO")
         .dest(logLevel, &argToLogLevel); // fill logLevel by argToLogLevel
     try {
-        args.parseArguments(argc, argv, true);
+        args.setStrict().setAlternative().setHelpException().setVersionException(); // activate all parse options
+        args.parseArguments(argc, argv);
         std::cout << "ARGUMENT: " << args["ARGUMENT"] << '\n';
         // check if option is exists
         if (args["--option"]) {
@@ -57,6 +58,12 @@ int main(int argc, char* argv[]) {
                 break;
         }
         std::cout << std::endl;
+    }
+    catch (const mblet::Argparsor::VersionException& e) {
+        std::cout << e.what() << std::endl;
+    }
+    catch (const mblet::Argparsor::HelpException& e) {
+        std::cout << e.what() << std::endl;
     }
     catch (const mblet::Argparsor::ParseArgumentException& e) {
         std::cerr << args.getBinaryName() << ": " << e.what();

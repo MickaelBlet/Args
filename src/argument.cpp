@@ -23,12 +23,13 @@
  * SOFTWARE.
  */
 
+#include "mblet/argparsor/argument.h"
+
 #include <algorithm>
 #include <sstream>
 
 #include "mblet/argparsor/action.h"
 #include "mblet/argparsor/argparsor.h"
-#include "mblet/argparsor/argument.h"
 #include "mblet/argparsor/utils.h"
 
 #define _ARGPARSOR_PREFIX_SIZEOF_SHORT_OPTION (sizeof("-") - 1)
@@ -143,11 +144,12 @@ Argument::~Argument() {
 }
 
 std::string Argument::getString() const {
+    std::string ret;
     if (_type == BOOLEAN_OPTION) {
-        return ((_isExist) ? "true" : "false");
+        ret = (_isExist) ? "true" : "false";
     }
     else if (_type == REVERSE_BOOLEAN_OPTION) {
-        return ((_isExist) ? "false" : "true");
+        ret = (_isExist) ? "false" : "true";
     }
     else {
         std::ostringstream oss("");
@@ -174,8 +176,9 @@ std::string Argument::getString() const {
         else {
             oss << _argument;
         }
-        return oss.str();
+        ret = oss.str();
     }
+    return ret;
 }
 
 Argument::operator std::vector<std::string>() const {
@@ -560,6 +563,24 @@ void Argument::_defaultsConstructor() {
                 _default += ")";
                 push_back(newNumberArgument);
             }
+        }
+    }
+}
+
+void Argument::_clear() {
+    _argument = _default;
+    _isNumber = false;
+    _number = 0.0;
+    _count = 0;
+    _isExist = false;
+    for (std::size_t i = 0; i < size(); ++i) {
+        at(i)._argument = at(i)._default;
+        at(i)._isNumber = false;
+        at(i)._number = 0.0;
+        for (std::size_t j = 0; j < at(i).size(); ++j) {
+            at(i).at(j)._argument = at(i).at(j)._default;
+            at(i).at(j)._isNumber = false;
+            at(i).at(j)._number = 0.0;
         }
     }
 }

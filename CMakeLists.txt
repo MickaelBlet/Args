@@ -12,11 +12,11 @@ if(NOT CMAKE_CXX_STANDARD)
 endif()
 
 add_library("${PROJECT_NAME}"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/argparsor-argparsor.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/argparsor-argument.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/argparsor-exception.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/argparsor-usage.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/argparsor-valid.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/argparsor.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/argument.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/exception.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/usage.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/valid.cpp"
 )
 
 set_target_properties("${PROJECT_NAME}"
@@ -55,6 +55,9 @@ install(FILES "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}Config.cmake"
 )
 
 if(BUILD_EXAMPLE)
+    if(BUILD_TESTING)
+        enable_testing()
+    endif()
     add_subdirectory(example)
 endif()
 

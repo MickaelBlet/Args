@@ -58,7 +58,7 @@ class Usage {
     }
 
     /**
-     * @brief Get the Usage
+     * @brief Get the usage message
      *
      * @return std::string
      */
@@ -120,7 +120,7 @@ class Usage {
         _usageHelpWidth = helpWidth;
     }
 
-  private:
+  protected:
     Argparsor& _argparsor;
 
     std::string _description;

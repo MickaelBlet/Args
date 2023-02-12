@@ -206,9 +206,9 @@ class Exception : public std::exception {
 /**
  * @brief Usage exception from Exception
  */
-struct UsageException : public Exception {
-    UsageException(const char* message);
-    virtual ~UsageException() throw();
+struct HelpException : public Exception {
+    HelpException(const char* message);
+    virtual ~HelpException() throw();
 };
 
 /**
@@ -741,18 +741,40 @@ class ArgumentElement : public std::vector<ArgumentElement> {
     ArgumentElement(const char* arg);
     ~ArgumentElement();
 
+    /**
+     * @brief Get the string argument
+     *
+     * @return const std::string&
+     */
     const std::string& getString() const {
         return _argument;
     }
 
+    /**
+     * @brief Get the default value of argument
+     *
+     * @return const std::string&
+     */
     const std::string& getDefault() const {
         return _default;
     }
 
+    /**
+     * @brief Check if argument is number
+     *
+     * @return [true] if is number
+     */
     bool isNumber() const {
         return _isNumber;
     }
 
+    /**
+     * @brief Get the number from argument if is number
+     *
+     * @return double
+     *
+     * @throw Exception is not a number
+     */
     double getNumber() const {
         if (_isNumber) {
             return _number;
@@ -764,6 +786,8 @@ class ArgumentElement : public std::vector<ArgumentElement> {
      * @brief tranform to vector of string
      *
      * @return std::vector<std::string>
+     *
+     * @throw Exception convertion to vector of string not authorized
      */
     operator std::vector<std::string>() const;
 
@@ -886,6 +910,8 @@ class Argument : public ArgumentElement {
      * @brief tranform to vector of string
      *
      * @return std::vector<std::string>
+     *
+     * @throw Exception convertion to vector of string not authorized
      */
     operator std::vector<std::string>() const;
 
@@ -893,6 +919,8 @@ class Argument : public ArgumentElement {
      * @brief tranform to vector of vector of string
      *
      * @return std::vector<std::vector<std::string> >
+     *
+     * @throw Exception convertion to vector of vector of string not authorized
      */
     operator std::vector<std::vector<std::string> >() const;
 
@@ -919,23 +947,31 @@ class Argument : public ArgumentElement {
 
     /**
      * @brief Option strings, e.g. -f, --foo
+     *
      * @param flag_
      * @return this reference
+     *
+     * @throw ArgumentException
      */
     Argument& flag(const char* flag_);
 
     /**
      * @brief The basic type of action to be taken when this argument is encountered at the command line
+     *
      * @param action_
      * @return this reference
+     *
+     * @throw ArgumentException
      */
     Argument& action(enum Action::eAction action_);
 
     /**
      * @brief A brief description of what the argument does
+     *
      * @param help_
      * @return this reference
      */
+
     Argument& help(const char* help_) {
         _help = help_;
         return *this;
@@ -943,13 +979,15 @@ class Argument : public ArgumentElement {
 
     /**
      * @brief Whether or not the command-line option may be omitted (optionals only)
+     *
      * @param required_
      * @return this reference
      */
-    Argument& required(bool required_);
+    Argument& required(bool required_ = true);
 
     /**
      * @brief A name for the argument in usage messages
+     *
      * @param metavar_
      * @return this reference
      */
@@ -960,8 +998,11 @@ class Argument : public ArgumentElement {
 
     /**
      * @brief The number of command-line arguments that should be consumed
+     *
      * @param nargs_
      * @return this reference
+     *
+     * @throw ArgumentException
      */
     Argument& nargs(std::size_t nargs_) {
         _nargs = nargs_;
@@ -972,8 +1013,11 @@ class Argument : public ArgumentElement {
 
     /**
      * @brief The value produced if the argument is absent from the command line
+     *
      * @param defaults_
      * @return this reference
+     *
+     * @throw ArgumentException
      */
     Argument& defaults(const Vector& defaults_) {
         _defaults = defaults_;
@@ -983,7 +1027,9 @@ class Argument : public ArgumentElement {
 
     /**
      * @brief New object from IValid interface
+     *
      * @param pValid
+     * @param isDeletable
      * @return this reference
      */
     Argument& valid(IValid* pValid, bool isDeletable = true) {
@@ -1000,6 +1046,7 @@ class Argument : public ArgumentElement {
      *
      * @tparam T
      * @param dest
+     * @param toDest
      * @return reference of new argument
      */
     template<typename T>
@@ -1018,6 +1065,7 @@ class Argument : public ArgumentElement {
      *
      * @tparam T
      * @param dest
+     * @param toDest
      * @return reference of new argument
      */
     template<typename T>
@@ -1035,6 +1083,7 @@ class Argument : public ArgumentElement {
      *
      * @tparam T
      * @param dest
+     * @param toDest
      * @return reference of new argument
      */
     template<typename T>
@@ -1103,6 +1152,8 @@ class Argument : public ArgumentElement {
     void _defaultsConstructor();
 
     void _sortNameOrFlags();
+
+    void _clear();
 
     static void _validFormatFlag(const char* flag);
 
@@ -1381,7 +1432,7 @@ class Usage {
     }
 
     /**
-     * @brief Get the Usage
+     * @brief Get the usage message
      *
      * @return std::string
      */
@@ -1443,7 +1494,7 @@ class Usage {
         _usageHelpWidth = helpWidth;
     }
 
-  private:
+  protected:
     Argparsor& _argparsor;
 
     std::string _description;
@@ -1507,6 +1558,16 @@ class Argparsor : public Usage {
     }
 
     /**
+     * @brief Active parsing for accept long option with only one '-' character
+     *
+     * @param alternivative
+     */
+    Argparsor& setAlternative(bool alternivative = true) {
+        _isAlternative = alternivative;
+        return *this;
+    }
+
+    /**
      * @brief Get the status of alternative
      *
      * @return [true] at alternative
@@ -1516,12 +1577,72 @@ class Argparsor : public Usage {
     }
 
     /**
+     * @brief Active exception if not all argument is used else you can take additionnal argument with
+     *        getAdditionalArguments method
+     *
+     * @param strict
+     */
+    Argparsor& setStrict(bool strict = true) {
+        _isStrict = strict;
+        return *this;
+    }
+
+    /**
      * @brief Get the status of strict
      *
      * @return [true] at strict
      */
     bool isStrict() const {
         return _isStrict;
+    }
+
+    /**
+     * @brief Throw a HelpException when help action is present in arguments else exit(0) the your
+     *        program after output usage at stdout
+     *
+     * @param helpException
+     */
+    Argparsor& setHelpException(bool helpException = true) {
+        _isHelpException = helpException;
+        return *this;
+    }
+
+    /**
+     * @brief Get the status of helpException
+     *
+     * @return [true] at usage exception
+     */
+    bool isHelpException() const {
+        return _isHelpException;
+    }
+
+    /**
+     * @brief Throw a VersionException when version action is present in arguments else exit(0) the your
+     *        program after output usage at stdout
+     *
+     * @param versionException
+     */
+    Argparsor& setVersionException(bool versionException = true) {
+        _isVersionException = versionException;
+        return *this;
+    }
+
+    /**
+     * @brief Get the status of versionException
+     *
+     * @return [true] at version exception
+     */
+    bool isVersionException() const {
+        return _isVersionException;
+    }
+
+    /**
+     * @brief Set the binary name
+     *
+     * @param binaryName
+     */
+    void setBinaryName(const char* binaryName) {
+        _binaryName = binaryName;
     }
 
     /**
@@ -1578,19 +1699,18 @@ class Argparsor : public Usage {
 
     /**
      * @brief Convert argument strings to objects and assign them as attributes of the argparsor map.
-     * Previous calls to addArgument() determine exactly what objects are created and how they are assigned
+     *        Previous calls to addArgument() determine exactly what objects are created and how they are assigned.
+     *        Comportenment depend of setAlternative, setStrict, setHelpException and setVersionException modes.
      * @param argc
      * @param argv
-     * @param alternative Active parsing for accept long option with only one '-' character
-     * @param strict Active exception if not all argument is used else you can take additionnal argument with
-     *        getAdditionalArguments method
-     * @param usageException Throw a UsageException when help action is present in arguments else exit(0) the your
-     * program after output usage at stdout
-     * @param versionException Throw a VersionException when version action is present in arguments else exit(0) the
-     * your program after output version at stdout
+     *
+     * @throw HelpException if setHelpException is active
+     * @throw VersionException if setVersionException is active
+     * @throw ParseArgumentRequiredException
+     * @throw ParseArgumentValidException
+     * @throw ParseArgumentException
      */
-    void parseArguments(int argc, char* argv[], bool alternative = false, bool strict = false,
-                        bool usageException = false, bool versionException = false);
+    void parseArguments(int argc, char* argv[]);
 
     /**
      * @brief Define how a single command-line argument should be parsed
@@ -1598,6 +1718,8 @@ class Argparsor : public Usage {
      * @param nameOrFlags Either a name or a list of option strings, e.g. foo or -f, --foo
      *
      * @return Argument& ref of new argument object
+     *
+     * @throw ArgumentException
      */
     Argument& addArgument(const Vector& nameOrFlags);
 
@@ -1606,6 +1728,8 @@ class Argparsor : public Usage {
      *
      * @param nameOrFlag
      * @return Argument& ref argument object
+     *
+     * @throw ArgumentException
      */
     Argument& updateArgument(const std::string& nameOrFlag) {
         std::map<std::string, Argument**>::iterator it = _argumentFromName.find(nameOrFlag);
@@ -1619,8 +1743,15 @@ class Argparsor : public Usage {
      * @brief Remove previously arguments
      *
      * @param nameOrFlags Either a name or a list of option strings, e.g. foo or -f, --foo
+     *
+     * @throw ArgumentException
      */
     void removeArguments(const Vector& nameOrFlags);
+
+    /**
+     * @brief Clear and reset with defaults values
+     */
+    void clear();
 
   private:
     Argparsor(const Argparsor&);            // disable copy constructor
@@ -1690,6 +1821,8 @@ class Argparsor : public Usage {
 
     bool _isAlternative;
     bool _isStrict;
+    bool _isHelpException;
+    bool _isVersionException;
     std::vector<std::string> _additionalArguments;
 };
 
@@ -1715,7 +1848,7 @@ class Argparsor : public argparsor::Argparsor, public argparsor::Action {
     ~Argparsor() {}
 
     typedef argparsor::Exception Exception;
-    typedef argparsor::UsageException UsageException;
+    typedef argparsor::HelpException HelpException;
     typedef argparsor::VersionException VersionException;
     typedef argparsor::ArgumentException ArgumentException;
     typedef argparsor::ParseArgumentException ParseArgumentException;
@@ -1735,37 +1868,58 @@ class Argparsor : public argparsor::Argparsor, public argparsor::Action {
 #define _ARGPARSOR_VECTOR_CAT_IMPL_(x, y) x##y
 #define _ARGPARSOR_VECTOR_CAT_(x, y) _ARGPARSOR_VECTOR_CAT_IMPL_(x, y)
 #define _ARGPARSOR_VECTOR_CAT2_(x, y, z) _ARGPARSOR_VECTOR_CAT_(_ARGPARSOR_VECTOR_CAT_(x, y), z)
-#define _ARGPARSOR_VECTOR_REPEAT_0_(m, f) /* nothing */
-#define _ARGPARSOR_VECTOR_REPEAT_1_(m, f) m(1, f)
-#define _ARGPARSOR_VECTOR_REPEAT_2_(m, f) _ARGPARSOR_VECTOR_REPEAT_1_(m, f), m(2, f)
-#define _ARGPARSOR_VECTOR_REPEAT_3_(m, f) _ARGPARSOR_VECTOR_REPEAT_2_(m, f), m(3, f)
-#define _ARGPARSOR_VECTOR_REPEAT_4_(m, f) _ARGPARSOR_VECTOR_REPEAT_3_(m, f), m(4, f)
-#define _ARGPARSOR_VECTOR_REPEAT_5_(m, f) _ARGPARSOR_VECTOR_REPEAT_4_(m, f), m(5, f)
-#define _ARGPARSOR_VECTOR_REPEAT_6_(m, f) _ARGPARSOR_VECTOR_REPEAT_5_(m, f), m(6, f)
-#define _ARGPARSOR_VECTOR_REPEAT_7_(m, f) _ARGPARSOR_VECTOR_REPEAT_6_(m, f), m(7, f)
-#define _ARGPARSOR_VECTOR_REPEAT_8_(m, f) _ARGPARSOR_VECTOR_REPEAT_7_(m, f), m(8, f)
-#define _ARGPARSOR_VECTOR_REPEAT_9_(m, f) _ARGPARSOR_VECTOR_REPEAT_8_(m, f), m(9, f)
-#define _ARGPARSOR_VECTOR_REPEAT_10_(m, f) _ARGPARSOR_VECTOR_REPEAT_9_(m, f), m(10, f)
-#define _ARGPARSOR_VECTOR_REPEAT_11_(m, f) _ARGPARSOR_VECTOR_REPEAT_10_(m, f), m(11, f)
-#define _ARGPARSOR_VECTOR_REPEAT_12_(m, f) _ARGPARSOR_VECTOR_REPEAT_11_(m, f), m(12, f)
-#define _ARGPARSOR_VECTOR_REPEAT_13_(m, f) _ARGPARSOR_VECTOR_REPEAT_12_(m, f), m(13, f)
-#define _ARGPARSOR_VECTOR_REPEAT_14_(m, f) _ARGPARSOR_VECTOR_REPEAT_13_(m, f), m(14, f)
-#define _ARGPARSOR_VECTOR_REPEAT_15_(m, f) _ARGPARSOR_VECTOR_REPEAT_14_(m, f), m(15, f)
-#define _ARGPARSOR_VECTOR_REPEAT_16_(m, f) _ARGPARSOR_VECTOR_REPEAT_15_(m, f), m(16, f)
-#define _ARGPARSOR_VECTOR_REPEAT_17_(m, f) _ARGPARSOR_VECTOR_REPEAT_16_(m, f), m(17, f)
-#define _ARGPARSOR_VECTOR_REPEAT_18_(m, f) _ARGPARSOR_VECTOR_REPEAT_17_(m, f), m(18, f)
-#define _ARGPARSOR_VECTOR_REPEAT_19_(m, f) _ARGPARSOR_VECTOR_REPEAT_18_(m, f), m(19, f)
-#define _ARGPARSOR_VECTOR_REPEAT_20_(m, f) _ARGPARSOR_VECTOR_REPEAT_19_(m, f), m(20, f)
-#define _ARGPARSOR_VECTOR_ARG_(i, f) const char* _ARGPARSOR_VECTOR_CAT_(var_, i)
-#define _ARGPARSOR_VECTOR_PUSH_ARG_(i, f) v.push_back(_ARGPARSOR_VECTOR_CAT_(var_, i))
+#define _ARGPARSOR_VECTOR_COMMA_REPEAT_0_(m, v) /* nothing */
+#define _ARGPARSOR_VECTOR_COMMA_REPEAT_1_(m, v) m(1, v)
+#define _ARGPARSOR_VECTOR_COMMA_REPEAT_2_(m, v) _ARGPARSOR_VECTOR_COMMA_REPEAT_1_(m, v), m(2, v)
+#define _ARGPARSOR_VECTOR_COMMA_REPEAT_3_(m, v) _ARGPARSOR_VECTOR_COMMA_REPEAT_2_(m, v), m(3, v)
+#define _ARGPARSOR_VECTOR_COMMA_REPEAT_4_(m, v) _ARGPARSOR_VECTOR_COMMA_REPEAT_3_(m, v), m(4, v)
+#define _ARGPARSOR_VECTOR_COMMA_REPEAT_5_(m, v) _ARGPARSOR_VECTOR_COMMA_REPEAT_4_(m, v), m(5, v)
+#define _ARGPARSOR_VECTOR_COMMA_REPEAT_6_(m, v) _ARGPARSOR_VECTOR_COMMA_REPEAT_5_(m, v), m(6, v)
+#define _ARGPARSOR_VECTOR_COMMA_REPEAT_7_(m, v) _ARGPARSOR_VECTOR_COMMA_REPEAT_6_(m, v), m(7, v)
+#define _ARGPARSOR_VECTOR_COMMA_REPEAT_8_(m, v) _ARGPARSOR_VECTOR_COMMA_REPEAT_7_(m, v), m(8, v)
+#define _ARGPARSOR_VECTOR_COMMA_REPEAT_9_(m, v) _ARGPARSOR_VECTOR_COMMA_REPEAT_8_(m, v), m(9, v)
+#define _ARGPARSOR_VECTOR_COMMA_REPEAT_10_(m, v) _ARGPARSOR_VECTOR_COMMA_REPEAT_9_(m, v), m(10, v)
+#define _ARGPARSOR_VECTOR_COMMA_REPEAT_11_(m, v) _ARGPARSOR_VECTOR_COMMA_REPEAT_10_(m, v), m(11, v)
+#define _ARGPARSOR_VECTOR_COMMA_REPEAT_12_(m, v) _ARGPARSOR_VECTOR_COMMA_REPEAT_11_(m, v), m(12, v)
+#define _ARGPARSOR_VECTOR_COMMA_REPEAT_13_(m, v) _ARGPARSOR_VECTOR_COMMA_REPEAT_12_(m, v), m(13, v)
+#define _ARGPARSOR_VECTOR_COMMA_REPEAT_14_(m, v) _ARGPARSOR_VECTOR_COMMA_REPEAT_13_(m, v), m(14, v)
+#define _ARGPARSOR_VECTOR_COMMA_REPEAT_15_(m, v) _ARGPARSOR_VECTOR_COMMA_REPEAT_14_(m, v), m(15, v)
+#define _ARGPARSOR_VECTOR_COMMA_REPEAT_16_(m, v) _ARGPARSOR_VECTOR_COMMA_REPEAT_15_(m, v), m(16, v)
+#define _ARGPARSOR_VECTOR_COMMA_REPEAT_17_(m, v) _ARGPARSOR_VECTOR_COMMA_REPEAT_16_(m, v), m(17, v)
+#define _ARGPARSOR_VECTOR_COMMA_REPEAT_18_(m, v) _ARGPARSOR_VECTOR_COMMA_REPEAT_17_(m, v), m(18, v)
+#define _ARGPARSOR_VECTOR_COMMA_REPEAT_19_(m, v) _ARGPARSOR_VECTOR_COMMA_REPEAT_18_(m, v), m(19, v)
+#define _ARGPARSOR_VECTOR_COMMA_REPEAT_20_(m, v) _ARGPARSOR_VECTOR_COMMA_REPEAT_19_(m, v), m(20, v)
+#define _ARGPARSOR_VECTOR_SEMICOLON_REPEAT_0_(m, v) /* nothing */
+#define _ARGPARSOR_VECTOR_SEMICOLON_REPEAT_1_(m, v) m(1, v);
+#define _ARGPARSOR_VECTOR_SEMICOLON_REPEAT_2_(m, v) _ARGPARSOR_VECTOR_SEMICOLON_REPEAT_1_(m, v) m(2, v);
+#define _ARGPARSOR_VECTOR_SEMICOLON_REPEAT_3_(m, v) _ARGPARSOR_VECTOR_SEMICOLON_REPEAT_2_(m, v) m(3, v);
+#define _ARGPARSOR_VECTOR_SEMICOLON_REPEAT_4_(m, v) _ARGPARSOR_VECTOR_SEMICOLON_REPEAT_3_(m, v) m(4, v);
+#define _ARGPARSOR_VECTOR_SEMICOLON_REPEAT_5_(m, v) _ARGPARSOR_VECTOR_SEMICOLON_REPEAT_4_(m, v) m(5, v);
+#define _ARGPARSOR_VECTOR_SEMICOLON_REPEAT_6_(m, v) _ARGPARSOR_VECTOR_SEMICOLON_REPEAT_5_(m, v) m(6, v);
+#define _ARGPARSOR_VECTOR_SEMICOLON_REPEAT_7_(m, v) _ARGPARSOR_VECTOR_SEMICOLON_REPEAT_6_(m, v) m(7, v);
+#define _ARGPARSOR_VECTOR_SEMICOLON_REPEAT_8_(m, v) _ARGPARSOR_VECTOR_SEMICOLON_REPEAT_7_(m, v) m(8, v);
+#define _ARGPARSOR_VECTOR_SEMICOLON_REPEAT_9_(m, v) _ARGPARSOR_VECTOR_SEMICOLON_REPEAT_8_(m, v) m(9, v);
+#define _ARGPARSOR_VECTOR_SEMICOLON_REPEAT_10_(m, v) _ARGPARSOR_VECTOR_SEMICOLON_REPEAT_9_(m, v) m(10, v);
+#define _ARGPARSOR_VECTOR_SEMICOLON_REPEAT_11_(m, v) _ARGPARSOR_VECTOR_SEMICOLON_REPEAT_10_(m, v) m(11, v);
+#define _ARGPARSOR_VECTOR_SEMICOLON_REPEAT_12_(m, v) _ARGPARSOR_VECTOR_SEMICOLON_REPEAT_11_(m, v) m(12, v);
+#define _ARGPARSOR_VECTOR_SEMICOLON_REPEAT_13_(m, v) _ARGPARSOR_VECTOR_SEMICOLON_REPEAT_12_(m, v) m(13, v);
+#define _ARGPARSOR_VECTOR_SEMICOLON_REPEAT_14_(m, v) _ARGPARSOR_VECTOR_SEMICOLON_REPEAT_13_(m, v) m(14, v);
+#define _ARGPARSOR_VECTOR_SEMICOLON_REPEAT_15_(m, v) _ARGPARSOR_VECTOR_SEMICOLON_REPEAT_14_(m, v) m(15, v);
+#define _ARGPARSOR_VECTOR_SEMICOLON_REPEAT_16_(m, v) _ARGPARSOR_VECTOR_SEMICOLON_REPEAT_15_(m, v) m(16, v);
+#define _ARGPARSOR_VECTOR_SEMICOLON_REPEAT_17_(m, v) _ARGPARSOR_VECTOR_SEMICOLON_REPEAT_16_(m, v) m(17, v);
+#define _ARGPARSOR_VECTOR_SEMICOLON_REPEAT_18_(m, v) _ARGPARSOR_VECTOR_SEMICOLON_REPEAT_17_(m, v) m(18, v);
+#define _ARGPARSOR_VECTOR_SEMICOLON_REPEAT_19_(m, v) _ARGPARSOR_VECTOR_SEMICOLON_REPEAT_18_(m, v) m(19, v);
+#define _ARGPARSOR_VECTOR_SEMICOLON_REPEAT_20_(m, v) _ARGPARSOR_VECTOR_SEMICOLON_REPEAT_19_(m, v) m(20, v);
+#define _ARGPARSOR_VECTOR_ARG_(i, v) const char* _ARGPARSOR_VECTOR_CAT_(var_, i)
+#define _ARGPARSOR_VECTOR_PUSH_ARG_(i, v) v.push_back(_ARGPARSOR_VECTOR_CAT_(var_, i))
 
-#define _ARGPARSOR_VECTOR(nb)                                                                       \
-    static argparsor::Vector vector(                                                                \
-        _ARGPARSOR_VECTOR_CAT2_(_ARGPARSOR_VECTOR_REPEAT_, nb, _)(_ARGPARSOR_VECTOR_ARG_, nb)) {    \
-        argparsor::Vector v;                                                                        \
-        v.reserve(nb);                                                                              \
-        _ARGPARSOR_VECTOR_CAT2_(_ARGPARSOR_VECTOR_REPEAT_, nb, _)(_ARGPARSOR_VECTOR_PUSH_ARG_, nb); \
-        return v;                                                                                   \
+#define _ARGPARSOR_VECTOR(nb)                                                                            \
+    static argparsor::Vector vector(                                                                     \
+        _ARGPARSOR_VECTOR_CAT2_(_ARGPARSOR_VECTOR_COMMA_REPEAT_, nb, _)(_ARGPARSOR_VECTOR_ARG_, NULL)) { \
+        argparsor::Vector ret;                                                                           \
+        ret.reserve(nb);                                                                                 \
+        _ARGPARSOR_VECTOR_CAT2_(_ARGPARSOR_VECTOR_SEMICOLON_REPEAT_, nb, _)                              \
+        (_ARGPARSOR_VECTOR_PUSH_ARG_, ret) return ret;                                                   \
     }
 
     _ARGPARSOR_VECTOR(0)
@@ -1793,27 +1947,48 @@ class Argparsor : public argparsor::Argparsor, public argparsor::Action {
 #undef _ARGPARSOR_VECTOR
 #undef _ARGPARSOR_VECTOR_PUSH_ARG_
 #undef _ARGPARSOR_VECTOR_ARG_
-#undef _ARGPARSOR_VECTOR_REPEAT_20_
-#undef _ARGPARSOR_VECTOR_REPEAT_19_
-#undef _ARGPARSOR_VECTOR_REPEAT_18_
-#undef _ARGPARSOR_VECTOR_REPEAT_17_
-#undef _ARGPARSOR_VECTOR_REPEAT_16_
-#undef _ARGPARSOR_VECTOR_REPEAT_15_
-#undef _ARGPARSOR_VECTOR_REPEAT_14_
-#undef _ARGPARSOR_VECTOR_REPEAT_13_
-#undef _ARGPARSOR_VECTOR_REPEAT_12_
-#undef _ARGPARSOR_VECTOR_REPEAT_11_
-#undef _ARGPARSOR_VECTOR_REPEAT_10_
-#undef _ARGPARSOR_VECTOR_REPEAT_9_
-#undef _ARGPARSOR_VECTOR_REPEAT_8_
-#undef _ARGPARSOR_VECTOR_REPEAT_7_
-#undef _ARGPARSOR_VECTOR_REPEAT_6_
-#undef _ARGPARSOR_VECTOR_REPEAT_5_
-#undef _ARGPARSOR_VECTOR_REPEAT_4_
-#undef _ARGPARSOR_VECTOR_REPEAT_3_
-#undef _ARGPARSOR_VECTOR_REPEAT_2_
-#undef _ARGPARSOR_VECTOR_REPEAT_1_
-#undef _ARGPARSOR_VECTOR_REPEAT_0_
+#undef _ARGPARSOR_VECTOR_COMMA_REPEAT_20_
+#undef _ARGPARSOR_VECTOR_COMMA_REPEAT_19_
+#undef _ARGPARSOR_VECTOR_COMMA_REPEAT_18_
+#undef _ARGPARSOR_VECTOR_COMMA_REPEAT_17_
+#undef _ARGPARSOR_VECTOR_COMMA_REPEAT_16_
+#undef _ARGPARSOR_VECTOR_COMMA_REPEAT_15_
+#undef _ARGPARSOR_VECTOR_COMMA_REPEAT_14_
+#undef _ARGPARSOR_VECTOR_COMMA_REPEAT_13_
+#undef _ARGPARSOR_VECTOR_COMMA_REPEAT_12_
+#undef _ARGPARSOR_VECTOR_COMMA_REPEAT_11_
+#undef _ARGPARSOR_VECTOR_COMMA_REPEAT_10_
+#undef _ARGPARSOR_VECTOR_COMMA_REPEAT_9_
+#undef _ARGPARSOR_VECTOR_COMMA_REPEAT_8_
+#undef _ARGPARSOR_VECTOR_COMMA_REPEAT_7_
+#undef _ARGPARSOR_VECTOR_COMMA_REPEAT_6_
+#undef _ARGPARSOR_VECTOR_COMMA_REPEAT_5_
+#undef _ARGPARSOR_VECTOR_COMMA_REPEAT_4_
+#undef _ARGPARSOR_VECTOR_COMMA_REPEAT_3_
+#undef _ARGPARSOR_VECTOR_COMMA_REPEAT_2_
+#undef _ARGPARSOR_VECTOR_COMMA_REPEAT_1_
+#undef _ARGPARSOR_VECTOR_COMMA_REPEAT_0_
+#undef _ARGPARSOR_VECTOR_SEMICOLON_REPEAT_20_
+#undef _ARGPARSOR_VECTOR_SEMICOLON_REPEAT_19_
+#undef _ARGPARSOR_VECTOR_SEMICOLON_REPEAT_18_
+#undef _ARGPARSOR_VECTOR_SEMICOLON_REPEAT_17_
+#undef _ARGPARSOR_VECTOR_SEMICOLON_REPEAT_16_
+#undef _ARGPARSOR_VECTOR_SEMICOLON_REPEAT_15_
+#undef _ARGPARSOR_VECTOR_SEMICOLON_REPEAT_14_
+#undef _ARGPARSOR_VECTOR_SEMICOLON_REPEAT_13_
+#undef _ARGPARSOR_VECTOR_SEMICOLON_REPEAT_12_
+#undef _ARGPARSOR_VECTOR_SEMICOLON_REPEAT_11_
+#undef _ARGPARSOR_VECTOR_SEMICOLON_REPEAT_10_
+#undef _ARGPARSOR_VECTOR_SEMICOLON_REPEAT_9_
+#undef _ARGPARSOR_VECTOR_SEMICOLON_REPEAT_8_
+#undef _ARGPARSOR_VECTOR_SEMICOLON_REPEAT_7_
+#undef _ARGPARSOR_VECTOR_SEMICOLON_REPEAT_6_
+#undef _ARGPARSOR_VECTOR_SEMICOLON_REPEAT_5_
+#undef _ARGPARSOR_VECTOR_SEMICOLON_REPEAT_4_
+#undef _ARGPARSOR_VECTOR_SEMICOLON_REPEAT_3_
+#undef _ARGPARSOR_VECTOR_SEMICOLON_REPEAT_2_
+#undef _ARGPARSOR_VECTOR_SEMICOLON_REPEAT_1_
+#undef _ARGPARSOR_VECTOR_SEMICOLON_REPEAT_0_
 #undef _ARGPARSOR_VECTOR_CAT2_
 #undef _ARGPARSOR_VECTOR_CAT_
 #undef _ARGPARSOR_VECTOR_CAT_IMPL_
@@ -2012,6 +2187,8 @@ inline Argparsor::Argparsor(bool addHelp) :
     _versionOption(NULL),
     _isAlternative(false),
     _isStrict(false),
+    _isHelpException(false),
+    _isVersionException(false),
     _additionalArguments() {
     if (addHelp) {
         // define _helpOption
@@ -2026,11 +2203,15 @@ inline Argparsor::~Argparsor() {
     }
 }
 
-inline void Argparsor::parseArguments(int argc, char* argv[], bool alternative, bool strict, bool usageException,
-                                      bool versionException) {
-    _binaryName = argv[0];
-    _isAlternative = alternative;
-    _isStrict = strict;
+inline void Argparsor::parseArguments(int argc, char* argv[]) {
+    // clear the arguments
+    for (std::list<Argument*>::iterator it = _arguments.begin(); it != _arguments.end(); ++it) {
+        (*it)->_clear();
+    }
+    // get argv[0] if filename is empty
+    if (_binaryName.empty()) {
+        _binaryName = argv[0];
+    }
     // save index of "--" if exist
     int endIndex = endOptionIndex(argc, argv);
     // foreach argument
@@ -2055,23 +2236,23 @@ inline void Argparsor::parseArguments(int argc, char* argv[], bool alternative, 
     }
     // check help option
     if (_helpOption != NULL && _helpOption->_isExist) {
-        if (usageException) {
-            throw UsageException(getUsage().c_str());
+        if (_isHelpException) {
+            throw HelpException(getUsage().c_str());
         }
         else {
             std::cout << getUsage() << std::endl;
-            this->~Argparsor(); // call destructor before exit
+            clear();
             exit(0);
         }
     }
     // check version option
     if (_versionOption != NULL && _versionOption->_isExist) {
-        if (versionException) {
+        if (_isVersionException) {
             throw VersionException(getVersion().c_str());
         }
         else {
             std::cout << getVersion() << std::endl;
-            this->~Argparsor(); // call destructor before exit
+            clear();
             exit(0);
         }
     }
@@ -2252,6 +2433,32 @@ inline void Argparsor::removeArguments(const Vector& nameOrFlags) {
         }
     }
     _arguments.sort(&Argument::_compareOption);
+}
+
+inline void Argparsor::clear() {
+    // delete all new element
+    for (std::list<Argument*>::iterator it = _arguments.begin(); it != _arguments.end(); ++it) {
+        delete (*it);
+    }
+    _arguments.clear();
+    _argumentFromName.clear();
+    _binaryName = "";
+    _helpOption = NULL;
+    _versionOption = NULL;
+    _version = "";
+    _isAlternative = false;
+    _isStrict = false;
+    _isHelpException = false;
+    _isVersionException = false;
+    _additionalArguments.clear();
+    // usage
+    _description = "";
+    _epilog = "";
+    _usage = "";
+    _usagePadWidth = 2;
+    _usageArgsWidth = 20;
+    _usageSepWidth = 2;
+    _usageHelpWidth = 56;
 }
 
 /*
@@ -2597,14 +2804,14 @@ inline void Argparsor::_parsePositionnalArgument(int argc, char* argv[], int* in
  * SOFTWARE.
  */
 
+// #include "mblet/argparsor/argument.h"
+
 #include <algorithm>
 #include <sstream>
 
 // #include "mblet/argparsor/action.h"
 
 // #include "mblet/argparsor/argparsor.h"
-
-// #include "mblet/argparsor/argument.h"
 
 // #include "mblet/argparsor/utils.h"
 
@@ -2720,11 +2927,12 @@ inline Argument::~Argument() {
 }
 
 inline std::string Argument::getString() const {
+    std::string ret;
     if (_type == BOOLEAN_OPTION) {
-        return ((_isExist) ? "true" : "false");
+        ret = (_isExist) ? "true" : "false";
     }
     else if (_type == REVERSE_BOOLEAN_OPTION) {
-        return ((_isExist) ? "false" : "true");
+        ret = (_isExist) ? "false" : "true";
     }
     else {
         std::ostringstream oss("");
@@ -2751,8 +2959,9 @@ inline std::string Argument::getString() const {
         else {
             oss << _argument;
         }
-        return oss.str();
+        ret = oss.str();
     }
+    return ret;
 }
 
 inline Argument::operator std::vector<std::string>() const {
@@ -3141,6 +3350,24 @@ inline void Argument::_defaultsConstructor() {
     }
 }
 
+inline void Argument::_clear() {
+    _argument = _default;
+    _isNumber = false;
+    _number = 0.0;
+    _count = 0;
+    _isExist = false;
+    for (std::size_t i = 0; i < size(); ++i) {
+        at(i)._argument = at(i)._default;
+        at(i)._isNumber = false;
+        at(i)._number = 0.0;
+        for (std::size_t j = 0; j < at(i).size(); ++j) {
+            at(i).at(j)._argument = at(i).at(j)._default;
+            at(i).at(j)._isNumber = false;
+            at(i).at(j)._number = 0.0;
+        }
+    }
+}
+
 } // namespace argparsor
 
 } // namespace mblet
@@ -3188,10 +3415,10 @@ inline const char* Exception::what() const throw() {
     return _str.c_str();
 }
 
-inline UsageException::UsageException(const char* message) :
+inline HelpException::HelpException(const char* message) :
     Exception(message) {}
 
-inline UsageException::~UsageException() throw() {}
+inline HelpException::~HelpException() throw() {}
 
 inline VersionException::VersionException(const char* message) :
     Exception(message) {}
@@ -3241,13 +3468,13 @@ inline ParseArgumentValidException::~ParseArgumentValidException() throw() {}
 } // namespace argparsor
 
 } // namespace mblet
+// #include "mblet/argparsor/usage.h"
+
 #include <sstream>
 
 // #include "mblet/argparsor/argparsor.h"
 
 // #include "mblet/argparsor/argument.h"
-
-// #include "mblet/argparsor/usage.h"
 
 #if defined _WIN32 || defined _WIN64 || defined __CYGWIN__
 #define _ARGPARSOR_SEPARATOR_PATH '\\'
@@ -3585,14 +3812,14 @@ inline std::string Usage::getUsage() const {
  * SOFTWARE.
  */
 
+// #include "mblet/argparsor/valid.h"
+
 #include <sys/stat.h>
 
 #include <cstdlib>
 #include <sstream>
 
 // #include "mblet/argparsor/exception.h"
-
-// #include "mblet/argparsor/valid.h"
 
 namespace mblet {
 

@@ -98,7 +98,8 @@ int main(int argc, char* argv[]) {
         .defaults(args.vector("0", "1", "2", "3"))
         .dest(options.extendNumber, &options.toExtendNumber);
     try {
-        args.parseArguments(argc, argv, true);
+        args.setAlternative().setHelpException().setVersionException();
+        args.parseArguments(argc, argv);
 
         // ---------------------------------------------------------------------
         // ACCESS BY MAP
@@ -193,6 +194,12 @@ int main(int argc, char* argv[]) {
             std::cout << ", " << options.extendNumber[i].b;
         }
         std::cout << std::endl;
+    }
+    catch (const Argparsor::HelpException& e) {
+        std::cout << args.getUsage() << std::endl;
+    }
+    catch (const Argparsor::VersionException& e) {
+        std::cout << args.getVersion() << std::endl;
     }
     catch (const Argparsor::ParseArgumentException& e) {
         std::cerr << args.getBinaryName() << ": " << e.what();

@@ -252,18 +252,40 @@ class ArgumentElement : public std::vector<ArgumentElement> {
     ArgumentElement(const char* arg);
     ~ArgumentElement();
 
+    /**
+     * @brief Get the string argument
+     *
+     * @return const std::string&
+     */
     const std::string& getString() const {
         return _argument;
     }
 
+    /**
+     * @brief Get the default value of argument
+     *
+     * @return const std::string&
+     */
     const std::string& getDefault() const {
         return _default;
     }
 
+    /**
+     * @brief Check if argument is number
+     *
+     * @return [true] if is number
+     */
     bool isNumber() const {
         return _isNumber;
     }
 
+    /**
+     * @brief Get the number from argument if is number
+     *
+     * @return double
+     *
+     * @throw Exception is not a number
+     */
     double getNumber() const {
         if (_isNumber) {
             return _number;
@@ -275,6 +297,8 @@ class ArgumentElement : public std::vector<ArgumentElement> {
      * @brief tranform to vector of string
      *
      * @return std::vector<std::string>
+     *
+     * @throw Exception convertion to vector of string not authorized
      */
     operator std::vector<std::string>() const;
 
@@ -397,6 +421,8 @@ class Argument : public ArgumentElement {
      * @brief tranform to vector of string
      *
      * @return std::vector<std::string>
+     *
+     * @throw Exception convertion to vector of string not authorized
      */
     operator std::vector<std::string>() const;
 
@@ -404,6 +430,8 @@ class Argument : public ArgumentElement {
      * @brief tranform to vector of vector of string
      *
      * @return std::vector<std::vector<std::string> >
+     *
+     * @throw Exception convertion to vector of vector of string not authorized
      */
     operator std::vector<std::vector<std::string> >() const;
 
@@ -430,20 +458,27 @@ class Argument : public ArgumentElement {
 
     /**
      * @brief Option strings, e.g. -f, --foo
+     *
      * @param flag_
      * @return this reference
+     *
+     * @throw ArgumentException
      */
     Argument& flag(const char* flag_);
 
     /**
      * @brief The basic type of action to be taken when this argument is encountered at the command line
+     *
      * @param action_
      * @return this reference
+     *
+     * @throw ArgumentException
      */
     Argument& action(enum Action::eAction action_);
 
     /**
      * @brief A brief description of what the argument does
+     *
      * @param help_
      * @return this reference
      */
@@ -454,13 +489,15 @@ class Argument : public ArgumentElement {
 
     /**
      * @brief Whether or not the command-line option may be omitted (optionals only)
+     *
      * @param required_
      * @return this reference
      */
-    Argument& required(bool required_);
+    Argument& required(bool required_ = true);
 
     /**
      * @brief A name for the argument in usage messages
+     *
      * @param metavar_
      * @return this reference
      */
@@ -471,8 +508,11 @@ class Argument : public ArgumentElement {
 
     /**
      * @brief The number of command-line arguments that should be consumed
+     *
      * @param nargs_
      * @return this reference
+     *
+     * @throw ArgumentException
      */
     Argument& nargs(std::size_t nargs_) {
         _nargs = nargs_;
@@ -483,8 +523,11 @@ class Argument : public ArgumentElement {
 
     /**
      * @brief The value produced if the argument is absent from the command line
+     *
      * @param defaults_
      * @return this reference
+     *
+     * @throw ArgumentException
      */
     Argument& defaults(const Vector& defaults_) {
         _defaults = defaults_;
@@ -494,7 +537,9 @@ class Argument : public ArgumentElement {
 
     /**
      * @brief New object from IValid interface
+     *
      * @param pValid
+     * @param isDeletable
      * @return this reference
      */
     Argument& valid(IValid* pValid, bool isDeletable = true) {
@@ -511,6 +556,7 @@ class Argument : public ArgumentElement {
      *
      * @tparam T
      * @param dest
+     * @param toDest
      * @return reference of new argument
      */
     template<typename T>
@@ -529,6 +575,7 @@ class Argument : public ArgumentElement {
      *
      * @tparam T
      * @param dest
+     * @param toDest
      * @return reference of new argument
      */
     template<typename T>
@@ -546,6 +593,7 @@ class Argument : public ArgumentElement {
      *
      * @tparam T
      * @param dest
+     * @param toDest
      * @return reference of new argument
      */
     template<typename T>
@@ -614,6 +662,8 @@ class Argument : public ArgumentElement {
     void _defaultsConstructor();
 
     void _sortNameOrFlags();
+
+    void _clear();
 
     static void _validFormatFlag(const char* flag);
 

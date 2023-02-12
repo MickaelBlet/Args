@@ -32,13 +32,29 @@ const std::string& getVersion() const;
 
 Get the version message.
 
+## setAlternative
+
+```cpp
+Argparsor& setAlternative(bool alternivative = true);
+```
+
+Active parsing for accept long option with only one '-' character.
+
 ## isAlternative
 
 ```cpp
 bool isAlternative() const;
 ```
 
-Check if alternative mode was activated on [parseArguments](#parsearguments) method.
+Get the status of alternative.
+
+## setStrict
+
+```cpp
+Argparsor& setStrict(bool strict = true);
+```
+
+Active exception if not all argument is used else you can take additionnals arguments with [getAdditionalArguments](#getadditionalarguments) method.
 
 ## isStrict
 
@@ -46,7 +62,47 @@ Check if alternative mode was activated on [parseArguments](#parsearguments) met
 bool isStrict() const;
 ```
 
-Check if strict mode was activated on [parseArguments](#parsearguments) method.
+Get the status of strict.
+
+## setHelpException
+
+```cpp
+Argparsor& setHelpException(bool helpException = true);
+```
+
+Throw a HelpException when help action is present in arguments else exit(0) the your program after output usage at stdout.
+
+## isHelpException
+
+```cpp
+bool isHelpException() const;
+```
+
+Get the status of helpException.
+
+## setVersionException
+
+```cpp
+Argparsor& setVersionException(bool versionException = true);
+```
+
+Throw a VersionException when version action is present in arguments else exit(0) the your program after output usage at stdout.
+
+## isVersionException
+
+```cpp
+bool isVersionException() const;
+```
+
+Get the status of versionException.
+
+## setBinaryName
+
+```cpp
+void setBinaryName(const char* binaryName);
+```
+
+Set the binary name.
 
 ## getBinaryName
 
@@ -54,7 +110,7 @@ Check if strict mode was activated on [parseArguments](#parsearguments) method.
 const std::string& getBinaryName() const;
 ```
 
-Get the binary name (argv[0]) after [parseArguments](#parsearguments) method.
+Get the binary name.
 
 ## argumentExists
 
@@ -118,13 +174,11 @@ args.addArgument("ARG");
 
 ### Definitions
 
-
-
 |Methods|||
 |---|---|---|
-| [flag](docs/argument.md#flag) | [action](docs/argument.md#action) | [help](docs/argument.md#help-1) |
-| [required](docs/argument.md#required) | [metavar](docs/argument.md#metavar) | [nargs](docs/argument.md#nargs) |
-| [defaults](docs/argument.md#defaults) | [valid](docs/argument.md#valid) | [dest](docs/argument.md#dest) |
+| [flag](argument.md#flag) | [action](argument.md#action) | [help](argument.md#help-1) |
+| [required](argument.md#required) | [metavar](argument.md#metavar) | [nargs](argument.md#nargs) |
+| [defaults](argument.md#defaults) | [valid](argument.md#valid) | [dest](argument.md#dest) |
 
 ## updateArgument
 
@@ -141,3 +195,11 @@ void removeArguments(const Vector& nameOrFlags);
 ```
 
 Remove previously arguments.
+
+## clear
+
+```cpp
+void clear();
+```
+
+Clear and reset with defaults values.

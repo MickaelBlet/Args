@@ -6,11 +6,15 @@
 void setUsage(const char* usage);
 ```
 
+Set the usage message.
+
 ## getUsage
 
 ```cpp
 std::string getUsage() const;
 ```
+
+Get the usage message.
 
 ## setDescription
 
@@ -18,13 +22,39 @@ std::string getUsage() const;
 void setDescription(const char* description);
 ```
 
+Set the description in usage message.
+
+## getDescription
+
+```cpp
+const std::string& getDescription() const;
+```
+
+Get the description message.
+
 ## setEpilog
 
 ```cpp
 void setEpilog(const char* epilog);
 ```
 
+Set the epilog in usage message.
+
+## getEpilog
+
+```cpp
+const std::string& getEpilog() const;
+```
+
+Get the epilog message.
+
 ## setUsageWidth
+
+```cpp
+void setUsageWidth(std::size_t padWidth, std::size_t argsWidth, std::size_t sepWidth, std::size_t helpWidth);
+```
+
+Set the usage witdhs.
 
 <img src="images/headerUsageWidth.drawio.png" />
 

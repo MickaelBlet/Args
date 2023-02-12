@@ -39,10 +39,10 @@ const char* Exception::what() const throw() {
     return _str.c_str();
 }
 
-UsageException::UsageException(const char* message) :
+HelpException::HelpException(const char* message) :
     Exception(message) {}
 
-UsageException::~UsageException() throw() {}
+HelpException::~HelpException() throw() {}
 
 VersionException::VersionException(const char* message) :
     Exception(message) {}

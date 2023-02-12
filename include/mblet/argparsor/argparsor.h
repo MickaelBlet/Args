@@ -81,6 +81,16 @@ class Argparsor : public Usage {
     }
 
     /**
+     * @brief Active parsing for accept long option with only one '-' character
+     *
+     * @param alternivative
+     */
+    Argparsor& setAlternative(bool alternivative = true) {
+        _isAlternative = alternivative;
+        return *this;
+    }
+
+    /**
      * @brief Get the status of alternative
      *
      * @return [true] at alternative
@@ -90,12 +100,72 @@ class Argparsor : public Usage {
     }
 
     /**
+     * @brief Active exception if not all argument is used else you can take additionnal argument with
+     *        getAdditionalArguments method
+     *
+     * @param strict
+     */
+    Argparsor& setStrict(bool strict = true) {
+        _isStrict = strict;
+        return *this;
+    }
+
+    /**
      * @brief Get the status of strict
      *
      * @return [true] at strict
      */
     bool isStrict() const {
         return _isStrict;
+    }
+
+    /**
+     * @brief Throw a HelpException when help action is present in arguments else exit(0) the your
+     *        program after output usage at stdout
+     *
+     * @param helpException
+     */
+    Argparsor& setHelpException(bool helpException = true) {
+        _isHelpException = helpException;
+        return *this;
+    }
+
+    /**
+     * @brief Get the status of helpException
+     *
+     * @return [true] at usage exception
+     */
+    bool isHelpException() const {
+        return _isHelpException;
+    }
+
+    /**
+     * @brief Throw a VersionException when version action is present in arguments else exit(0) the your
+     *        program after output usage at stdout
+     *
+     * @param versionException
+     */
+    Argparsor& setVersionException(bool versionException = true) {
+        _isVersionException = versionException;
+        return *this;
+    }
+
+    /**
+     * @brief Get the status of versionException
+     *
+     * @return [true] at version exception
+     */
+    bool isVersionException() const {
+        return _isVersionException;
+    }
+
+    /**
+     * @brief Set the binary name
+     *
+     * @param binaryName
+     */
+    void setBinaryName(const char* binaryName) {
+        _binaryName = binaryName;
     }
 
     /**
@@ -152,19 +222,18 @@ class Argparsor : public Usage {
 
     /**
      * @brief Convert argument strings to objects and assign them as attributes of the argparsor map.
-     * Previous calls to addArgument() determine exactly what objects are created and how they are assigned
+     *        Previous calls to addArgument() determine exactly what objects are created and how they are assigned.
+     *        Comportenment depend of setAlternative, setStrict, setHelpException and setVersionException modes.
      * @param argc
      * @param argv
-     * @param alternative Active parsing for accept long option with only one '-' character
-     * @param strict Active exception if not all argument is used else you can take additionnal argument with
-     *        getAdditionalArguments method
-     * @param usageException Throw a UsageException when help action is present in arguments else exit(0) the your
-     * program after output usage at stdout
-     * @param versionException Throw a VersionException when version action is present in arguments else exit(0) the
-     * your program after output version at stdout
+     *
+     * @throw HelpException if setHelpException is active
+     * @throw VersionException if setVersionException is active
+     * @throw ParseArgumentRequiredException
+     * @throw ParseArgumentValidException
+     * @throw ParseArgumentException
      */
-    void parseArguments(int argc, char* argv[], bool alternative = false, bool strict = false,
-                        bool usageException = false, bool versionException = false);
+    void parseArguments(int argc, char* argv[]);
 
     /**
      * @brief Define how a single command-line argument should be parsed
@@ -172,6 +241,8 @@ class Argparsor : public Usage {
      * @param nameOrFlags Either a name or a list of option strings, e.g. foo or -f, --foo
      *
      * @return Argument& ref of new argument object
+     *
+     * @throw ArgumentException
      */
     Argument& addArgument(const Vector& nameOrFlags);
 
@@ -180,6 +251,8 @@ class Argparsor : public Usage {
      *
      * @param nameOrFlag
      * @return Argument& ref argument object
+     *
+     * @throw ArgumentException
      */
     Argument& updateArgument(const std::string& nameOrFlag) {
         std::map<std::string, Argument**>::iterator it = _argumentFromName.find(nameOrFlag);
@@ -193,8 +266,15 @@ class Argparsor : public Usage {
      * @brief Remove previously arguments
      *
      * @param nameOrFlags Either a name or a list of option strings, e.g. foo or -f, --foo
+     *
+     * @throw ArgumentException
      */
     void removeArguments(const Vector& nameOrFlags);
+
+    /**
+     * @brief Clear and reset with defaults values
+     */
+    void clear();
 
   private:
     Argparsor(const Argparsor&);            // disable copy constructor
@@ -264,6 +344,8 @@ class Argparsor : public Usage {
 
     bool _isAlternative;
     bool _isStrict;
+    bool _isHelpException;
+    bool _isVersionException;
     std::vector<std::string> _additionalArguments;
 };
 
