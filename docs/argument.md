@@ -175,7 +175,7 @@ template<typename T>
 Argument& dest(T& dest, void (*toDest)(T& dest, bool isExist, const std::string& argument) = NULL);
 ```
 
-Define a reference of object for insert the value after [parseArguments](parse.md#parsearguments) method.  
+Define a reference of object for insert the value after [parseArguments](argparsor.md#parsearguments) method.  
 Action can be changed by `toDest` parameter with your function.
 
 ```cpp
@@ -223,7 +223,7 @@ Get Number if [isNumber](#isnumber).
 bool isExists() const;
 ```
 
-After [parseArguments](parse.md#parsearguments) method check if this argument is present in *argv*.
+After [parseArguments](argparsor.md#parsearguments) method check if this argument is present in *argv*.
 
 ## isRequired
 
@@ -239,7 +239,7 @@ Get [required](#required) option.
 std::size_t count() const;
 ```
 
-After [parseArguments](parse.md#parsearguments) method check if number of this argument in *argv*.
+After [parseArguments](argparsor.md#parsearguments) method check if number of this argument in *argv*.
 
 ## getNargs
 

@@ -97,114 +97,115 @@ int main(int argc, char* argv[]) {
         .nargs(2)
         .defaults(args.vector("0", "1", "2", "3"))
         .dest(options.extendNumber, &options.toExtendNumber);
+
     try {
-        args.setAlternative().setHelpException().setVersionException();
-        args.parseArguments(argc, argv);
-
-        // ---------------------------------------------------------------------
-        // ACCESS BY MAP
-        // ---------------------------------------------------------------------
-
-        std::cout << "--- MAP ---" << std::endl;
-
-        if (args["NOTREQUIRED"]) {
-            std::cout << "NOTREQUIRED: " << args["NOTREQUIRED"] << std::endl;
-        }
-        std::cout << "REQUIRED: " << args["REQUIRED"] << std::endl;
-
-        std::cout << "-b: " << args["-b"] << std::endl;
-        std::cout << "-c: " << args["-c"] << std::endl;
-
-        if (args["--simple"]) {
-            std::cout << "--simple: " << args["--simple"] << std::endl;
-        }
-        if (args["--number"]) {
-            std::cout << "--number: " << args["--number"] << std::endl;
-        }
-        if (args["--infinite"]) {
-            std::cout << "--infinite: " << args["--infinite"] << std::endl;
-        }
-        if (args["--multi"]) {
-            std::cout << "--multi: " << args["--multi"] << std::endl;
-        }
-        if (args["--multiAppend"]) {
-            std::cout << "--multiAppend: " << args["--multiAppend"] << std::endl;
-        }
-        if (args["--extend"]) {
-            std::cout << "--extend: " << args["--extend"] << std::endl;
-        }
-        if (args["--extend-number"]) {
-            std::cout << "--extend-number: " << args["--extend-number"] << std::endl;
-        }
-
-        // ---------------------------------------------------------------------
-        // ACCESS BY DEST
-        // ---------------------------------------------------------------------
-        std::cout << "\n--- DEST ---" << std::endl;
-
-        std::cout << "NOTREQUIRED: " << options.notrequired << std::endl;
-        std::cout << "REQUIRED: " << options.required << std::endl;
-        std::cout << "-b: " << options.b << std::endl;
-        std::cout << "-c: " << options.c << std::endl;
-        std::cout << "--simple: " << options.simple << std::endl;
-        std::cout << "--number: [0]:" << options.number[0] << ", [1]:" << options.number[1] << std::endl;
-        std::cout << "--infinite: ";
-        for (std::size_t i = 0; i < options.infinite.size(); ++i) {
-            if (i > 0) {
-                std::cout << ", ";
-            }
-            std::cout << options.infinite[i];
-        }
-        std::cout << std::endl;
-
-        std::cout << "--multi: ";
-        for (std::size_t i = 0; i < options.multi.size(); ++i) {
-            if (i > 0) {
-                std::cout << ", ";
-            }
-            std::cout << options.multi[i];
-        }
-        std::cout << std::endl;
-
-        std::cout << "--multiAppend: ";
-        for (std::size_t i = 0; i < options.multiAppend.size(); ++i) {
-            if (i > 0) {
-                std::cout << ", ";
-            }
-            std::cout << options.multiAppend[i][0];
-            std::cout << ", " << options.multiAppend[i][1];
-        }
-        std::cout << std::endl;
-
-        std::cout << "--extend: ";
-        for (std::size_t i = 0; i < options.extend.size(); ++i) {
-            if (i > 0) {
-                std::cout << ", ";
-            }
-            std::cout << options.extend[i];
-        }
-        std::cout << std::endl;
-
-        std::cout << "--extend-number: ";
-        for (std::size_t i = 0; i < options.extendNumber.size(); ++i) {
-            if (i > 0) {
-                std::cout << ", ";
-            }
-            std::cout << options.extendNumber[i].a;
-            std::cout << ", " << options.extendNumber[i].b;
-        }
-        std::cout << std::endl;
+        args.setAlternative().setHelpException().setVersionException().parseArguments(argc, argv);
     }
     catch (const Argparsor::HelpException& e) {
-        std::cout << args.getUsage() << std::endl;
+        std::cout << e.what() << std::endl; // write usage message
+        return 0;
     }
     catch (const Argparsor::VersionException& e) {
-        std::cout << args.getVersion() << std::endl;
+        std::cout << e.what() << std::endl; // write version message
+        return 0;
     }
     catch (const Argparsor::ParseArgumentException& e) {
-        std::cerr << args.getBinaryName() << ": " << e.what();
-        std::cerr << " -- '" << e.argument() << "'" << std::endl;
-        return 1; // END
+        std::cerr << args.getBinaryName() << ": " << e.what() << " -- '" << e.argument() << "'" << std::endl;
+        return 1;
     }
+
+    // ---------------------------------------------------------------------
+    // ACCESS BY MAP
+    // ---------------------------------------------------------------------
+
+    std::cout << "--- MAP ---" << std::endl;
+
+    if (args["NOTREQUIRED"]) {
+        std::cout << "NOTREQUIRED: " << args["NOTREQUIRED"] << std::endl;
+    }
+    std::cout << "REQUIRED: " << args["REQUIRED"] << std::endl;
+
+    std::cout << "-b: " << args["-b"] << std::endl;
+    std::cout << "-c: " << args["-c"] << std::endl;
+
+    if (args["--simple"]) {
+        std::cout << "--simple: " << args["--simple"] << std::endl;
+    }
+    if (args["--number"]) {
+        std::cout << "--number: " << args["--number"] << std::endl;
+    }
+    if (args["--infinite"]) {
+        std::cout << "--infinite: " << args["--infinite"] << std::endl;
+    }
+    if (args["--multi"]) {
+        std::cout << "--multi: " << args["--multi"] << std::endl;
+    }
+    if (args["--multiAppend"]) {
+        std::cout << "--multiAppend: " << args["--multiAppend"] << std::endl;
+    }
+    if (args["--extend"]) {
+        std::cout << "--extend: " << args["--extend"] << std::endl;
+    }
+    if (args["--extend-number"]) {
+        std::cout << "--extend-number: " << args["--extend-number"] << std::endl;
+    }
+
+    // ---------------------------------------------------------------------
+    // ACCESS BY DEST
+    // ---------------------------------------------------------------------
+    std::cout << "\n--- DEST ---" << std::endl;
+
+    std::cout << "NOTREQUIRED: " << options.notrequired << std::endl;
+    std::cout << "REQUIRED: " << options.required << std::endl;
+    std::cout << "-b: " << options.b << std::endl;
+    std::cout << "-c: " << options.c << std::endl;
+    std::cout << "--simple: " << options.simple << std::endl;
+    std::cout << "--number: [0]:" << options.number[0] << ", [1]:" << options.number[1] << std::endl;
+    std::cout << "--infinite: ";
+    for (std::size_t i = 0; i < options.infinite.size(); ++i) {
+        if (i > 0) {
+            std::cout << ", ";
+        }
+        std::cout << options.infinite[i];
+    }
+    std::cout << std::endl;
+
+    std::cout << "--multi: ";
+    for (std::size_t i = 0; i < options.multi.size(); ++i) {
+        if (i > 0) {
+            std::cout << ", ";
+        }
+        std::cout << options.multi[i];
+    }
+    std::cout << std::endl;
+
+    std::cout << "--multiAppend: ";
+    for (std::size_t i = 0; i < options.multiAppend.size(); ++i) {
+        if (i > 0) {
+            std::cout << ", ";
+        }
+        std::cout << options.multiAppend[i][0];
+        std::cout << ", " << options.multiAppend[i][1];
+    }
+    std::cout << std::endl;
+
+    std::cout << "--extend: ";
+    for (std::size_t i = 0; i < options.extend.size(); ++i) {
+        if (i > 0) {
+            std::cout << ", ";
+        }
+        std::cout << options.extend[i];
+    }
+    std::cout << std::endl;
+
+    std::cout << "--extend-number: ";
+    for (std::size_t i = 0; i < options.extendNumber.size(); ++i) {
+        if (i > 0) {
+            std::cout << ", ";
+        }
+        std::cout << options.extendNumber[i].a;
+        std::cout << ", " << options.extendNumber[i].b;
+    }
+    std::cout << std::endl;
     return 0;
 }

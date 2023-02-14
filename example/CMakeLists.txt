@@ -6,7 +6,7 @@ set(example_files
     "${CMAKE_CURRENT_SOURCE_DIR}/allType.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/append1.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/append3.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/argument.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/argument1.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/argument3.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/custom-valid-transform.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/default-valid.cpp"

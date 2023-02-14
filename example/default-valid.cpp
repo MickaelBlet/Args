@@ -10,13 +10,21 @@ int main(int argc, char* argv[]) {
         .valid(&validNumber, false) // set deletable at false
         // or .valid(new mblet::Argparsor::ValidNumber())
         .required(true);
+
     try {
-        args.parseArguments(argc, argv);
+        args.setHelpException().setVersionException().parseArguments(argc, argv);
         std::cout << args["--option"] << std::endl;
-        return 0;
+    }
+    catch (const mblet::Argparsor::HelpException& e) {
+        std::cout << e.what() << std::endl;
+    }
+    catch (const mblet::Argparsor::VersionException& e) {
+        std::cout << e.what() << std::endl;
     }
     catch (const mblet::Argparsor::ParseArgumentException& e) {
         std::cerr << args.getBinaryName() << ": " << e.what() << " -- '" << e.argument() << "'" << std::endl;
         return 1;
     }
+
+    return 0;
 }

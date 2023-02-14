@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.5)
 
-project(argparsor VERSION 3.3.0 LANGUAGES CXX)
+project(argparsor VERSION 4.0.0 LANGUAGES CXX)
 
 # OPTIONS
 option(BUILD_EXAMPLE "Build example binaries" OFF)
@@ -54,10 +54,11 @@ install(FILES "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}Config.cmake"
         DESTINATION "lib/cmake"
 )
 
+if(BUILD_TESTING)
+    enable_testing()
+endif()
+
 if(BUILD_EXAMPLE)
-    if(BUILD_TESTING)
-        enable_testing()
-    endif()
     add_subdirectory(example)
 endif()
 
@@ -70,12 +71,9 @@ get_target_property(library_type "${PROJECT_NAME}" TYPE)
 if(library_type STREQUAL "STATIC_LIBRARY" AND
    CMAKE_BUILD_TYPE STREQUAL "Debug" AND
    BUILD_TESTING)
-    enable_testing()
     if(BUILD_COVERAGE)
         target_compile_options("${PROJECT_NAME}" PRIVATE -g -O0 --coverage -fprofile-arcs -ftest-coverage)
         target_link_libraries("${PROJECT_NAME}" gcov)
-        include("${CMAKE_CURRENT_SOURCE_DIR}/etc/cmake/CodeCoverage.cmake")
-        append_coverage_compiler_flags_to_target("${PROJECT_NAME}")
     endif()
     add_subdirectory(test)
 endif()

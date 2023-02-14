@@ -20,13 +20,18 @@ enum eLogLevel {
 };
 
 void argToLogLevel(eLogLevel& logLevel, bool /*isExists*/, const std::string& argument) {
-    static const std::pair<std::string, eLogLevel> pairLogLevels[] = {
-        std::pair<std::string, eLogLevel>("DEBUG", DEBUG), std::pair<std::string, eLogLevel>("INFO", INFO),
-        std::pair<std::string, eLogLevel>("WARNING", WARNING), std::pair<std::string, eLogLevel>("ERROR", ERROR)};
-    static const std::map<std::string, eLogLevel> logLevels(
-        pairLogLevels, pairLogLevels + sizeof(pairLogLevels) / sizeof(*pairLogLevels));
-
-    logLevel = logLevels.at(argument);
+    if (argument == "DEBUG") {
+        logLevel = DEBUG;
+    }
+    else if (argument == "INFO") {
+        logLevel = INFO;
+    }
+    else if (argument == "WARNING") {
+        logLevel = WARNING;
+    }
+    else if (argument == "ERROR") {
+        logLevel = ERROR;
+    }
 }
 
 int main(int argc, char* argv[]) {
@@ -44,42 +49,50 @@ int main(int argc, char* argv[]) {
         .valid(new mblet::Argparsor::ValidChoise(args.vector("DEBUG", "INFO", "WARNING", "ERROR")))
         .defaults("INFO")
         .dest(logLevel, &argToLogLevel); // fill logLevel by argToLogLevel
+
     try {
-        args.setStrict().setAlternative().setUsageException().setVersionException(); // activate all parse options
-        args.parseArguments(argc, argv);
-        std::cout << "ARGUMENT: " << args["ARGUMENT"] << '\n';
-        // check if option is exists
-        if (args["--option"]) {
-            std::cout << "--option: " << args["--option"][0] << ", " << args["--option"][1] << '\n';
-        }
-        std::cout << "--log-level: ";
-        switch (logLevel) {
-            case DEBUG:
-                std::cout << "DEBUG";
-                break;
-            case INFO:
-                std::cout << "INFO";
-                break;
-            case WARNING:
-                std::cout << "WARNING";
-                break;
-            case ERROR:
-                std::cout << "ERROR";
-                break;
-        }
-        std::cout << std::endl;
+        args.setStrict()           // except with additionnal argument
+            .setAlternative()      // accept simple '-' with a long flag
+            .setHelpException()    // except when help flag is called
+            .setVersionException() // except when version flag is called
+            .parseArguments(argc, argv);
     }
     catch (const mblet::Argparsor::VersionException& e) {
         std::cout << e.what() << std::endl;
+        return 0;
     }
     catch (const mblet::Argparsor::HelpException& e) {
         std::cout << e.what() << std::endl;
+        return 0;
     }
     catch (const mblet::Argparsor::ParseArgumentException& e) {
         std::cerr << args.getBinaryName() << ": " << e.what();
         std::cerr << " -- '" << e.argument() << "'" << std::endl;
-        return 1; // END
+        return 1;
     }
+
+    std::cout << "ARGUMENT: " << args["ARGUMENT"] << '\n';
+    // check if option is exists
+    if (args["--option"]) {
+        std::cout << "--option: " << args["--option"][0] << ", " << args["--option"][1] << '\n';
+    }
+    std::cout << "--log-level: ";
+    switch (logLevel) {
+        case DEBUG:
+            std::cout << "DEBUG";
+            break;
+        case INFO:
+            std::cout << "INFO";
+            break;
+        case WARNING:
+            std::cout << "WARNING";
+            break;
+        case ERROR:
+            std::cout << "ERROR";
+            break;
+    }
+    std::cout << std::endl;
+
     return 0;
 }
 ```

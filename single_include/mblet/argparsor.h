@@ -971,7 +971,6 @@ class Argument : public ArgumentElement {
      * @param help_
      * @return this reference
      */
-
     Argument& help(const char* help_) {
         _help = help_;
         return *this;
