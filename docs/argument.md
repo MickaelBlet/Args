@@ -10,7 +10,7 @@ Add flag in argument object.
 
 Example:
 ```cpp
-Argparsor args;
+Args args;
 args.addArgument("-f").flag("--foo");
 ```
 
@@ -53,9 +53,9 @@ This case used for create the help flag.
 ⚠ Can only use this action after constructor with false parameter or remove the last help flags.  
 
 ```cpp
-mblet::Argparsor args(false);
+blet::Args args(false);
 // or
-// mblet::Argparsor args;
+// blet::Args args;
 // args.removeArgument(args.vector("-h", "--help"));
 ```
 
@@ -133,7 +133,7 @@ Example of Custom Valid at [examples.md/custom-valid-transform](examples.md#cust
 ### ValidNumber
 
 ```cpp
-args.addArgument("--arg").valid(new mblet::Argparsor::ValidNumber());
+args.addArgument("--arg").valid(new blet::Args::ValidNumber());
 ```
 
 Check if arguments are number.
@@ -141,7 +141,7 @@ Check if arguments are number.
 ### ValidMinMax
 
 ```cpp
-args.addArgument("--arg").valid(new mblet::Argparsor::ValidMinMax(0, 100));
+args.addArgument("--arg").valid(new blet::Args::ValidMinMax(0, 100));
 ```
 
 Check if arguments are number and if in range of min-max.
@@ -149,7 +149,7 @@ Check if arguments are number and if in range of min-max.
 ### ValidChoise
 
 ```cpp
-args.addArgument("--arg").valid(new mblet::Argparsor::ValidChoise(args.vector("foo", "bar")));
+args.addArgument("--arg").valid(new blet::Args::ValidChoise(args.vector("foo", "bar")));
 ```
 
 Check if arguments are in choise.
@@ -157,9 +157,9 @@ Check if arguments are in choise.
 ### ValidPath
 
 ```cpp
-args.addArgument("--arg").valid(new mblet::Argparsor::ValidPath());
-args.addArgument("--arg").valid(new mblet::Argparsor::ValidPath(mblet::Argparsor::ValidPath::IS_DIR));
-args.addArgument("--arg").valid(new mblet::Argparsor::ValidPath(mblet::Argparsor::ValidPath::IS_FILE));
+args.addArgument("--arg").valid(new blet::Args::ValidPath());
+args.addArgument("--arg").valid(new blet::Args::ValidPath(blet::Args::ValidPath::IS_DIR));
+args.addArgument("--arg").valid(new blet::Args::ValidPath(blet::Args::ValidPath::IS_FILE));
 ```
 
 Check if arguments are valid path/dir/file.
@@ -175,7 +175,7 @@ template<typename T>
 Argument& dest(T& dest, void (*toDest)(T& dest, bool isExist, const std::string& argument) = NULL);
 ```
 
-Define a reference of object for insert the value after [parseArguments](argparsor.md#parsearguments) method.  
+Define a reference of object for insert the value after [parseArguments](args.md#parsearguments) method.  
 Action can be changed by `toDest` parameter with your function.
 
 ```cpp
@@ -223,7 +223,7 @@ Get Number if [isNumber](#isnumber).
 bool isExists() const;
 ```
 
-After [parseArguments](argparsor.md#parsearguments) method check if this argument is present in *argv*.
+After [parseArguments](args.md#parsearguments) method check if this argument is present in *argv*.
 
 ## isRequired
 
@@ -239,7 +239,7 @@ Get [required](#required) option.
 std::size_t count() const;
 ```
 
-After [parseArguments](argparsor.md#parsearguments) method check if number of this argument in *argv*.
+After [parseArguments](args.md#parsearguments) method check if number of this argument in *argv*.
 
 ## getNargs
 

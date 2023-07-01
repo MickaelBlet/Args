@@ -1,5 +1,5 @@
 /**
- * argparsor/exception.h
+ * args/exception.h
  *
  * Licensed under the MIT License <http://opensource.org/licenses/MIT>.
  * Copyright (c) 2022-2023 BLET Mickael.
@@ -23,15 +23,15 @@
  * SOFTWARE.
  */
 
-#ifndef _MBLET_ARGPARSOR_EXCEPTION_H_
-#define _MBLET_ARGPARSOR_EXCEPTION_H_
+#ifndef _BLET_ARGS_EXCEPTION_H_
+#define _BLET_ARGS_EXCEPTION_H_
 
 #include <exception>
 #include <string>
 
-namespace mblet {
+namespace blet {
 
-namespace argparsor {
+namespace args {
 
 /**
  * @brief Basic exception from std::exception
@@ -98,8 +98,8 @@ struct ParseArgumentValidException : public ParseArgumentException {
     virtual ~ParseArgumentValidException() throw();
 };
 
-} // namespace argparsor
+} // namespace args
 
-} // namespace mblet
+} // namespace blet
 
-#endif // #ifndef _MBLET_ARGPARSOR_EXCEPTION_H_
+#endif // #ifndef _BLET_ARGS_EXCEPTION_H_

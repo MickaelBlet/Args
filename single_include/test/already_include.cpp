@@ -1,6 +1,6 @@
-#include "mblet/argparsor.h"
+#include "blet/args.h"
 
-void test(mblet::Argparsor& args, int argc, char* argv[]) {
+void test(blet::Args& args, int argc, char* argv[]) {
     try {
         args.parseArguments(argc, argv);
         if (args["ARG"]) {

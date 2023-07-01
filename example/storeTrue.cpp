@@ -1,9 +1,9 @@
 #include <iostream>
 
-#include "mblet/argparsor.h"
+#include "blet/args.h"
 
 int main(int argc, char* argv[]) {
-    mblet::Argparsor args;
+    blet::Args args;
     args.addArgument(args.vector("-b", "--boolean")).action(args.STORE_TRUE).help("custom boolean option message");
 
     try {
@@ -16,13 +16,13 @@ int main(int argc, char* argv[]) {
             std::cout << "false" << std::endl;
         }
     }
-    catch (const mblet::Argparsor::HelpException& e) {
+    catch (const blet::Args::HelpException& e) {
         std::cout << e.what() << std::endl;
     }
-    catch (const mblet::Argparsor::VersionException& e) {
+    catch (const blet::Args::VersionException& e) {
         std::cout << e.what() << std::endl;
     }
-    catch (const mblet::Argparsor::ParseArgumentException& e) {
+    catch (const blet::Args::ParseArgumentException& e) {
         std::cerr << args.getBinaryName() << ": " << e.what() << " -- '" << e.argument() << "'" << std::endl;
         return 1; // END
     }

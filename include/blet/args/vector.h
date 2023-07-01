@@ -1,5 +1,5 @@
 /**
- * argparsor/vector.h
+ * args/vector.h
  *
  * Licensed under the MIT License <http://opensource.org/licenses/MIT>.
  * Copyright (c) 2022-2023 BLET Mickael.
@@ -23,15 +23,15 @@
  * SOFTWARE.
  */
 
-#ifndef _MBLET_ARGPARSOR_VECTOR_H_
-#define _MBLET_ARGPARSOR_VECTOR_H_
+#ifndef _BLET_ARGS_VECTOR_H_
+#define _BLET_ARGS_VECTOR_H_
 
 #include <string>
 #include <vector>
 
-namespace mblet {
+namespace blet {
 
-namespace argparsor {
+namespace args {
 
 class Vector : public std::vector<std::string> {
   public:
@@ -87,8 +87,8 @@ class Vector : public std::vector<std::string> {
 #endif
 };
 
-} // namespace argparsor
+} // namespace args
 
-} // namespace mblet
+} // namespace blet
 
-#endif // #ifndef _MBLET_ARGPARSOR_VECTOR_H_
+#endif // #ifndef _BLET_ARGS_VECTOR_H_

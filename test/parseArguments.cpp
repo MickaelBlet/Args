@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 #include <sys/stat.h>
 
-#include "mblet/argparsor.h"
+#include "blet/args.h"
 #include "mock/mockc.h"
 
 GTEST_TEST(parseArguments, parseException) {
@@ -9,106 +9,106 @@ GTEST_TEST(parseArguments, parseException) {
         const char* argv[] = {"binaryName", "-ba"};
         const int argc = sizeof(argv) / sizeof(*argv);
 
-        mblet::Argparsor args;
-        args.addArgument("-a").action(mblet::Argparsor::STORE_TRUE);
+        blet::Args args;
+        args.addArgument("-a").action(blet::Args::STORE_TRUE);
         EXPECT_THROW(
             {
                 try {
                     args.setAlternative().setStrict();
                     args.parseArguments(argc, const_cast<char**>(argv));
                 }
-                catch (const mblet::Argparsor::ParseArgumentException& e) {
+                catch (const blet::Args::ParseArgumentException& e) {
                     EXPECT_STREQ(e.what(), "invalid option");
                     EXPECT_STREQ(e.argument(), "b");
                     throw;
                 }
             },
-            mblet::Argparsor::ParseArgumentException);
+            blet::Args::ParseArgumentException);
     }
     {
         const char* argv[] = {"binaryName", "-ba"};
         const int argc = sizeof(argv) / sizeof(*argv);
 
-        mblet::Argparsor args;
-        args.addArgument("-a").action(mblet::Argparsor::STORE_TRUE);
-        args.addArgument("-b").action(mblet::Argparsor::EXTEND).nargs(2);
+        blet::Args args;
+        args.addArgument("-a").action(blet::Args::STORE_TRUE);
+        args.addArgument("-b").action(blet::Args::EXTEND).nargs(2);
         EXPECT_THROW(
             {
                 try {
                     args.setAlternative().setStrict();
                     args.parseArguments(argc, const_cast<char**>(argv));
                 }
-                catch (const mblet::Argparsor::ParseArgumentException& e) {
+                catch (const blet::Args::ParseArgumentException& e) {
                     EXPECT_STREQ(e.what(), "only last option can be use a parameter");
                     EXPECT_STREQ(e.argument(), "b");
                     throw;
                 }
             },
-            mblet::Argparsor::ParseArgumentException);
+            blet::Args::ParseArgumentException);
     }
     {
         const char* argv[] = {"binaryName", "-a"};
         const int argc = sizeof(argv) / sizeof(*argv);
 
-        mblet::Argparsor args;
+        blet::Args args;
         EXPECT_THROW(
             {
                 try {
                     args.setAlternative().setStrict();
                     args.parseArguments(argc, const_cast<char**>(argv));
                 }
-                catch (const mblet::Argparsor::ParseArgumentException& e) {
+                catch (const blet::Args::ParseArgumentException& e) {
                     EXPECT_STREQ(e.what(), "invalid option");
                     EXPECT_STREQ(e.argument(), "a");
                     throw;
                 }
             },
-            mblet::Argparsor::ParseArgumentException);
+            blet::Args::ParseArgumentException);
     }
     {
         const char* argv[] = {"binaryName", "--long"};
         const int argc = sizeof(argv) / sizeof(*argv);
 
-        mblet::Argparsor args;
+        blet::Args args;
         EXPECT_THROW(
             {
                 try {
                     args.setAlternative().setStrict();
                     args.parseArguments(argc, const_cast<char**>(argv));
                 }
-                catch (const mblet::Argparsor::ParseArgumentException& e) {
+                catch (const blet::Args::ParseArgumentException& e) {
                     EXPECT_STREQ(e.what(), "invalid option");
                     EXPECT_STREQ(e.argument(), "long");
                     throw;
                 }
             },
-            mblet::Argparsor::ParseArgumentException);
+            blet::Args::ParseArgumentException);
     }
     {
         const char* argv[] = {"binaryName", "--boolean=nothing"};
         const int argc = sizeof(argv) / sizeof(*argv);
 
-        mblet::Argparsor args;
-        args.addArgument("--boolean").action(mblet::Argparsor::STORE_TRUE);
+        blet::Args args;
+        args.addArgument("--boolean").action(blet::Args::STORE_TRUE);
         EXPECT_THROW(
             {
                 try {
                     args.setAlternative().setStrict();
                     args.parseArguments(argc, const_cast<char**>(argv));
                 }
-                catch (const mblet::Argparsor::ParseArgumentException& e) {
+                catch (const blet::Args::ParseArgumentException& e) {
                     EXPECT_STREQ(e.what(), "option cannot use with argument");
                     EXPECT_STREQ(e.argument(), "boolean");
                     throw;
                 }
             },
-            mblet::Argparsor::ParseArgumentException);
+            blet::Args::ParseArgumentException);
     }
     {
         const char* argv[] = {"binaryName", "--number=nothing"};
         const int argc = sizeof(argv) / sizeof(*argv);
 
-        mblet::Argparsor args;
+        blet::Args args;
         args.addArgument("--number").nargs(2);
         EXPECT_THROW(
             {
@@ -116,19 +116,19 @@ GTEST_TEST(parseArguments, parseException) {
                     args.setAlternative().setStrict();
                     args.parseArguments(argc, const_cast<char**>(argv));
                 }
-                catch (const mblet::Argparsor::ParseArgumentException& e) {
+                catch (const blet::Args::ParseArgumentException& e) {
                     EXPECT_STREQ(e.what(), "option cannot use with only 1 argument");
                     EXPECT_STREQ(e.argument(), "number");
                     throw;
                 }
             },
-            mblet::Argparsor::ParseArgumentException);
+            blet::Args::ParseArgumentException);
     }
     {
         const char* argv[] = {"binaryName", "--simple"};
         const int argc = sizeof(argv) / sizeof(*argv);
 
-        mblet::Argparsor args;
+        blet::Args args;
         args.addArgument("--simple").nargs(1);
         EXPECT_THROW(
             {
@@ -136,19 +136,19 @@ GTEST_TEST(parseArguments, parseException) {
                     args.setAlternative().setStrict();
                     args.parseArguments(argc, const_cast<char**>(argv));
                 }
-                catch (const mblet::Argparsor::ParseArgumentException& e) {
+                catch (const blet::Args::ParseArgumentException& e) {
                     EXPECT_STREQ(e.what(), "bad number of argument");
                     EXPECT_STREQ(e.argument(), "simple");
                     throw;
                 }
             },
-            mblet::Argparsor::ParseArgumentException);
+            blet::Args::ParseArgumentException);
     }
     {
         const char* argv[] = {"binaryName", "--number"};
         const int argc = sizeof(argv) / sizeof(*argv);
 
-        mblet::Argparsor args;
+        blet::Args args;
         args.addArgument("--number").nargs(2);
         EXPECT_THROW(
             {
@@ -156,98 +156,98 @@ GTEST_TEST(parseArguments, parseException) {
                     args.setAlternative().setStrict();
                     args.parseArguments(argc, const_cast<char**>(argv));
                 }
-                catch (const mblet::Argparsor::ParseArgumentException& e) {
+                catch (const blet::Args::ParseArgumentException& e) {
                     EXPECT_STREQ(e.what(), "bad number of argument");
                     EXPECT_STREQ(e.argument(), "number");
                     throw;
                 }
             },
-            mblet::Argparsor::ParseArgumentException);
+            blet::Args::ParseArgumentException);
     }
     {
         const char* argv[] = {"binaryName", "--multi"};
         const int argc = sizeof(argv) / sizeof(*argv);
 
-        mblet::Argparsor args;
-        args.addArgument("--multi").action(mblet::Argparsor::APPEND).nargs(1);
+        blet::Args args;
+        args.addArgument("--multi").action(blet::Args::APPEND).nargs(1);
         EXPECT_THROW(
             {
                 try {
                     args.setAlternative().setStrict();
                     args.parseArguments(argc, const_cast<char**>(argv));
                 }
-                catch (const mblet::Argparsor::ParseArgumentException& e) {
+                catch (const blet::Args::ParseArgumentException& e) {
                     EXPECT_STREQ(e.what(), "bad number of argument");
                     EXPECT_STREQ(e.argument(), "multi");
                     throw;
                 }
             },
-            mblet::Argparsor::ParseArgumentException);
+            blet::Args::ParseArgumentException);
     }
     {
         const char* argv[] = {"binaryName", "--multi-number", "arg"};
         const int argc = sizeof(argv) / sizeof(*argv);
 
-        mblet::Argparsor args;
-        args.addArgument("--multi-number").action(mblet::Argparsor::APPEND).nargs(2);
+        blet::Args args;
+        args.addArgument("--multi-number").action(blet::Args::APPEND).nargs(2);
         EXPECT_THROW(
             {
                 try {
                     args.setAlternative().setStrict();
                     args.parseArguments(argc, const_cast<char**>(argv));
                 }
-                catch (const mblet::Argparsor::ParseArgumentException& e) {
+                catch (const blet::Args::ParseArgumentException& e) {
                     EXPECT_STREQ(e.what(), "bad number of argument");
                     EXPECT_STREQ(e.argument(), "multi-number");
                     throw;
                 }
             },
-            mblet::Argparsor::ParseArgumentException);
+            blet::Args::ParseArgumentException);
     }
     {
         const char* argv[] = {"binaryName", "--multi-number-infinite", "arg"};
         const int argc = sizeof(argv) / sizeof(*argv);
 
-        mblet::Argparsor args;
-        args.addArgument("--multi-number-infinite").action(mblet::Argparsor::EXTEND).nargs(2);
+        blet::Args args;
+        args.addArgument("--multi-number-infinite").action(blet::Args::EXTEND).nargs(2);
         EXPECT_THROW(
             {
                 try {
                     args.setAlternative().setStrict();
                     args.parseArguments(argc, const_cast<char**>(argv));
                 }
-                catch (const mblet::Argparsor::ParseArgumentException& e) {
+                catch (const blet::Args::ParseArgumentException& e) {
                     EXPECT_STREQ(e.what(), "bad number of argument");
                     EXPECT_STREQ(e.argument(), "multi-number-infinite");
                     throw;
                 }
             },
-            mblet::Argparsor::ParseArgumentException);
+            blet::Args::ParseArgumentException);
     }
     {
         const char* argv[] = {"binaryName", "arg"};
         const int argc = sizeof(argv) / sizeof(*argv);
 
-        mblet::Argparsor args;
+        blet::Args args;
         EXPECT_THROW(
             {
                 try {
                     args.setAlternative().setStrict();
                     args.parseArguments(argc, const_cast<char**>(argv));
                 }
-                catch (const mblet::Argparsor::ParseArgumentException& e) {
+                catch (const blet::Args::ParseArgumentException& e) {
                     EXPECT_STREQ(e.what(), "invalid additional argument");
                     EXPECT_STREQ(e.argument(), "arg");
                     throw;
                 }
             },
-            mblet::Argparsor::ParseArgumentException);
+            blet::Args::ParseArgumentException);
     }
     {
         const char* argv[] = {"binaryName", "arg"};
         const int argc = sizeof(argv) / sizeof(*argv);
 
-        mblet::Argparsor args;
+        blet::Args args;
         args.addArgument("ARG").nargs(2);
         EXPECT_THROW(
             {
@@ -255,19 +255,19 @@ GTEST_TEST(parseArguments, parseException) {
                     args.setAlternative().setStrict();
                     args.parseArguments(argc, const_cast<char**>(argv));
                 }
-                catch (const mblet::Argparsor::ParseArgumentException& e) {
+                catch (const blet::Args::ParseArgumentException& e) {
                     EXPECT_STREQ(e.what(), "bad number of argument");
                     EXPECT_STREQ(e.argument(), "ARG");
                     throw;
                 }
             },
-            mblet::Argparsor::ParseArgumentException);
+            blet::Args::ParseArgumentException);
     }
     {
         const char* argv[] = {"binaryName", "arg"};
         const int argc = sizeof(argv) / sizeof(*argv);
 
-        mblet::Argparsor args;
+        blet::Args args;
         args.addArgument("ARG").action(args.INFINITE).nargs(2);
         EXPECT_THROW(
             {
@@ -275,13 +275,13 @@ GTEST_TEST(parseArguments, parseException) {
                     args.setAlternative().setStrict();
                     args.parseArguments(argc, const_cast<char**>(argv));
                 }
-                catch (const mblet::Argparsor::ParseArgumentException& e) {
+                catch (const blet::Args::ParseArgumentException& e) {
                     EXPECT_STREQ(e.what(), "bad number of argument");
                     EXPECT_STREQ(e.argument(), "ARG");
                     throw;
                 }
             },
-            mblet::Argparsor::ParseArgumentException);
+            blet::Args::ParseArgumentException);
     }
 }
 
@@ -297,9 +297,9 @@ GTEST_TEST(parseArguments, endOfInfiniteArgument) {
     // clang-format on
     const int argc = sizeof(argv) / sizeof(*argv);
 
-    mblet::Argparsor args;
-    args.addArgument("-b").action(mblet::Argparsor::STORE_TRUE);
-    args.addArgument("-r").action(mblet::Argparsor::STORE_FALSE);
+    blet::Args args;
+    args.addArgument("-b").action(blet::Args::STORE_TRUE);
+    args.addArgument("-r").action(blet::Args::STORE_FALSE);
     args.addArgument("-s").nargs(1);
     args.addArgument("--infinite").nargs('+').defaults(args.vector("0", "1", "2", "3"));
     args.setAlternative().setStrict();
@@ -338,19 +338,19 @@ GTEST_TEST(parseArguments, allType) {
 
     const int argc = sizeof(argv) / sizeof(*argv);
 
-    struct ValidTest : public mblet::Argparsor::IValid {
+    struct ValidTest : public blet::Args::IValid {
         bool isValid(std::vector<std::string>& /*argument*/) {
             return true;
         }
     };
 
     std::string retSimple;
-    mblet::Argparsor args;
+    blet::Args args;
     // POSITIONNAL
     args.addArgument("REQUIRED").required(true).valid(new ValidTest());
     // BOOL
-    args.addArgument(args.vector("-b", "--bool")).action(mblet::Argparsor::STORE_TRUE);
-    args.addArgument("--notbool").action(mblet::Argparsor::STORE_FALSE);
+    args.addArgument(args.vector("-b", "--bool")).action(blet::Args::STORE_TRUE);
+    args.addArgument("--notbool").action(blet::Args::STORE_FALSE);
     // SIMPLE
     args.addArgument(args.vector("-s", "--simple"))
         .metavar("ArgOfSimple")
@@ -363,27 +363,27 @@ GTEST_TEST(parseArguments, allType) {
     args.addArgument("--infinite").nargs('+').defaults(args.vector("0", "1", "2", "3"));
     // MULTI
     args.addArgument(args.vector("-m", "--multi"))
-        .action(mblet::Argparsor::APPEND)
+        .action(blet::Args::APPEND)
         .nargs(1)
         .defaults(args.vector("0", "1", "2", "3"));
     // MULTI2
     args.addArgument(args.vector("--multi2"))
-        .action(mblet::Argparsor::APPEND)
+        .action(blet::Args::APPEND)
         .nargs(1)
         .defaults(args.vector("0", "1", "2", "3"));
     // MULTI NUMBER
     args.addArgument("--multi-number")
-        .action(mblet::Argparsor::APPEND)
+        .action(blet::Args::APPEND)
         .nargs(2)
         .defaults(args.vector("0", "1", "2", "3"));
     // MULTI INFINITE
     args.addArgument("--multi-infinite")
-        .action(mblet::Argparsor::EXTEND)
+        .action(blet::Args::EXTEND)
         .nargs(1)
         .defaults(args.vector("0", "1", "2", "3"));
     // MULTI INFINITE NUMBER
     args.addArgument("--multi-infinite-number")
-        .action(mblet::Argparsor::EXTEND)
+        .action(blet::Args::EXTEND)
         .nargs(2)
         .defaults(args.vector("0", "1", "2", "3"))
         .valid(new ValidTest());
@@ -432,34 +432,34 @@ GTEST_TEST(parseArguments, allType) {
             try {
                 std::vector<std::string> v = args["--multi-infinite"][0];
             }
-            catch (const mblet::Argparsor::Exception& e) {
+            catch (const blet::Args::Exception& e) {
                 EXPECT_STREQ(e.what(), "convertion to vector of string not authorized");
                 throw;
             }
         },
-        mblet::Argparsor::Exception);
+        blet::Args::Exception);
     EXPECT_THROW(
         {
             try {
                 std::vector<std::string> v = args["--bool"];
             }
-            catch (const mblet::Argparsor::Exception& e) {
+            catch (const blet::Args::Exception& e) {
                 EXPECT_STREQ(e.what(), "convertion to vector of string not authorized");
                 throw;
             }
         },
-        mblet::Argparsor::Exception);
+        blet::Args::Exception);
     EXPECT_THROW(
         {
             try {
                 std::vector<std::vector<std::string> > v = args["--bool"];
             }
-            catch (const mblet::Argparsor::Exception& e) {
+            catch (const blet::Args::Exception& e) {
                 EXPECT_STREQ(e.what(), "convertion to vector of vector of string not authorized");
                 throw;
             }
         },
-        mblet::Argparsor::Exception);
+        blet::Args::Exception);
     std::vector<std::vector<std::string> > vv = args["--multi-infinite-number"];
     EXPECT_EQ(vv.size(), 3);
     EXPECT_EQ(vv.front().size(), 2);
@@ -469,7 +469,7 @@ GTEST_TEST(parseArguments, argumentNumber) {
     const char* argv[] = {"binaryName", "0", "1", "2"};
     const int argc = sizeof(argv) / sizeof(*argv);
 
-    mblet::Argparsor args;
+    blet::Args args;
     args.addArgument("argument").nargs(3);
     args.setAlternative();
     args.parseArguments(argc, const_cast<char**>(argv));
@@ -482,7 +482,7 @@ GTEST_TEST(parseArguments, argumentInfinite) {
     const char* argv[] = {"binaryName", "0", "1", "2", "-b"};
     const int argc = sizeof(argv) / sizeof(*argv);
 
-    mblet::Argparsor args;
+    blet::Args args;
     args.addArgument("argument").nargs('+');
     args.addArgument("-b").action(args.STORE_TRUE);
     args.setAlternative();
@@ -496,7 +496,7 @@ GTEST_TEST(parseArguments, argumentInfiniteNumber) {
     const char* argv[] = {"binaryName", "0", "1", "2", "0", "1", "2", "-b"};
     const int argc = sizeof(argv) / sizeof(*argv);
 
-    mblet::Argparsor args;
+    blet::Args args;
     args.addArgument("argument").nargs('+').nargs(3);
     args.addArgument("-b").action(args.STORE_TRUE);
     args.setAlternative();
@@ -514,14 +514,14 @@ GTEST_TEST(parseArguments, help) {
     const int argc = sizeof(argv) / sizeof(*argv);
 
     {
-        mblet::Argparsor args;
+        blet::Args args;
         EXPECT_THROW(
             {
                 try {
                     args.setHelpException();
                     args.parseArguments(argc, const_cast<char**>(argv));
                 }
-                catch (const mblet::Argparsor::HelpException& e) {
+                catch (const blet::Args::HelpException& e) {
                     EXPECT_STREQ(e.what(),
                                  "usage: binaryName [-h]\n"
                                  "\n"
@@ -530,10 +530,10 @@ GTEST_TEST(parseArguments, help) {
                     throw;
                 }
             },
-            mblet::Argparsor::HelpException);
+            blet::Args::HelpException);
     }
     {
-        mblet::Argparsor args;
+        blet::Args args;
         testing::internal::CaptureStdout();
         EXPECT_EXIT({ args.parseArguments(argc, const_cast<char**>(argv)); }, ::testing::ExitedWithCode(0), ".*");
         EXPECT_EQ(testing::internal::GetCapturedStdout(),
@@ -549,26 +549,26 @@ GTEST_TEST(parseArguments, version) {
     const int argc = sizeof(argv) / sizeof(*argv);
 
     {
-        mblet::Argparsor args;
+        blet::Args args;
         args.setVersion("version: 0.0.0");
-        args.addArgument("--version").action(mblet::Argparsor::VERSION);
+        args.addArgument("--version").action(blet::Args::VERSION);
         EXPECT_THROW(
             {
                 try {
                     args.setVersionException();
                     args.parseArguments(argc, const_cast<char**>(argv));
                 }
-                catch (const mblet::Argparsor::VersionException& e) {
+                catch (const blet::Args::VersionException& e) {
                     EXPECT_STREQ(e.what(), "version: 0.0.0");
                     throw;
                 }
             },
-            mblet::Argparsor::VersionException);
+            blet::Args::VersionException);
     }
     {
-        mblet::Argparsor args;
+        blet::Args args;
         args.setVersion("version: 0.0.0");
-        args.addArgument("--version").action(mblet::Argparsor::VERSION);
+        args.addArgument("--version").action(blet::Args::VERSION);
         testing::internal::CaptureStdout();
         EXPECT_EXIT({ args.parseArguments(argc, const_cast<char**>(argv)); }, ::testing::ExitedWithCode(0), ".*");
         EXPECT_EQ(testing::internal::GetCapturedStdout(), std::string("version: 0.0.0\n"));
@@ -579,103 +579,103 @@ GTEST_TEST(parseArguments, argumentRequired) {
     const char* argv[] = {"binaryName"};
     const int argc = sizeof(argv) / sizeof(*argv);
 
-    mblet::Argparsor args;
+    blet::Args args;
     args.addArgument("argument").required(true);
     EXPECT_THROW(
         {
             try {
                 args.parseArguments(argc, const_cast<char**>(argv));
             }
-            catch (const mblet::Argparsor::ParseArgumentRequiredException& e) {
+            catch (const blet::Args::ParseArgumentRequiredException& e) {
                 EXPECT_STREQ(e.what(), "argument is required");
                 EXPECT_STREQ(e.argument(), "argument");
                 throw;
             }
         },
-        mblet::Argparsor::ParseArgumentRequiredException);
+        blet::Args::ParseArgumentRequiredException);
 }
 
 GTEST_TEST(parseArguments, optionRequired) {
     const char* argv[] = {"binaryName"};
     const int argc = sizeof(argv) / sizeof(*argv);
 
-    mblet::Argparsor args;
-    args.addArgument("--option").action(mblet::Argparsor::STORE_TRUE).required(true);
+    blet::Args args;
+    args.addArgument("--option").action(blet::Args::STORE_TRUE).required(true);
     EXPECT_THROW(
         {
             try {
                 args.parseArguments(argc, const_cast<char**>(argv));
             }
-            catch (const mblet::Argparsor::ParseArgumentRequiredException& e) {
+            catch (const blet::Args::ParseArgumentRequiredException& e) {
                 EXPECT_STREQ(e.what(), "option is required");
                 EXPECT_STREQ(e.argument(), "--option");
                 throw;
             }
         },
-        mblet::Argparsor::ParseArgumentRequiredException);
+        blet::Args::ParseArgumentRequiredException);
 }
 
 GTEST_TEST(parseArguments, validException) {
     const char* argv[] = {"binaryName", "--option", "foo"};
     const int argc = sizeof(argv) / sizeof(*argv);
 
-    struct ValidTest : public mblet::Argparsor::IValid {
+    struct ValidTest : public blet::Args::IValid {
         bool isValid(std::vector<std::string>& /*argument*/) {
             return true;
         }
     };
-    struct FailedTest : public mblet::Argparsor::IValid {
+    struct FailedTest : public blet::Args::IValid {
         bool isValid(std::vector<std::string>& /*argument*/) {
             return false;
         }
     };
     {
-        mblet::Argparsor args;
-        args.addArgument("--option").action(mblet::Argparsor::STORE_TRUE).valid(new ValidTest());
+        blet::Args args;
+        args.addArgument("--option").action(blet::Args::STORE_TRUE).valid(new ValidTest());
         EXPECT_THROW(
             {
                 try {
                     args.parseArguments(argc, const_cast<char**>(argv));
                 }
-                catch (const mblet::Argparsor::ParseArgumentValidException& e) {
+                catch (const blet::Args::ParseArgumentValidException& e) {
                     EXPECT_STREQ(e.what(), "invalid type option for use valid");
                     EXPECT_STREQ(e.argument(), "--option");
                     throw;
                 }
             },
-            mblet::Argparsor::ParseArgumentValidException);
+            blet::Args::ParseArgumentValidException);
     }
     {
-        mblet::Argparsor args;
+        blet::Args args;
         args.addArgument("--option").nargs(1).valid(new FailedTest());
         EXPECT_THROW(
             {
                 try {
                     args.parseArguments(argc, const_cast<char**>(argv));
                 }
-                catch (const mblet::Argparsor::ParseArgumentValidException& e) {
+                catch (const blet::Args::ParseArgumentValidException& e) {
                     EXPECT_STREQ(e.what(), "invalid check function");
                     EXPECT_STREQ(e.argument(), "--option");
                     throw;
                 }
             },
-            mblet::Argparsor::ParseArgumentValidException);
+            blet::Args::ParseArgumentValidException);
     }
     {
-        mblet::Argparsor args;
+        blet::Args args;
         args.addArgument("--option").nargs(1).valid(new FailedTest());
         EXPECT_THROW(
             {
                 try {
                     args.parseArguments(argc, const_cast<char**>(argv));
                 }
-                catch (const mblet::Argparsor::ParseArgumentValidException& e) {
+                catch (const blet::Args::ParseArgumentValidException& e) {
                     EXPECT_STREQ(e.what(), "invalid check function");
                     EXPECT_STREQ(e.argument(), "--option");
                     throw;
                 }
             },
-            mblet::Argparsor::ParseArgumentValidException);
+            blet::Args::ParseArgumentValidException);
     }
 }
 
@@ -691,26 +691,26 @@ GTEST_TEST(parseArguments, standartValid) {
     {
         const char* argv[] = {"binaryName", "--option", "A", "100"};
         const int argc = sizeof(argv) / sizeof(*argv);
-        mblet::Argparsor args;
-        args.addArgument("--option").nargs(2).valid(new mblet::Argparsor::ValidNumber());
+        blet::Args args;
+        args.addArgument("--option").nargs(2).valid(new blet::Args::ValidNumber());
         EXPECT_THROW(
             {
                 try {
                     args.parseArguments(argc, const_cast<char**>(argv));
                 }
-                catch (const mblet::Argparsor::ParseArgumentValidException& e) {
+                catch (const blet::Args::ParseArgumentValidException& e) {
                     EXPECT_STREQ(e.what(), "\"A\" is not a number");
                     EXPECT_STREQ(e.argument(), "--option");
                     throw;
                 }
             },
-            mblet::Argparsor::ParseArgumentValidException);
+            blet::Args::ParseArgumentValidException);
     }
     {
         const char* argv[] = {"binaryName", "--option", "0", "100"};
         const int argc = sizeof(argv) / sizeof(*argv);
-        mblet::Argparsor args;
-        args.addArgument("--option").nargs(2).valid(new mblet::Argparsor::ValidNumber());
+        blet::Args args;
+        args.addArgument("--option").nargs(2).valid(new blet::Args::ValidNumber());
         args.parseArguments(argc, const_cast<char**>(argv));
         EXPECT_EQ(args["--option"][0].getNumber(), 0);
         EXPECT_EQ(args["--option"][1].getNumber(), 100);
@@ -718,44 +718,44 @@ GTEST_TEST(parseArguments, standartValid) {
     {
         const char* argv[] = {"binaryName", "--option", "A", "100"};
         const int argc = sizeof(argv) / sizeof(*argv);
-        mblet::Argparsor args;
-        args.addArgument("--option").nargs(2).valid(new mblet::Argparsor::ValidMinMax(0, 100));
+        blet::Args args;
+        args.addArgument("--option").nargs(2).valid(new blet::Args::ValidMinMax(0, 100));
         EXPECT_THROW(
             {
                 try {
                     args.parseArguments(argc, const_cast<char**>(argv));
                 }
-                catch (const mblet::Argparsor::ParseArgumentValidException& e) {
+                catch (const blet::Args::ParseArgumentValidException& e) {
                     EXPECT_STREQ(e.what(), "\"A\" is not a number");
                     EXPECT_STREQ(e.argument(), "--option");
                     throw;
                 }
             },
-            mblet::Argparsor::ParseArgumentValidException);
+            blet::Args::ParseArgumentValidException);
     }
     {
         const char* argv[] = {"binaryName", "--option", "-1", "100"};
         const int argc = sizeof(argv) / sizeof(*argv);
-        mblet::Argparsor args;
-        args.addArgument("--option").nargs(2).valid(new mblet::Argparsor::ValidMinMax(100, 0));
+        blet::Args args;
+        args.addArgument("--option").nargs(2).valid(new blet::Args::ValidMinMax(100, 0));
         EXPECT_THROW(
             {
                 try {
                     args.parseArguments(argc, const_cast<char**>(argv));
                 }
-                catch (const mblet::Argparsor::ParseArgumentValidException& e) {
+                catch (const blet::Args::ParseArgumentValidException& e) {
                     EXPECT_STREQ(e.what(), "-1 is not between 0 and 100");
                     EXPECT_STREQ(e.argument(), "--option");
                     throw;
                 }
             },
-            mblet::Argparsor::ParseArgumentValidException);
+            blet::Args::ParseArgumentValidException);
     }
     {
         const char* argv[] = {"binaryName", "--option", "0", "100"};
         const int argc = sizeof(argv) / sizeof(*argv);
-        mblet::Argparsor args;
-        args.addArgument("--option").nargs(2).valid(new mblet::Argparsor::ValidMinMax(0, 100));
+        blet::Args args;
+        args.addArgument("--option").nargs(2).valid(new blet::Args::ValidMinMax(0, 100));
         args.parseArguments(argc, const_cast<char**>(argv));
         EXPECT_EQ(args["--option"][0].getNumber(), 0);
         EXPECT_EQ(args["--option"][1].getNumber(), 100);
@@ -763,26 +763,26 @@ GTEST_TEST(parseArguments, standartValid) {
     {
         const char* argv[] = {"binaryName", "--option", "-1", "100"};
         const int argc = sizeof(argv) / sizeof(*argv);
-        mblet::Argparsor args;
-        args.addArgument("--option").nargs(2).valid(new mblet::Argparsor::ValidChoise(args.vector("0", "100")));
+        blet::Args args;
+        args.addArgument("--option").nargs(2).valid(new blet::Args::ValidChoise(args.vector("0", "100")));
         EXPECT_THROW(
             {
                 try {
                     args.parseArguments(argc, const_cast<char**>(argv));
                 }
-                catch (const mblet::Argparsor::ParseArgumentValidException& e) {
+                catch (const blet::Args::ParseArgumentValidException& e) {
                     EXPECT_STREQ(e.what(), "\"-1\" is not a choise value (\"0\", \"100\")");
                     EXPECT_STREQ(e.argument(), "--option");
                     throw;
                 }
             },
-            mblet::Argparsor::ParseArgumentValidException);
+            blet::Args::ParseArgumentValidException);
     }
     {
         const char* argv[] = {"binaryName", "--option", "0", "100"};
         const int argc = sizeof(argv) / sizeof(*argv);
-        mblet::Argparsor args;
-        args.addArgument("--option").nargs(2).valid(new mblet::Argparsor::ValidChoise(args.vector("0", "100")));
+        blet::Args args;
+        args.addArgument("--option").nargs(2).valid(new blet::Args::ValidChoise(args.vector("0", "100")));
         args.parseArguments(argc, const_cast<char**>(argv));
         EXPECT_EQ(args["--option"][0].getString(), std::string("0"));
         EXPECT_EQ(args["--option"][1].getString(), std::string("100"));
@@ -791,71 +791,71 @@ GTEST_TEST(parseArguments, standartValid) {
         MOCKC_EXPECT_CALL(stat, (_, _)).WillOnce(Return(-1));
         const char* argv[] = {"binaryName", "--option", "."};
         const int argc = sizeof(argv) / sizeof(*argv);
-        mblet::Argparsor args;
-        args.addArgument("--option").nargs(1).valid(new mblet::Argparsor::ValidPath());
+        blet::Args args;
+        args.addArgument("--option").nargs(1).valid(new blet::Args::ValidPath());
         EXPECT_THROW(
             {
                 try {
                     args.parseArguments(argc, const_cast<char**>(argv));
                 }
-                catch (const mblet::Argparsor::ParseArgumentValidException& e) {
+                catch (const blet::Args::ParseArgumentValidException& e) {
                     EXPECT_STREQ(e.what(), "\".\" is not a valid path");
                     EXPECT_STREQ(e.argument(), "--option");
                     throw;
                 }
             },
-            mblet::Argparsor::ParseArgumentValidException);
+            blet::Args::ParseArgumentValidException);
     }
     {
         MOCKC_EXPECT_CALL(stat, (_, _)).WillOnce(actionStat(__S_IFREG));
         const char* argv[] = {"binaryName", "--option", "."};
         const int argc = sizeof(argv) / sizeof(*argv);
-        mblet::Argparsor args;
+        blet::Args args;
         args.addArgument("--option")
             .nargs(1)
-            .valid(new mblet::Argparsor::ValidPath(mblet::Argparsor::ValidPath::IS_DIR));
+            .valid(new blet::Args::ValidPath(blet::Args::ValidPath::IS_DIR));
         EXPECT_THROW(
             {
                 try {
                     args.parseArguments(argc, const_cast<char**>(argv));
                 }
-                catch (const mblet::Argparsor::ParseArgumentValidException& e) {
+                catch (const blet::Args::ParseArgumentValidException& e) {
                     EXPECT_STREQ(e.what(), "\".\" is not a valid directory");
                     EXPECT_STREQ(e.argument(), "--option");
                     throw;
                 }
             },
-            mblet::Argparsor::ParseArgumentValidException);
+            blet::Args::ParseArgumentValidException);
     }
     {
         MOCKC_EXPECT_CALL(stat, (_, _)).WillOnce(actionStat(__S_IFDIR));
         const char* argv[] = {"binaryName", "--option", "."};
         const int argc = sizeof(argv) / sizeof(*argv);
-        mblet::Argparsor args;
+        blet::Args args;
         args.addArgument("--option")
             .nargs(1)
-            .valid(new mblet::Argparsor::ValidPath(mblet::Argparsor::ValidPath::IS_FILE));
+            .valid(new blet::Args::ValidPath(blet::Args::ValidPath::IS_FILE));
         EXPECT_THROW(
             {
                 try {
                     args.parseArguments(argc, const_cast<char**>(argv));
                 }
-                catch (const mblet::Argparsor::ParseArgumentValidException& e) {
+                catch (const blet::Args::ParseArgumentValidException& e) {
                     EXPECT_STREQ(e.what(), "\".\" is not a valid file");
                     EXPECT_STREQ(e.argument(), "--option");
                     throw;
                 }
             },
-            mblet::Argparsor::ParseArgumentValidException);
+            blet::Args::ParseArgumentValidException);
     }
     {
         MOCKC_EXPECT_CALL(stat, (_, _)).WillOnce(actionStat(__S_IFREG));
         const char* argv[] = {"binaryName", "--option", "."};
         const int argc = sizeof(argv) / sizeof(*argv);
-        mblet::Argparsor args;
+        blet::Args args;
         args.addArgument("--option")
             .nargs(1)
-            .valid(new mblet::Argparsor::ValidPath(mblet::Argparsor::ValidPath::IS_FILE));
+            .valid(new blet::Args::ValidPath(blet::Args::ValidPath::IS_FILE));
         args.parseArguments(argc, const_cast<char**>(argv));
         EXPECT_EQ(args["--option"].getString(), std::string("."));
     }

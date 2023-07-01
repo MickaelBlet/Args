@@ -1,5 +1,5 @@
 /**
- * argparsor/valid.h
+ * args/valid.h
  *
  * Licensed under the MIT License <http://opensource.org/licenses/MIT>.
  * Copyright (c) 2022-2023 BLET Mickael.
@@ -23,15 +23,15 @@
  * SOFTWARE.
  */
 
-#ifndef _MBLET_ARGPARSOR_VALID_H_
-#define _MBLET_ARGPARSOR_VALID_H_
+#ifndef _BLET_ARGS_VALID_H_
+#define _BLET_ARGS_VALID_H_
 
 #include <string>
 #include <vector>
 
-namespace mblet {
+namespace blet {
 
-namespace argparsor {
+namespace args {
 
 /**
  * @brief Interface for validate argument
@@ -159,8 +159,8 @@ class ValidPath : public IValid {
     enum eMode _mode;
 };
 
-} // namespace argparsor
+} // namespace args
 
-} // namespace mblet
+} // namespace blet
 
-#endif // #ifndef _MBLET_ARGPARSOR_VALID_H_
+#endif // #ifndef _BLET_ARGS_VALID_H_

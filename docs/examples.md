@@ -4,7 +4,7 @@
 ```cpp
 #include <iostream>
 
-#include "mblet/argparsor.h"
+#include "blet/args.h"
 
 struct CustomStruct {
     std::string a;
@@ -12,7 +12,7 @@ struct CustomStruct {
 };
 
 int main(int argc, char* argv[]) {
-    using namespace mblet;
+    using namespace blet;
 
     struct {
         char notrequired[32];
@@ -42,7 +42,7 @@ int main(int argc, char* argv[]) {
     options.b = false;
     options.c = false;
 
-    Argparsor args(false); // disable automatic help option
+    Args args(false); // disable automatic help option
     args.setVersion("Version: 0.0.0");
     args.setDescription("custom description message");
     args.setEpilog("custom epilog message");
@@ -51,7 +51,7 @@ int main(int argc, char* argv[]) {
     args.addArgument("NOTREQUIRED").help("help of positional argument").defaults("foo").dest(options.notrequired);
     args.addArgument("REQUIRED")
         .help("help of required positional argument")
-        .valid(new Argparsor::ValidNumber())
+        .valid(new Args::ValidNumber())
         .dest(options.required)
         .required(true);
     args.addArgument("-b").action(args.STORE_TRUE).help("help of boolean option").dest(options.b);
@@ -62,7 +62,7 @@ int main(int argc, char* argv[]) {
         .required(true)
         .metavar("argSimple")
         .nargs(1)
-        .valid(new Argparsor::ValidChoise(args.vector("0", "100", "200")))
+        .valid(new Args::ValidChoise(args.vector("0", "100", "200")))
         .dest(options.simple);
     args.addArgument("-n")
         .flag("--number")
@@ -84,7 +84,7 @@ int main(int argc, char* argv[]) {
         .help("help of multi")
         .metavar("MULTI")
         .nargs(2)
-        .valid(new Argparsor::ValidNumber())
+        .valid(new Args::ValidNumber())
         .defaults(args.vector("0", "1", "2", "3"))
         .dest(options.multiAppend);
     args.addArgument(args.vector("-e", "--extend"))
@@ -105,15 +105,15 @@ int main(int argc, char* argv[]) {
     try {
         args.setAlternative().setHelpException().setVersionException().parseArguments(argc, argv);
     }
-    catch (const Argparsor::HelpException& e) {
+    catch (const Args::HelpException& e) {
         std::cout << e.what() << std::endl; // write usage message
         return 0;
     }
-    catch (const Argparsor::VersionException& e) {
+    catch (const Args::VersionException& e) {
         std::cout << e.what() << std::endl; // write version message
         return 0;
     }
-    catch (const Argparsor::ParseArgumentException& e) {
+    catch (const Args::ParseArgumentException& e) {
         std::cerr << args.getBinaryName() << ": " << e.what() << " -- '" << e.argument() << "'" << std::endl;
         return 1;
     }
@@ -299,24 +299,24 @@ With nargs == 1
 ```cpp
 #include <iostream>
 
-#include "mblet/argparsor.h"
+#include "blet/args.h"
 
 int main(int argc, char* argv[]) {
-    mblet::Argparsor args;
+    blet::Args args;
     args.addArgument("-a").flag("--append").action(args.APPEND).help("custom append option message");
 
     try {
         args.setHelpException().setVersionException().parseArguments(argc, argv);
     }
-    catch (const mblet::Argparsor::HelpException& e) {
+    catch (const blet::Args::HelpException& e) {
         std::cout << e.what() << std::endl;
         return 0;
     }
-    catch (const mblet::Argparsor::VersionException& e) {
+    catch (const blet::Args::VersionException& e) {
         std::cout << e.what() << std::endl;
         return 0;
     }
-    catch (const mblet::Argparsor::ParseArgumentException& e) {
+    catch (const blet::Args::ParseArgumentException& e) {
         std::cerr << args.getBinaryName() << ": " << e.what() << " -- '" << e.argument() << "'" << std::endl;
         return 1;
     }
@@ -337,24 +337,24 @@ With nargs == 3
 ```cpp
 #include <iostream>
 
-#include "mblet/argparsor.h"
+#include "blet/args.h"
 
 int main(int argc, char* argv[]) {
-    mblet::Argparsor args;
+    blet::Args args;
     args.addArgument("ARG").help("custom argument message").nargs(3);
 
     try {
         args.setHelpException().setVersionException().parseArguments(argc, argv);
     }
-    catch (const mblet::Argparsor::HelpException& e) {
+    catch (const blet::Args::HelpException& e) {
         std::cout << e.what() << std::endl;
         return 0;
     }
-    catch (const mblet::Argparsor::VersionException& e) {
+    catch (const blet::Args::VersionException& e) {
         std::cout << e.what() << std::endl;
         return 0;
     }
-    catch (const mblet::Argparsor::ParseArgumentException& e) {
+    catch (const blet::Args::ParseArgumentException& e) {
         std::cerr << args.getBinaryName() << ": " << e.what() << " -- '" << e.argument() << "'" << std::endl;
         return 1;
     }
@@ -383,24 +383,24 @@ With nargs == 1
 ```cpp
 #include <iostream>
 
-#include "mblet/argparsor.h"
+#include "blet/args.h"
 
 int main(int argc, char* argv[]) {
-    mblet::Argparsor args;
+    blet::Args args;
     args.addArgument("ARG").help("custom argument message");
 
     try {
         args.setHelpException().setVersionException().parseArguments(argc, argv);
     }
-    catch (const mblet::Argparsor::HelpException& e) {
+    catch (const blet::Args::HelpException& e) {
         std::cout << e.what() << std::endl;
         return 0;
     }
-    catch (const mblet::Argparsor::VersionException& e) {
+    catch (const blet::Args::VersionException& e) {
         std::cout << e.what() << std::endl;
         return 0;
     }
-    catch (const mblet::Argparsor::ParseArgumentException& e) {
+    catch (const blet::Args::ParseArgumentException& e) {
         std::cerr << args.getBinaryName() << ": " << e.what() << " -- '" << e.argument() << "'" << std::endl;
         return 1;
     }
@@ -435,25 +435,25 @@ With nargs == 1 and action == INFINITE
 ```cpp
 #include <iostream>
 
-#include "mblet/argparsor.h"
+#include "blet/args.h"
 
 int main(int argc, char* argv[]) {
-    mblet::Argparsor args;
+    blet::Args args;
     args.addArgument("ARG").help("custom argument message").nargs('+');
     // or args.addArgument("ARG").help("custom argument message").action(args.INFINITE);
 
     try {
         args.setHelpException().setVersionException().parseArguments(argc, argv);
     }
-    catch (const mblet::Argparsor::HelpException& e) {
+    catch (const blet::Args::HelpException& e) {
         std::cout << e.what() << std::endl;
         return 0;
     }
-    catch (const mblet::Argparsor::VersionException& e) {
+    catch (const blet::Args::VersionException& e) {
         std::cout << e.what() << std::endl;
         return 0;
     }
-    catch (const mblet::Argparsor::ParseArgumentException& e) {
+    catch (const blet::Args::ParseArgumentException& e) {
         std::cerr << args.getBinaryName() << ": " << e.what() << " -- '" << e.argument() << "'" << std::endl;
         return 1; // END
     }
@@ -484,24 +484,24 @@ With nargs == 3
 ```cpp
 #include <iostream>
 
-#include "mblet/argparsor.h"
+#include "blet/args.h"
 
 int main(int argc, char* argv[]) {
-    mblet::Argparsor args;
+    blet::Args args;
     args.addArgument("ARG").help("custom argument message").nargs(3);
 
     try {
         args.setHelpException().setVersionException().parseArguments(argc, argv);
     }
-    catch (const mblet::Argparsor::HelpException& e) {
+    catch (const blet::Args::HelpException& e) {
         std::cout << e.what() << std::endl;
         return 0;
     }
-    catch (const mblet::Argparsor::VersionException& e) {
+    catch (const blet::Args::VersionException& e) {
         std::cout << e.what() << std::endl;
         return 0;
     }
-    catch (const mblet::Argparsor::ParseArgumentException& e) {
+    catch (const blet::Args::ParseArgumentException& e) {
         std::cerr << args.getBinaryName() << ": " << e.what() << " -- '" << e.argument() << "'" << std::endl;
         return 1;
     }
@@ -534,24 +534,24 @@ With nargs == 3 and action == INFINITE
 ```cpp
 #include <iostream>
 
-#include "mblet/argparsor.h"
+#include "blet/args.h"
 
 int main(int argc, char* argv[]) {
-    mblet::Argparsor args;
+    blet::Args args;
     args.addArgument("ARG").help("custom argument message").nargs(3).action(args.INFINITE);
 
     try {
         args.setHelpException().setVersionException().parseArguments(argc, argv);
     }
-    catch (const mblet::Argparsor::HelpException& e) {
+    catch (const blet::Args::HelpException& e) {
         std::cout << e.what() << std::endl;
         return 0;
     }
-    catch (const mblet::Argparsor::VersionException& e) {
+    catch (const blet::Args::VersionException& e) {
         std::cout << e.what() << std::endl;
         return 0;
     }
-    catch (const mblet::Argparsor::ParseArgumentException& e) {
+    catch (const blet::Args::ParseArgumentException& e) {
         std::cerr << args.getBinaryName() << ": " << e.what() << " -- '" << e.argument() << "'" << std::endl;
         return 1;
     }
@@ -586,24 +586,24 @@ With nargs == 1
 ```cpp
 #include <iostream>
 
-#include "mblet/argparsor.h"
+#include "blet/args.h"
 
 int main(int argc, char* argv[]) {
-    mblet::Argparsor args;
+    blet::Args args;
     args.addArgument(args.vector("-e", "--extend")).action(args.EXTEND).help("custom extend option message");
 
     try {
         args.setHelpException().setVersionException().parseArguments(argc, argv);
     }
-    catch (const mblet::Argparsor::HelpException& e) {
+    catch (const blet::Args::HelpException& e) {
         std::cout << e.what() << std::endl;
         return 0;
     }
-    catch (const mblet::Argparsor::VersionException& e) {
+    catch (const blet::Args::VersionException& e) {
         std::cout << e.what() << std::endl;
         return 0;
     }
-    catch (const mblet::Argparsor::ParseArgumentException& e) {
+    catch (const blet::Args::ParseArgumentException& e) {
         std::cerr << args.getBinaryName() << ": " << e.what() << " -- '" << e.argument() << "'" << std::endl;
         return 1;
     }
@@ -628,24 +628,24 @@ With nargs == 3
 ```cpp
 #include <iostream>
 
-#include "mblet/argparsor.h"
+#include "blet/args.h"
 
 int main(int argc, char* argv[]) {
-    mblet::Argparsor args;
+    blet::Args args;
     args.addArgument(args.vector("-e", "--extend")).action(args.EXTEND).help("custom extend option message").nargs(3);
 
     try {
         args.setHelpException().setVersionException().parseArguments(argc, argv);
     }
-    catch (const mblet::Argparsor::HelpException& e) {
+    catch (const blet::Args::HelpException& e) {
         std::cout << e.what() << std::endl;
         return 0;
     }
-    catch (const mblet::Argparsor::VersionException& e) {
+    catch (const blet::Args::VersionException& e) {
         std::cout << e.what() << std::endl;
         return 0;
     }
-    catch (const mblet::Argparsor::ParseArgumentException& e) {
+    catch (const blet::Args::ParseArgumentException& e) {
         std::cerr << args.getBinaryName() << ": " << e.what() << " -- '" << e.argument() << "'" << std::endl;
         return 1;
     }
@@ -674,20 +674,20 @@ $ ./a.out -e 1 2 3 4 5 6 --extend 7 8 9
 ```cpp
 #include <iostream>
 
-#include "mblet/argparsor.h"
+#include "blet/args.h"
 
 int main(int argc, char* argv[]) {
-    mblet::Argparsor args;
+    blet::Args args;
     args.removeArguments(args.vector("-h", "--help"));
     args.addArgument(args.vector("-h", "--help")).action(args.HELP).help("custom help option message");
 
     try {
         args.setHelpException().parseArguments(argc, argv);
     }
-    catch (const mblet::Argparsor::HelpException& e) {
+    catch (const blet::Args::HelpException& e) {
         std::cout << e.what() << std::endl;
     }
-    catch (const mblet::Argparsor::ParseArgumentException& e) {
+    catch (const blet::Args::ParseArgumentException& e) {
         std::cerr << args.getBinaryName() << ": " << e.what() << " -- '" << e.argument() << "'" << std::endl;
         return 1; // END
     }
@@ -709,10 +709,10 @@ optional arguments:
 ```cpp
 #include <iostream>
 
-#include "mblet/argparsor.h"
+#include "blet/args.h"
 
 int main(int argc, char* argv[]) {
-    mblet::Argparsor args;
+    blet::Args args;
     args.addArgument(args.vector("-i", "--infinite")).action(args.INFINITE).help("custom infinite option message");
     // or
     // args.addArgument(args.vector("-i", "--infinite")).nargs('+').help("custom infinite option message");
@@ -720,15 +720,15 @@ int main(int argc, char* argv[]) {
     try {
         args.setHelpException().setVersionException().parseArguments(argc, argv);
     }
-    catch (const mblet::Argparsor::HelpException& e) {
+    catch (const blet::Args::HelpException& e) {
         std::cout << e.what() << std::endl;
         return 0;
     }
-    catch (const mblet::Argparsor::VersionException& e) {
+    catch (const blet::Args::VersionException& e) {
         std::cout << e.what() << std::endl;
         return 0;
     }
-    catch (const mblet::Argparsor::ParseArgumentException& e) {
+    catch (const blet::Args::ParseArgumentException& e) {
         std::cerr << args.getBinaryName() << ": " << e.what() << " -- '" << e.argument() << "'" << std::endl;
         return 1;
     }
@@ -757,23 +757,23 @@ With nargs == 1
 ```cpp
 #include <iostream>
 
-#include "mblet/argparsor.h"
+#include "blet/args.h"
 
 int main(int argc, char* argv[]) {
-    mblet::Argparsor args;
+    blet::Args args;
     args.addArgument(args.vector("-n", "--none")).help("custom none option message");
 
     try {
         args.setHelpException().setVersionException().parseArguments(argc, argv);
         std::cout << args["--none"] << std::endl;
     }
-    catch (const mblet::Argparsor::HelpException& e) {
+    catch (const blet::Args::HelpException& e) {
         std::cout << e.what() << std::endl;
     }
-    catch (const mblet::Argparsor::VersionException& e) {
+    catch (const blet::Args::VersionException& e) {
         std::cout << e.what() << std::endl;
     }
-    catch (const mblet::Argparsor::ParseArgumentException& e) {
+    catch (const blet::Args::ParseArgumentException& e) {
         std::cerr << args.getBinaryName() << ": " << e.what() << " -- '" << e.argument() << "'" << std::endl;
         return 1;
     }
@@ -790,10 +790,10 @@ With nargs == 3
 ```cpp
 #include <iostream>
 
-#include "mblet/argparsor.h"
+#include "blet/args.h"
 
 int main(int argc, char* argv[]) {
-    mblet::Argparsor args;
+    blet::Args args;
     args.addArgument(args.vector("-n", "--none")).help("custom none option message").nargs(3);
 
     try {
@@ -802,13 +802,13 @@ int main(int argc, char* argv[]) {
             std::cout << args["--none"][i] << std::endl;
         }
     }
-    catch (const mblet::Argparsor::HelpException& e) {
+    catch (const blet::Args::HelpException& e) {
         std::cout << e.what() << std::endl;
     }
-    catch (const mblet::Argparsor::VersionException& e) {
+    catch (const blet::Args::VersionException& e) {
         std::cout << e.what() << std::endl;
     }
-    catch (const mblet::Argparsor::ParseArgumentException& e) {
+    catch (const blet::Args::ParseArgumentException& e) {
         std::cerr << args.getBinaryName() << ": " << e.what() << " -- '" << e.argument() << "'" << std::endl;
         return 1; // END
     }
@@ -830,10 +830,10 @@ $ ./a.out -n 1 2 3 --none 4 5 6
 ```cpp
 #include <iostream>
 
-#include "mblet/argparsor.h"
+#include "blet/args.h"
 
 int main(int argc, char* argv[]) {
-    mblet::Argparsor args;
+    blet::Args args;
     args.addArgument("--no-boolean").action(args.STORE_FALSE).help("custom not boolean option message");
 
     try {
@@ -845,13 +845,13 @@ int main(int argc, char* argv[]) {
             std::cout << "false" << std::endl;
         }
     }
-    catch (const mblet::Argparsor::HelpException& e) {
+    catch (const blet::Args::HelpException& e) {
         std::cout << e.what() << std::endl;
     }
-    catch (const mblet::Argparsor::VersionException& e) {
+    catch (const blet::Args::VersionException& e) {
         std::cout << e.what() << std::endl;
     }
-    catch (const mblet::Argparsor::ParseArgumentException& e) {
+    catch (const blet::Args::ParseArgumentException& e) {
         std::cerr << args.getBinaryName() << ": " << e.what() << " -- '" << e.argument() << "'" << std::endl;
         return 1; // END
     }
@@ -869,10 +869,10 @@ false
 ```cpp
 #include <iostream>
 
-#include "mblet/argparsor.h"
+#include "blet/args.h"
 
 int main(int argc, char* argv[]) {
-    mblet::Argparsor args;
+    blet::Args args;
     args.addArgument(args.vector("-b", "--boolean")).action(args.STORE_TRUE).help("custom boolean option message");
 
     try {
@@ -885,13 +885,13 @@ int main(int argc, char* argv[]) {
             std::cout << "false" << std::endl;
         }
     }
-    catch (const mblet::Argparsor::HelpException& e) {
+    catch (const blet::Args::HelpException& e) {
         std::cout << e.what() << std::endl;
     }
-    catch (const mblet::Argparsor::VersionException& e) {
+    catch (const blet::Args::VersionException& e) {
         std::cout << e.what() << std::endl;
     }
-    catch (const mblet::Argparsor::ParseArgumentException& e) {
+    catch (const blet::Args::ParseArgumentException& e) {
         std::cerr << args.getBinaryName() << ": " << e.what() << " -- '" << e.argument() << "'" << std::endl;
         return 1; // END
     }
@@ -916,10 +916,10 @@ count: 4
 ```cpp
 #include <iostream>
 
-#include "mblet/argparsor.h"
+#include "blet/args.h"
 
 int main(int argc, char* argv[]) {
-    mblet::Argparsor args;
+    blet::Args args;
     args.setVersion("multi line\nVersion: 0.0.0");
     args.addArgument("-v").flag("--version").action(args.VERSION).help("custom help version message");
 
@@ -927,13 +927,13 @@ int main(int argc, char* argv[]) {
         args.setHelpException().setVersionException().parseArguments(argc, argv);
         std::cout << "do nothing" << std::endl;
     }
-    catch (const mblet::Argparsor::HelpException& e) {
+    catch (const blet::Args::HelpException& e) {
         std::cout << e.what() << std::endl;
     }
-    catch (const mblet::Argparsor::VersionException& e) {
+    catch (const blet::Args::VersionException& e) {
         std::cout << e.what() << std::endl;
     }
-    catch (const mblet::Argparsor::ParseArgumentException& e) {
+    catch (const blet::Args::ParseArgumentException& e) {
         std::cerr << args.getBinaryName() << ": " << e.what() << " -- '" << e.argument() << "'" << std::endl;
         return 1; // END
     }
@@ -952,10 +952,10 @@ Version: 0.0.0
 ```cpp
 #include <iostream>
 
-#include "mblet/argparsor.h"
+#include "blet/args.h"
 
 int main(int argc, char* argv[]) {
-    mblet::Argparsor args;
+    blet::Args args;
     args.addArgument("--option").help("custom option message").defaults("default value");
     args.addArgument("--option-number")
         .help("custom option-number message")
@@ -967,13 +967,13 @@ int main(int argc, char* argv[]) {
         std::cout << args["--option"] << std::endl;
         std::cout << args["--option-number"][0] << "|" << args["--option-number"][1] << std::endl;
     }
-    catch (const mblet::Argparsor::HelpException& e) {
+    catch (const blet::Args::HelpException& e) {
         std::cout << e.what() << std::endl;
     }
-    catch (const mblet::Argparsor::VersionException& e) {
+    catch (const blet::Args::VersionException& e) {
         std::cout << e.what() << std::endl;
     }
-    catch (const mblet::Argparsor::ParseArgumentException& e) {
+    catch (const blet::Args::ParseArgumentException& e) {
         std::cerr << args.getBinaryName() << ": " << e.what() << " -- '" << e.argument() << "'" << std::endl;
         return 1;
     }
@@ -1007,28 +1007,28 @@ optional arguments:
 ```cpp
 #include <iostream>
 
-#include "mblet/argparsor.h"
+#include "blet/args.h"
 
 int main(int argc, char* argv[]) {
-    mblet::Argparsor args;
-    mblet::Argparsor::ValidNumber validNumber; // create a scope IValid
+    blet::Args args;
+    blet::Args::ValidNumber validNumber; // create a scope IValid
     args.addArgument("--option")
         .help("custom option message")
         .valid(&validNumber, false) // set deletable at false
-        // or .valid(new mblet::Argparsor::ValidNumber())
+        // or .valid(new blet::Args::ValidNumber())
         .required(true);
 
     try {
         args.setHelpException().setVersionException().parseArguments(argc, argv);
         std::cout << args["--option"] << std::endl;
     }
-    catch (const mblet::Argparsor::HelpException& e) {
+    catch (const blet::Args::HelpException& e) {
         std::cout << e.what() << std::endl;
     }
-    catch (const mblet::Argparsor::VersionException& e) {
+    catch (const blet::Args::VersionException& e) {
         std::cout << e.what() << std::endl;
     }
-    catch (const mblet::Argparsor::ParseArgumentException& e) {
+    catch (const blet::Args::ParseArgumentException& e) {
         std::cerr << args.getBinaryName() << ": " << e.what() << " -- '" << e.argument() << "'" << std::endl;
         return 1;
     }
@@ -1056,9 +1056,9 @@ optional arguments:
 #include <iostream>
 #include <sstream>
 
-#include "mblet/argparsor.h"
+#include "blet/args.h"
 
-class ValidCustom : public mblet::Argparsor::IValid {
+class ValidCustom : public blet::Args::IValid {
   public:
     ValidCustom(const std::string& prefix, const std::string& suffix) :
         _prefix(prefix),
@@ -1073,7 +1073,7 @@ class ValidCustom : public mblet::Argparsor::IValid {
             else {
                 std::ostringstream oss("");
                 oss << "\"" << arguments[i] << "\" is not \"" << _prefix << "\"";
-                throw mblet::Argparsor::ParseArgumentValidException(oss.str().c_str());
+                throw blet::Args::ParseArgumentValidException(oss.str().c_str());
             }
         }
         return true;
@@ -1085,7 +1085,7 @@ class ValidCustom : public mblet::Argparsor::IValid {
 };
 
 int main(int argc, char* argv[]) {
-    mblet::Argparsor args;
+    blet::Args args;
     // Add suffix on arguments if argument is "foo"
     args.addArgument("--option").help("custom option message").valid(new ValidCustom("foo", "bar")).required(true);
 
@@ -1093,13 +1093,13 @@ int main(int argc, char* argv[]) {
         args.setHelpException().setVersionException().parseArguments(argc, argv);
         std::cout << args["--option"] << std::endl;
     }
-    catch (const mblet::Argparsor::HelpException& e) {
+    catch (const blet::Args::HelpException& e) {
         std::cout << e.what() << std::endl;
     }
-    catch (const mblet::Argparsor::VersionException& e) {
+    catch (const blet::Args::VersionException& e) {
         std::cout << e.what() << std::endl;
     }
-    catch (const mblet::Argparsor::ParseArgumentException& e) {
+    catch (const blet::Args::ParseArgumentException& e) {
         std::cerr << args.getBinaryName() << ": " << e.what() << " -- '" << e.argument() << "'" << std::endl;
         return 1;
     }

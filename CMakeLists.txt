@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.5)
 
-project(argparsor VERSION 4.0.0 LANGUAGES CXX)
+project(args VERSION 4.0.0 LANGUAGES CXX)
 
 # OPTIONS
 option(BUILD_EXAMPLE "Build example binaries" OFF)
@@ -12,7 +12,7 @@ if(NOT CMAKE_CXX_STANDARD)
 endif()
 
 add_library("${PROJECT_NAME}"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/argparsor.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/args.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/argument.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/exception.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/usage.cpp"
@@ -46,7 +46,7 @@ install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/include/"
         DESTINATION include
 )
 install(EXPORT "${PROJECT_NAME}Targets"
-        NAMESPACE mblet::
+        NAMESPACE blet::
         FILE "${PROJECT_NAME}Targets.cmake"
         DESTINATION "lib/cmake"
 )

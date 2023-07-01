@@ -1,6 +1,6 @@
 #include <iostream>
 
-#include "mblet/argparsor.h"
+#include "blet/args.h"
 
 #define LOREM_IPSUM                                                                                                    \
     "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore "   \
@@ -10,7 +10,7 @@
     "laborum."
 
 int main(int /*argc*/, char* /*argv*/[]) {
-    mblet::Argparsor args;
+    blet::Args args;
     args.addArgument("ARGUMENT").help(LOREM_IPSUM).required(true);
     args.addArgument("--option0").help(LOREM_IPSUM).metavar("LOREM IPSUM");
     args.addArgument("--option1");

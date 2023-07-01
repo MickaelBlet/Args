@@ -1,6 +1,6 @@
 #include <iostream>
 
-#include "mblet/argparsor.h"
+#include "blet/args.h"
 
 enum eLogLevel {
     DEBUG,
@@ -27,7 +27,7 @@ void argToLogLevel(eLogLevel& logLevel, bool /*isExists*/, const std::string& ar
 int main(int argc, char* argv[]) {
     eLogLevel logLevel = INFO;
 
-    mblet::Argparsor args;
+    blet::Args args;
     args.setVersion("Version: 0.0.0");
     args.addArgument("ARGUMENT").help("help of argument").required(true);
     args.addArgument("-v").flag("--version").help("help of version option").action(args.VERSION);
@@ -36,7 +36,7 @@ int main(int argc, char* argv[]) {
         .flag("-l")
         .help("help of log-level")
         .metavar("LEVEL")
-        .valid(new mblet::Argparsor::ValidChoise(args.vector("DEBUG", "INFO", "WARNING", "ERROR")))
+        .valid(new blet::Args::ValidChoise(args.vector("DEBUG", "INFO", "WARNING", "ERROR")))
         .defaults("INFO")
         .dest(logLevel, &argToLogLevel); // fill logLevel by argToLogLevel
 
@@ -47,15 +47,15 @@ int main(int argc, char* argv[]) {
             .setVersionException() // except when version flag is called
             .parseArguments(argc, argv);
     }
-    catch (const mblet::Argparsor::VersionException& e) {
+    catch (const blet::Args::VersionException& e) {
         std::cout << e.what() << std::endl;
         return 0;
     }
-    catch (const mblet::Argparsor::HelpException& e) {
+    catch (const blet::Args::HelpException& e) {
         std::cout << e.what() << std::endl;
         return 0;
     }
-    catch (const mblet::Argparsor::ParseArgumentException& e) {
+    catch (const blet::Args::ParseArgumentException& e) {
         std::cerr << args.getBinaryName() << ": " << e.what();
         std::cerr << " -- '" << e.argument() << "'" << std::endl;
         return 1;

@@ -1,22 +1,22 @@
-#include "mblet/argparsor/usage.h"
+#include "blet/args/usage.h"
 
 #include <sstream>
 
-#include "mblet/argparsor/argparsor.h"
-#include "mblet/argparsor/argument.h"
+#include "blet/args/args.h"
+#include "blet/args/argument.h"
 
 #if defined _WIN32 || defined _WIN64 || defined __CYGWIN__
-#define _ARGPARSOR_SEPARATOR_PATH '\\'
+#define _ARGS_SEPARATOR_PATH '\\'
 #else
-#define _ARGPARSOR_SEPARATOR_PATH '/'
+#define _ARGS_SEPARATOR_PATH '/'
 #endif
 
-namespace mblet {
+namespace blet {
 
-namespace argparsor {
+namespace args {
 
-Usage::Usage(Argparsor& argparsor) :
-    _argparsor(argparsor),
+Usage::Usage(Args& args) :
+    _args(args),
     _description(std::string()),
     _epilog(std::string()),
     _usage(std::string()),
@@ -27,7 +27,7 @@ Usage::Usage(Argparsor& argparsor) :
 
 Usage::~Usage() {}
 
-std::vector<std::string> static inline s_multilineWrap(const std::string& str, std::size_t widthMax) {
+static inline std::vector<std::string> s_multilineWrap(const std::string& str, std::size_t widthMax) {
     std::vector<std::string> lines;
     std::string line;
     std::istringstream iss(str);
@@ -60,12 +60,12 @@ std::string Usage::getUsage() const {
     bool hasMultiLine = false;
     // get basename of binaryName
     std::string binaryName;
-    std::size_t lastDirCharacterPos = _argparsor._binaryName.rfind(_ARGPARSOR_SEPARATOR_PATH);
+    std::size_t lastDirCharacterPos = _args._binaryName.rfind(_ARGS_SEPARATOR_PATH);
     if (lastDirCharacterPos != std::string::npos) {
-        binaryName = _argparsor._binaryName.substr(lastDirCharacterPos + 1);
+        binaryName = _args._binaryName.substr(lastDirCharacterPos + 1);
     }
     else {
-        binaryName = _argparsor._binaryName;
+        binaryName = _args._binaryName;
     }
     // usage line
     std::string usageLine = std::string("usage: ") + binaryName;
@@ -74,7 +74,7 @@ std::string Usage::getUsage() const {
     std::size_t index = binaryPad;
     std::size_t indexMax = _usagePadWidth + _usageArgsWidth + _usageSepWidth + _usageHelpWidth;
     std::list<Argument*>::const_iterator it;
-    for (it = _argparsor._arguments.begin(); it != _argparsor._arguments.end(); ++it) {
+    for (it = _args._arguments.begin(); it != _args._arguments.end(); ++it) {
         if ((*it)->_isPositionnalArgument()) {
             hasPositionnal = true;
             continue;
@@ -127,7 +127,7 @@ std::string Usage::getUsage() const {
             index += 3;
         }
     }
-    for (it = _argparsor._arguments.begin(); it != _argparsor._arguments.end(); ++it) {
+    for (it = _args._arguments.begin(); it != _args._arguments.end(); ++it) {
         if (!(*it)->_isPositionnalArgument()) {
             continue;
         }
@@ -183,11 +183,11 @@ std::string Usage::getUsage() const {
         }
     }
     // optionnal
-    if (!_argparsor._arguments.empty()) {
+    if (!_args._arguments.empty()) {
         if (hasPositionnal) {
             index = 0;
             oss << "\n\npositional arguments:\n";
-            for (it = _argparsor._arguments.begin(); it != _argparsor._arguments.end(); ++it) {
+            for (it = _args._arguments.begin(); it != _args._arguments.end(); ++it) {
                 if (!(*it)->_isPositionnalArgument()) {
                     continue;
                 }
@@ -230,7 +230,7 @@ std::string Usage::getUsage() const {
         if (hasOption) {
             index = 0;
             oss << "\n\noptional arguments:\n";
-            for (it = _argparsor._arguments.begin(); it != _argparsor._arguments.end(); ++it) {
+            for (it = _args._arguments.begin(); it != _args._arguments.end(); ++it) {
                 if ((*it)->_isPositionnalArgument()) {
                     continue;
                 }
@@ -311,8 +311,8 @@ std::string Usage::getUsage() const {
     return oss.str();
 }
 
-} // namespace argparsor
+} // namespace args
 
-} // namespace mblet
+} // namespace blet
 
-#undef _ARGPARSOR_SEPARATOR_PATH
+#undef _ARGS_SEPARATOR_PATH

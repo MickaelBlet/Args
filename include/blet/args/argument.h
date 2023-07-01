@@ -1,5 +1,5 @@
 /**
- * argparsor/argument.h
+ * args/argument.h
  *
  * Licensed under the MIT License <http://opensource.org/licenses/MIT>.
  * Copyright (c) 2022-2023 BLET Mickael.
@@ -23,25 +23,25 @@
  * SOFTWARE.
  */
 
-#ifndef _MBLET_ARGPARSOR_ARGUMENT_H_
-#define _MBLET_ARGPARSOR_ARGUMENT_H_
+#ifndef _BLET_ARGS_ARGUMENT_H_
+#define _BLET_ARGS_ARGUMENT_H_
 
 #include <cstdlib> // stdtod
 #include <cstring> // memcpy
 #include <string>
 #include <vector>
 
-#include "mblet/argparsor/action.h"
-#include "mblet/argparsor/exception.h"
-#include "mblet/argparsor/valid.h"
-#include "mblet/argparsor/vector.h"
+#include "blet/args/action.h"
+#include "blet/args/exception.h"
+#include "blet/args/valid.h"
+#include "blet/args/vector.h"
 
-namespace mblet {
+namespace blet {
 
-class Argparsor;
+class Args;
 class Usage;
 
-namespace argparsor {
+namespace args {
 
 template<typename T>
 inline void boolTo(const bool&, T&) {
@@ -237,11 +237,11 @@ inline void strTo(const std::string& str, char (&ret)[Size]) {
     }
 }
 
-class Argparsor;
+class Args;
 
 class ArgumentElement : public std::vector<ArgumentElement> {
-    friend class ::mblet::Argparsor;
-    friend class Argparsor;
+    friend class ::blet::Args;
+    friend class Args;
     friend class Argument;
     friend class Usage;
 
@@ -334,15 +334,15 @@ class ArgumentVectorVectorType;
  * @brief Argument object
  */
 class Argument : public ArgumentElement {
-    friend class ::mblet::Argparsor;
-    friend class Argparsor;
+    friend class ::blet::Args;
+    friend class Args;
     friend class Usage;
 
   public:
     /**
      * @brief Construct a new Argument object
      */
-    Argument(Argparsor& argparsor);
+    Argument(Args& args);
 
     /**
      * @brief Copy a Argument object
@@ -669,7 +669,7 @@ class Argument : public ArgumentElement {
 
     static bool _compareOption(const Argument* first, const Argument* second);
 
-    Argparsor& _argparsor;
+    Args& _args;
 
     std::vector<std::string> _nameOrFlags;
     enum Type _type;
@@ -873,8 +873,8 @@ class ArgumentVectorVectorType : public Argument {
     void (*_toDestCustom)(std::vector<std::vector<T> >&, bool, const std::vector<std::vector<std::string> >&);
 };
 
-} // namespace argparsor
+} // namespace args
 
-} // namespace mblet
+} // namespace blet
 
-#endif // #ifndef _MBLET_ARGPARSOR_ARGUMENT_H_
+#endif // #ifndef _BLET_ARGS_ARGUMENT_H_

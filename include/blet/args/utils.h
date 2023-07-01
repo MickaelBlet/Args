@@ -1,5 +1,5 @@
 /**
- * argparsor/utils.h
+ * args/utils.h
  *
  * Licensed under the MIT License <http://opensource.org/licenses/MIT>.
  * Copyright (c) 2022-2023 BLET Mickael.
@@ -23,15 +23,15 @@
  * SOFTWARE.
  */
 
-#ifndef _MBLET_ARGPARSOR_UTILS_H_
-#define _MBLET_ARGPARSOR_UTILS_H_
+#ifndef _BLET_ARGS_UTILS_H_
+#define _BLET_ARGS_UTILS_H_
 
 #include <cstring> // strchr
 #include <string>
 
-namespace mblet {
+namespace blet {
 
-namespace argparsor {
+namespace args {
 
 /**
  * @brief arg is "-[^-].*"
@@ -121,8 +121,8 @@ inline bool takeArg(const char* arg, std::string* retOptionName, std::string* re
     }
 }
 
-} // namespace argparsor
+} // namespace args
 
-} // namespace mblet
+} // namespace blet
 
-#endif // #ifndef _MBLET_ARGPARSOR_UTILS_H_
+#endif // #ifndef _BLET_ARGS_UTILS_H_

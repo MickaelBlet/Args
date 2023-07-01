@@ -1,9 +1,9 @@
-# Argparsor
+# Args
 
 ## Constructor
 
 ```cpp
-Argparsor(bool addHelp = true);
+Args(bool addHelp = true);
 ```
 
 If `addhelp` is true generate a action help argument with the flags -h and --help.
@@ -11,7 +11,7 @@ If `addhelp` is true generate a action help argument with the flags -h and --hel
 ## Destructor
 
 ```cpp
-virtual ~Argparsor();
+virtual ~Args();
 ```
 
 Delete all new object.
@@ -35,7 +35,7 @@ Get the version message.
 ## setAlternative
 
 ```cpp
-Argparsor& setAlternative(bool alternivative = true);
+Args& setAlternative(bool alternivative = true);
 ```
 
 Active parsing for accept long option with only one '-' character.
@@ -51,7 +51,7 @@ Get the status of alternative.
 ## setStrict
 
 ```cpp
-Argparsor& setStrict(bool strict = true);
+Args& setStrict(bool strict = true);
 ```
 
 Active exception if not all argument is used else you can take additionnals arguments with [getAdditionalArguments](#getadditionalarguments) method.
@@ -67,7 +67,7 @@ Get the status of strict.
 ## setHelpException
 
 ```cpp
-Argparsor& setHelpException(bool helpException = true);
+Args& setHelpException(bool helpException = true);
 ```
 
 Throw a HelpException when help action is present in arguments else exit(0) the your program after output usage at stdout.
@@ -83,7 +83,7 @@ Get the status of helpException.
 ## setVersionException
 
 ```cpp
-Argparsor& setVersionException(bool versionException = true);
+Args& setVersionException(bool versionException = true);
 ```
 
 Throw a VersionException when version action is present in arguments else exit(0) the your program after output usage at stdout.
@@ -133,7 +133,7 @@ Get the const argument from name or flag.
 
 |Methods||||
 |---|---|---|---|
-| [count](argument.md#count) | [isExists](argument.md#action) | [isRequired](argument.md#isRequired) |[getnargs](argument.md#getnargs) |
+| [count](argument.md#count) | [isExists](argument.md#action) | [isRequired](argument.md#isRequired) |[getNargs](argument.md#getnargs) |
 | [getHelp](argument.md#getHelp) | [getMetavar](argument.md#getMetavar) | [getNameOrFlags](argument.md#getNameOrFlags) |[getDefaults](argument.md#getDefaults) |
 | [getAction](argument.md#getAction) | [getString](argument.md#getString) | [getNumber](argument.md#getNumber) |[operator-bool](argument.md#operator-bool) |
 | [operator-string](argument.md#operator-string) |
@@ -149,11 +149,18 @@ Get the additionnal arguments after [parseArguments](#parsearguments) method if 
 ## parseArguments
 
 ```cpp
-void parseArguments(int argc, char* argv[], bool alternative = false, bool strict = false, bool usageException = false, bool versionException = false);
+void parseArguments(int argc, char* argv[]);
 ```
 
-Convert argument strings to objects and assign them as attributes of the argparsor map.
+Convert argument strings to objects and assign them as attributes of the args map.
 Previous calls to [addArgument](#addargument) determine exactly what objects are created and how they are assigned.
+
+### Parse Options
+
+|Methods||
+|---|---|
+| [setStrict](#setstrict) | [setAlternative](#setalternative) |
+| [setHelpException](#sethelpexception) | [setVersionException](#setversionexception) |
 
 ## addArgument
 
@@ -165,7 +172,7 @@ Define how a single command-line argument should be parsed.
 
 Example:
 ```cpp
-Argparsor args;
+Args args;
 args.addArgument({"-a", "-b"});
 // args.addArgument(args.vector("-a", "-b")); // C++98
 args.addArgument("-c");

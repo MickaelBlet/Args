@@ -1,9 +1,9 @@
 #include <iostream>
 #include <sstream>
 
-#include "mblet/argparsor.h"
+#include "blet/args.h"
 
-class ValidCustom : public mblet::Argparsor::IValid {
+class ValidCustom : public blet::Args::IValid {
   public:
     ValidCustom(const std::string& prefix, const std::string& suffix) :
         _prefix(prefix),
@@ -18,7 +18,7 @@ class ValidCustom : public mblet::Argparsor::IValid {
             else {
                 std::ostringstream oss("");
                 oss << "\"" << arguments[i] << "\" is not \"" << _prefix << "\"";
-                throw mblet::Argparsor::ParseArgumentValidException(oss.str().c_str());
+                throw blet::Args::ParseArgumentValidException(oss.str().c_str());
             }
         }
         return true;
@@ -30,7 +30,7 @@ class ValidCustom : public mblet::Argparsor::IValid {
 };
 
 int main(int argc, char* argv[]) {
-    mblet::Argparsor args;
+    blet::Args args;
     // Add suffix on arguments if argument is "foo"
     args.addArgument("--option").help("custom option message").valid(new ValidCustom("foo", "bar")).required(true);
 
@@ -38,13 +38,13 @@ int main(int argc, char* argv[]) {
         args.setHelpException().setVersionException().parseArguments(argc, argv);
         std::cout << args["--option"] << std::endl;
     }
-    catch (const mblet::Argparsor::HelpException& e) {
+    catch (const blet::Args::HelpException& e) {
         std::cout << e.what() << std::endl;
     }
-    catch (const mblet::Argparsor::VersionException& e) {
+    catch (const blet::Args::VersionException& e) {
         std::cout << e.what() << std::endl;
     }
-    catch (const mblet::Argparsor::ParseArgumentException& e) {
+    catch (const blet::Args::ParseArgumentException& e) {
         std::cerr << args.getBinaryName() << ": " << e.what() << " -- '" << e.argument() << "'" << std::endl;
         return 1;
     }

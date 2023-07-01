@@ -1,33 +1,33 @@
 #include <gtest/gtest.h>
 
-#include "mblet/argparsor.h"
+#include "blet/args.h"
 
 GTEST_TEST(getUsage, custom) {
-    mblet::Argparsor args;
+    blet::Args args;
     args.setUsage("foo");
     EXPECT_EQ(args.getUsage(), std::string("foo"));
 }
 
 GTEST_TEST(getUsage, _compareOption) {
-    mblet::Argparsor args(false);
-    args.addArgument(args.vector("-h", "--help")).action(mblet::Argparsor::HELP).help("custom help option message");
+    blet::Args args(false);
+    args.addArgument(args.vector("-h", "--help")).action(blet::Args::HELP).help("custom help option message");
     args.addArgument("NOTREQUIRED1").help("help of positional argument");
     args.addArgument("REQUIRED1").help("help of required1 positional argument").required(true);
     args.addArgument("REQUIRED2").help("help of required2 positional argument").required(true);
     args.addArgument("NOTREQUIRED2").help("help of positional argument");
-    args.addArgument("-a").action(mblet::Argparsor::STORE_TRUE).help("help of a short option").required(true);
-    args.addArgument("-b").action(mblet::Argparsor::STORE_TRUE).help("help of b short option");
-    args.addArgument("-c").action(mblet::Argparsor::STORE_TRUE).help("help of c short option");
-    args.addArgument("-d").action(mblet::Argparsor::STORE_TRUE).help("help of d short option").required(true);
-    args.addArgument("--long1").action(mblet::Argparsor::STORE_TRUE).help("help of long1 option");
-    args.addArgument("--long2").action(mblet::Argparsor::STORE_TRUE).help("help of long2 option").required(true);
-    args.addArgument("--long3").action(mblet::Argparsor::STORE_TRUE).help("help of long3 option");
-    args.addArgument("--long4").action(mblet::Argparsor::STORE_TRUE).help("help of long4 option");
-    args.addArgument("--long5").action(mblet::Argparsor::STORE_TRUE).help("help of long5 option");
-    args.addArgument("--long6").action(mblet::Argparsor::STORE_TRUE).help("help of long6 option").required(true);
-    args.addArgument("-e").action(mblet::Argparsor::STORE_TRUE).help("help of e short option").required(true);
-    args.addArgument("-f").action(mblet::Argparsor::STORE_TRUE).help("help of f short option");
-    args.addArgument("-g").action(mblet::Argparsor::STORE_TRUE).help("help of g short option").required(true);
+    args.addArgument("-a").action(blet::Args::STORE_TRUE).help("help of a short option").required(true);
+    args.addArgument("-b").action(blet::Args::STORE_TRUE).help("help of b short option");
+    args.addArgument("-c").action(blet::Args::STORE_TRUE).help("help of c short option");
+    args.addArgument("-d").action(blet::Args::STORE_TRUE).help("help of d short option").required(true);
+    args.addArgument("--long1").action(blet::Args::STORE_TRUE).help("help of long1 option");
+    args.addArgument("--long2").action(blet::Args::STORE_TRUE).help("help of long2 option").required(true);
+    args.addArgument("--long3").action(blet::Args::STORE_TRUE).help("help of long3 option");
+    args.addArgument("--long4").action(blet::Args::STORE_TRUE).help("help of long4 option");
+    args.addArgument("--long5").action(blet::Args::STORE_TRUE).help("help of long5 option");
+    args.addArgument("--long6").action(blet::Args::STORE_TRUE).help("help of long6 option").required(true);
+    args.addArgument("-e").action(blet::Args::STORE_TRUE).help("help of e short option").required(true);
+    args.addArgument("-f").action(blet::Args::STORE_TRUE).help("help of f short option");
+    args.addArgument("-g").action(blet::Args::STORE_TRUE).help("help of g short option").required(true);
 
     std::ostringstream usage("");
 
@@ -62,7 +62,7 @@ GTEST_TEST(getUsage, _compareOption) {
 }
 
 GTEST_TEST(getUsage, widthUsage) {
-    mblet::Argparsor args;
+    blet::Args args;
     args.setUsageWidth(0, 10, 2, 10);
     args.setDescription("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX");
     args.addArgument("XXXXXXXXXXX").help("XXXX XXXX XXXX XXXX XXXX XXXX XXXX XXXX XXXX XXXX XXXX XXXX XXXX XX");
@@ -120,7 +120,7 @@ GTEST_TEST(getUsage, widthUsage) {
 }
 
 GTEST_TEST(getUsage, allTypeArgument) {
-    mblet::Argparsor args;
+    blet::Args args;
     args.setDescription("custom description message");
     args.setEpilog("custom epilog message");
     // POSITIONNAL
@@ -133,8 +133,8 @@ GTEST_TEST(getUsage, allTypeArgument) {
         .nargs(2);
     args.addArgument("NOTREQUIRED").help("help of positional argument").defaults("DEFAULT VALUE");
     // BOOL
-    args.addArgument(args.vector("-b", "--bool")).action(mblet::Argparsor::STORE_TRUE).help("help of bool option");
-    args.addArgument("--notbool").action(mblet::Argparsor::STORE_FALSE).help("help of notbool option");
+    args.addArgument(args.vector("-b", "--bool")).action(blet::Args::STORE_TRUE).help("help of bool option");
+    args.addArgument("--notbool").action(blet::Args::STORE_FALSE).help("help of notbool option");
     // SIMPLE
     args.addArgument(args.vector("-s", "--simple"))
         .help("help of simple option")
@@ -150,31 +150,31 @@ GTEST_TEST(getUsage, allTypeArgument) {
     // INFINITE
     args.addArgument("--infinite")
         .flag("-i")
-        .action(mblet::Argparsor::INFINITE)
+        .action(blet::Args::INFINITE)
         .help("help of infinite option")
         .nargs(1)
         .defaults(args.vector("0", "1", "2", "3"));
     // NULTI
     args.addArgument("--multi")
-        .action(mblet::Argparsor::APPEND)
+        .action(blet::Args::APPEND)
         .help("help of multi option")
         .nargs(1)
         .defaults(args.vector("0", "1", "2", "3"));
     // MULTI NUMBER
     args.addArgument("--multi-number")
-        .action(mblet::Argparsor::APPEND)
+        .action(blet::Args::APPEND)
         .help("help of multi number option")
         .nargs(2)
         .defaults(args.vector("0", "1", "2", "3"));
     // MULTI INFINITE
     args.addArgument("--multi-infinite")
-        .action(mblet::Argparsor::EXTEND)
+        .action(blet::Args::EXTEND)
         .help("help of multi-infinite option")
         .nargs(1)
         .defaults(args.vector("0", "1", "2", "3"));
     // MULTI INFINITE NUMBER
     args.addArgument("--multi-infinite-number")
-        .action(mblet::Argparsor::EXTEND)
+        .action(blet::Args::EXTEND)
         .help("help of multi-infinite-number option")
         .nargs(2)
         .defaults(args.vector("0", "1", "2", "3"));

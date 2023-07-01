@@ -1,4 +1,4 @@
-set(library_project_name argparsor)
+set(library_project_name args)
 
 get_target_property(library_include_dirs "${library_project_name}" INCLUDE_DIRECTORIES)
 

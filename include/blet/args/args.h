@@ -1,5 +1,5 @@
 /**
- * argparsor/argparsor.h
+ * args/args.h
  *
  * Licensed under the MIT License <http://opensource.org/licenses/MIT>.
  * Copyright (c) 2022-2023 BLET Mickael.
@@ -23,23 +23,23 @@
  * SOFTWARE.
  */
 
-#ifndef _MBLET_ARGPARSOR_ARGPARSOR_H_
-#define _MBLET_ARGPARSOR_ARGPARSOR_H_
+#ifndef _BLET_ARGS_ARGS_H_
+#define _BLET_ARGS_ARGS_H_
 
 #include <list>
 #include <map>
 #include <string>
 #include <vector>
 
-#include "mblet/argparsor/action.h"
-#include "mblet/argparsor/argument.h"
-#include "mblet/argparsor/exception.h"
-#include "mblet/argparsor/usage.h"
-#include "mblet/argparsor/vector.h"
+#include "blet/args/action.h"
+#include "blet/args/argument.h"
+#include "blet/args/exception.h"
+#include "blet/args/usage.h"
+#include "blet/args/vector.h"
 
-namespace mblet {
+namespace blet {
 
-namespace argparsor {
+namespace args {
 
 class Argument;
 class Usage;
@@ -47,20 +47,20 @@ class Usage;
 /**
  * @brief Object for parse the main arguments
  */
-class Argparsor : public Usage {
+class Args : public Usage {
     friend class Argument;
     friend class Usage;
 
   public:
     /**
-     * @brief Construct a new Argparsor object
+     * @brief Construct a new Args object
      */
-    Argparsor(bool addHelp);
+    Args(bool addHelp);
 
     /**
-     * @brief Destroy the Argparsor object
+     * @brief Destroy the Args object
      */
-    virtual ~Argparsor();
+    virtual ~Args();
 
     /**
      * @brief Set the version message
@@ -85,7 +85,7 @@ class Argparsor : public Usage {
      *
      * @param alternivative
      */
-    Argparsor& setAlternative(bool alternivative = true) {
+    Args& setAlternative(bool alternivative = true) {
         _isAlternative = alternivative;
         return *this;
     }
@@ -105,7 +105,7 @@ class Argparsor : public Usage {
      *
      * @param strict
      */
-    Argparsor& setStrict(bool strict = true) {
+    Args& setStrict(bool strict = true) {
         _isStrict = strict;
         return *this;
     }
@@ -125,7 +125,7 @@ class Argparsor : public Usage {
      *
      * @param helpException
      */
-    Argparsor& setHelpException(bool helpException = true) {
+    Args& setHelpException(bool helpException = true) {
         _isHelpException = helpException;
         return *this;
     }
@@ -145,7 +145,7 @@ class Argparsor : public Usage {
      *
      * @param versionException
      */
-    Argparsor& setVersionException(bool versionException = true) {
+    Args& setVersionException(bool versionException = true) {
         _isVersionException = versionException;
         return *this;
     }
@@ -221,7 +221,7 @@ class Argparsor : public Usage {
     }
 
     /**
-     * @brief Convert argument strings to objects and assign them as attributes of the argparsor map.
+     * @brief Convert argument strings to objects and assign them as attributes of the args map.
      *        Previous calls to addArgument() determine exactly what objects are created and how they are assigned.
      *        Comportenment depend of setAlternative, setStrict, setHelpException and setVersionException modes.
      * @param argc
@@ -277,8 +277,8 @@ class Argparsor : public Usage {
     void clear();
 
   private:
-    Argparsor(const Argparsor&);            // disable copy constructor
-    Argparsor& operator=(const Argparsor&); // disable copy operator
+    Args(const Args&);            // disable copy constructor
+    Args& operator=(const Args&); // disable copy operator
 
     /**
      * @brief Get the short argument decompose multi short argument
@@ -349,8 +349,8 @@ class Argparsor : public Usage {
     std::vector<std::string> _additionalArguments;
 };
 
-} // namespace argparsor
+} // namespace args
 
-} // namespace mblet
+} // namespace blet
 
-#endif // #ifndef _MBLET_ARGPARSOR_ARGPARSOR_H_
+#endif // #ifndef _BLET_ARGS_ARGS_H_

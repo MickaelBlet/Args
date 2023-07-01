@@ -1,6 +1,6 @@
 #include <iostream>
 
-#include "mblet/argparsor.h"
+#include "blet/args.h"
 
 struct CustomStruct {
     std::string a;
@@ -8,7 +8,7 @@ struct CustomStruct {
 };
 
 int main(int argc, char* argv[]) {
-    using namespace mblet;
+    using namespace blet;
 
     struct {
         char notrequired[32];
@@ -38,7 +38,7 @@ int main(int argc, char* argv[]) {
     options.b = false;
     options.c = false;
 
-    Argparsor args(false); // disable automatic help option
+    Args args(false); // disable automatic help option
     args.setVersion("Version: 0.0.0");
     args.setDescription("custom description message");
     args.setEpilog("custom epilog message");
@@ -47,7 +47,7 @@ int main(int argc, char* argv[]) {
     args.addArgument("NOTREQUIRED").help("help of positional argument").defaults("foo").dest(options.notrequired);
     args.addArgument("REQUIRED")
         .help("help of required positional argument")
-        .valid(new Argparsor::ValidNumber())
+        .valid(new Args::ValidNumber())
         .dest(options.required)
         .required(true);
     args.addArgument("-b").action(args.STORE_TRUE).help("help of boolean option").dest(options.b);
@@ -58,7 +58,7 @@ int main(int argc, char* argv[]) {
         .required(true)
         .metavar("argSimple")
         .nargs(1)
-        .valid(new Argparsor::ValidChoise(args.vector("0", "100", "200")))
+        .valid(new Args::ValidChoise(args.vector("0", "100", "200")))
         .dest(options.simple);
     args.addArgument("-n")
         .flag("--number")
@@ -80,7 +80,7 @@ int main(int argc, char* argv[]) {
         .help("help of multi")
         .metavar("MULTI")
         .nargs(2)
-        .valid(new Argparsor::ValidNumber())
+        .valid(new Args::ValidNumber())
         .defaults(args.vector("0", "1", "2", "3"))
         .dest(options.multiAppend);
     args.addArgument(args.vector("-e", "--extend"))
@@ -101,15 +101,15 @@ int main(int argc, char* argv[]) {
     try {
         args.setAlternative().setHelpException().setVersionException().parseArguments(argc, argv);
     }
-    catch (const Argparsor::HelpException& e) {
+    catch (const Args::HelpException& e) {
         std::cout << e.what() << std::endl; // write usage message
         return 0;
     }
-    catch (const Argparsor::VersionException& e) {
+    catch (const Args::VersionException& e) {
         std::cout << e.what() << std::endl; // write version message
         return 0;
     }
-    catch (const Argparsor::ParseArgumentException& e) {
+    catch (const Args::ParseArgumentException& e) {
         std::cerr << args.getBinaryName() << ": " << e.what() << " -- '" << e.argument() << "'" << std::endl;
         return 1;
     }

@@ -1,5 +1,5 @@
 /**
- * argparsor-valid.cpp
+ * args-valid.cpp
  *
  * Licensed under the MIT License <http://opensource.org/licenses/MIT>.
  * Copyright (c) 2022-2023 BLET Mickael.
@@ -23,18 +23,18 @@
  * SOFTWARE.
  */
 
-#include "mblet/argparsor/valid.h"
+#include "blet/args/valid.h"
 
 #include <sys/stat.h>
 
 #include <cstdlib>
 #include <sstream>
 
-#include "mblet/argparsor/exception.h"
+#include "blet/args/exception.h"
 
-namespace mblet {
+namespace blet {
 
-namespace argparsor {
+namespace args {
 
 /*
 ################################################################################
@@ -163,6 +163,6 @@ bool ValidPath::isValid(std::vector<std::string>& args) {
     return true;
 }
 
-} // namespace argparsor
+} // namespace args
 
-} // namespace mblet
+} // namespace blet

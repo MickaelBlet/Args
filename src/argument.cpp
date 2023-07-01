@@ -1,5 +1,5 @@
 /**
- * argparsor-argument.cpp
+ * args-argument.cpp
  *
  * Licensed under the MIT License <http://opensource.org/licenses/MIT>.
  * Copyright (c) 2022-2023 BLET Mickael.
@@ -23,21 +23,21 @@
  * SOFTWARE.
  */
 
-#include "mblet/argparsor/argument.h"
+#include "blet/args/argument.h"
 
 #include <algorithm>
 #include <sstream>
 
-#include "mblet/argparsor/action.h"
-#include "mblet/argparsor/argparsor.h"
-#include "mblet/argparsor/utils.h"
+#include "blet/args/action.h"
+#include "blet/args/args.h"
+#include "blet/args/utils.h"
 
-#define _ARGPARSOR_PREFIX_SIZEOF_SHORT_OPTION (sizeof("-") - 1)
-#define _ARGPARSOR_PREFIX_SIZEOF_LONG_OPTION (sizeof("--") - 1)
+#define _ARGS_PREFIX_SIZEOF_SHORT_OPTION (sizeof("-") - 1)
+#define _ARGS_PREFIX_SIZEOF_LONG_OPTION (sizeof("--") - 1)
 
-namespace mblet {
+namespace blet {
 
-namespace argparsor {
+namespace args {
 
 static inline bool compareFlag(const std::string& first, const std::string& second) {
     if (isShortOption(first.c_str()) && isShortOption(second.c_str())) {
@@ -103,9 +103,9 @@ ArgumentElement::operator std::vector<std::string>() const {
 ################################################################################
 */
 
-Argument::Argument(Argparsor& argparsor) :
+Argument::Argument(Args& args) :
     ArgumentElement(),
-    _argparsor(argparsor),
+    _args(args),
     _nameOrFlags(),
     _type(SIMPLE_OPTION),
     _isExist(false),
@@ -122,7 +122,7 @@ Argument::Argument(Argparsor& argparsor) :
 
 Argument::Argument(const Argument& rhs) :
     ArgumentElement(rhs),
-    _argparsor(rhs._argparsor),
+    _args(rhs._args),
     _nameOrFlags(rhs._nameOrFlags),
     _type(rhs._type),
     _isExist(rhs._isExist),
@@ -239,24 +239,24 @@ Argument& Argument::flag(const char* flag_) {
         throw ArgumentException(flag_, "can't add flag in positionnal argument");
     }
     _validFormatFlag(flag_);
-    if (_argparsor.argumentExists(flag_)) {
+    if (_args.argumentExists(flag_)) {
         throw ArgumentException(flag_, "invalid flag already exist");
     }
     _nameOrFlags.push_back(flag_);
     _sortNameOrFlags();
-    _argparsor._argumentFromName.insert(std::pair<std::string, Argument**>(flag_, _this));
-    _argparsor._arguments.sort(&Argument::_compareOption);
+    _args._argumentFromName.insert(std::pair<std::string, Argument**>(flag_, _this));
+    _args._arguments.sort(&Argument::_compareOption);
     return *this;
 }
 
 Argument& Argument::action(enum Action::eAction action_) {
     // reset help option
     if (_action == Action::HELP) {
-        _argparsor._helpOption = NULL;
+        _args._helpOption = NULL;
     }
     // reset version option
     if (_action == Action::VERSION) {
-        _argparsor._versionOption = NULL;
+        _args._versionOption = NULL;
     }
     _action = action_;
     _typeConstructor();
@@ -266,7 +266,7 @@ Argument& Argument::action(enum Action::eAction action_) {
 
 Argument& Argument::required(bool required_) {
     _isRequired = required_;
-    _argparsor._arguments.sort(&Argument::_compareOption);
+    _args._arguments.sort(&Argument::_compareOption);
     return *this;
 }
 
@@ -389,11 +389,11 @@ std::string Argument::_metavarDefault() {
     // get short or long name
     for (std::size_t i = 0; i < _nameOrFlags.size(); ++i) {
         if (_nameOrFlags[i][0] == '-' && _nameOrFlags[i][1] == '-') {
-            flag = _nameOrFlags[i].c_str() + _ARGPARSOR_PREFIX_SIZEOF_LONG_OPTION;
+            flag = _nameOrFlags[i].c_str() + _ARGS_PREFIX_SIZEOF_LONG_OPTION;
             break;
         }
         else if (flag == NULL && _nameOrFlags[i][0] == '-' && _nameOrFlags[i][1] != '-') {
-            flag = _nameOrFlags[i].c_str() + _ARGPARSOR_PREFIX_SIZEOF_SHORT_OPTION;
+            flag = _nameOrFlags[i].c_str() + _ARGS_PREFIX_SIZEOF_SHORT_OPTION;
         }
     }
     // create a defaultUsageName from longName or shortName
@@ -450,20 +450,20 @@ void Argument::_typeConstructor() {
         _type = Argument::REVERSE_BOOLEAN_OPTION;
     }
     else if (_action == Action::HELP) {
-        if (_argparsor._helpOption == NULL) {
-            _argparsor._helpOption = this;
+        if (_args._helpOption == NULL) {
+            _args._helpOption = this;
         }
-        if (_argparsor._helpOption != NULL && _argparsor._helpOption != this) {
+        if (_args._helpOption != NULL && _args._helpOption != this) {
             throw ArgumentException(_nameOrFlags.front().c_str(), "help action already defined");
         }
         _nargs = 0;
         _type = Argument::HELP_OPTION;
     }
     else if (_action == Action::VERSION) {
-        if (_argparsor._versionOption == NULL) {
-            _argparsor._versionOption = this;
+        if (_args._versionOption == NULL) {
+            _args._versionOption = this;
         }
-        if (_argparsor._versionOption != NULL && _argparsor._versionOption != this) {
+        if (_args._versionOption != NULL && _args._versionOption != this) {
             throw ArgumentException(_nameOrFlags.front().c_str(), "version action already defined");
         }
         _nargs = 0;
@@ -585,9 +585,9 @@ void Argument::_clear() {
     }
 }
 
-} // namespace argparsor
+} // namespace args
 
-} // namespace mblet
+} // namespace blet
 
-#undef _ARGPARSOR_PREFIX_SIZEOF_SHORT_OPTION
-#undef _ARGPARSOR_PREFIX_SIZEOF_LONG_OPTION
+#undef _ARGS_PREFIX_SIZEOF_SHORT_OPTION
+#undef _ARGS_PREFIX_SIZEOF_LONG_OPTION

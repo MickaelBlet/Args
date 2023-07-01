@@ -1,23 +1,23 @@
 #include <iostream>
 
-#include "mblet/argparsor.h"
+#include "blet/args.h"
 
 int main(int argc, char* argv[]) {
-    mblet::Argparsor args;
+    blet::Args args;
     args.addArgument("ARG").help("custom argument message").nargs(3).action(args.INFINITE);
 
     try {
         args.setHelpException().setVersionException().parseArguments(argc, argv);
     }
-    catch (const mblet::Argparsor::HelpException& e) {
+    catch (const blet::Args::HelpException& e) {
         std::cout << e.what() << std::endl;
         return 0;
     }
-    catch (const mblet::Argparsor::VersionException& e) {
+    catch (const blet::Args::VersionException& e) {
         std::cout << e.what() << std::endl;
         return 0;
     }
-    catch (const mblet::Argparsor::ParseArgumentException& e) {
+    catch (const blet::Args::ParseArgumentException& e) {
         std::cerr << args.getBinaryName() << ": " << e.what() << " -- '" << e.argument() << "'" << std::endl;
         return 1;
     }

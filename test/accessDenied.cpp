@@ -1,31 +1,31 @@
 #include <gtest/gtest.h>
 
-#include "mblet/argparsor.h"
+#include "blet/args.h"
 
 GTEST_TEST(accessDenied, exception) {
-    mblet::Argparsor args;
+    blet::Args args;
     EXPECT_THROW(
         {
             try {
                 args[""];
             }
-            catch (const mblet::Argparsor::AccessDeniedException& e) {
+            catch (const blet::Args::AccessDeniedException& e) {
                 EXPECT_STREQ(e.what(), "argument not found");
                 EXPECT_STREQ(e.argument(), "");
                 throw;
             }
         },
-        mblet::Argparsor::AccessDeniedException);
+        blet::Args::AccessDeniedException);
     EXPECT_THROW(
         {
             try {
                 args["foo"];
             }
-            catch (const mblet::Argparsor::AccessDeniedException& e) {
+            catch (const blet::Args::AccessDeniedException& e) {
                 EXPECT_STREQ(e.what(), "argument not found");
                 EXPECT_STREQ(e.argument(), "foo");
                 throw;
             }
         },
-        mblet::Argparsor::AccessDeniedException);
+        blet::Args::AccessDeniedException);
 }

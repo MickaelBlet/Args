@@ -1,5 +1,5 @@
 /**
- * argparsor/usage.h
+ * args/usage.h
  *
  * Licensed under the MIT License <http://opensource.org/licenses/MIT>.
  * Copyright (c) 2022-2023 BLET Mickaël.
@@ -23,25 +23,25 @@
  * SOFTWARE.
  */
 
-#ifndef _MBLET_ARGPARSOR_USAGE_H_
-#define _MBLET_ARGPARSOR_USAGE_H_
+#ifndef _BLET_ARGS_USAGE_H_
+#define _BLET_ARGS_USAGE_H_
 
 #include <string>
 
-namespace mblet {
+namespace blet {
 
-namespace argparsor {
+namespace args {
 
-class Argparsor;
+class Args;
 
 class Usage {
   public:
     /**
      * @brief Construct a new Usage object
      *
-     * @param argparsor
+     * @param args
      */
-    Usage(Argparsor& argparsor);
+    Usage(Args& args);
 
     /**
      * @brief Destroy the Usage object
@@ -121,7 +121,7 @@ class Usage {
     }
 
   protected:
-    Argparsor& _argparsor;
+    Args& _args;
 
     std::string _description;
     std::string _epilog;
@@ -132,8 +132,8 @@ class Usage {
     std::size_t _usageHelpWidth;
 };
 
-} // namespace argparsor
+} // namespace args
 
-} // namespace mblet
+} // namespace blet
 
-#endif // #ifndef _MBLET_ARGPARSOR_USAGE_H_
+#endif // #ifndef _BLET_ARGS_USAGE_H_

@@ -1,5 +1,5 @@
 /**
- * argparsor-exception.cpp
+ * args-exception.cpp
  *
  * Licensed under the MIT License <http://opensource.org/licenses/MIT>.
  * Copyright (c) 2022-2023 BLET Mickael.
@@ -23,11 +23,11 @@
  * SOFTWARE.
  */
 
-#include "mblet/argparsor/exception.h"
+#include "blet/args/exception.h"
 
-namespace mblet {
+namespace blet {
 
-namespace argparsor {
+namespace args {
 
 Exception::Exception(const char* str) :
     std::exception(),
@@ -89,6 +89,6 @@ ParseArgumentValidException::ParseArgumentValidException(const char* argument, c
 
 ParseArgumentValidException::~ParseArgumentValidException() throw() {}
 
-} // namespace argparsor
+} // namespace args
 
-} // namespace mblet
+} // namespace blet

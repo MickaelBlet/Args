@@ -1,5 +1,5 @@
 /**
- * argparsor-argparsor.cpp
+ * args.cpp
  *
  * Licensed under the MIT License <http://opensource.org/licenses/MIT>.
  * Copyright (c) 2022-2023 BLET Mickael.
@@ -23,30 +23,24 @@
  * SOFTWARE.
  */
 
-#include "mblet/argparsor/argparsor.h"
+#include "blet/args/args.h"
 
 #include <algorithm>
 #include <iostream>
 #include <sstream>
 
-#include "mblet/argparsor/argument.h"
-#include "mblet/argparsor/utils.h"
-#include "mblet/argparsor/vector.h"
+#include "blet/args/argument.h"
+#include "blet/args/utils.h"
+#include "blet/args/vector.h"
 
-#define _ARGPARSOR_PREFIX_SIZEOF_SHORT_OPTION (sizeof("-") - 1)
-#define _ARGPARSOR_PREFIX_SIZEOF_LONG_OPTION (sizeof("--") - 1)
+#define _ARGS_PREFIX_SIZEOF_SHORT_OPTION (sizeof("-") - 1)
+#define _ARGS_PREFIX_SIZEOF_LONG_OPTION (sizeof("--") - 1)
 
-#if defined _WIN32 || defined _WIN64 || defined __CYGWIN__
-#define _ARGPARSOR_SEPARATOR_PATH '\\'
-#else
-#define _ARGPARSOR_SEPARATOR_PATH '/'
-#endif
+namespace blet {
 
-namespace mblet {
+namespace args {
 
-namespace argparsor {
-
-Argparsor::Argparsor(bool addHelp) :
+Args::Args(bool addHelp) :
     Usage(*this),
     _binaryName(),
     _arguments(),
@@ -64,14 +58,14 @@ Argparsor::Argparsor(bool addHelp) :
     }
 }
 
-Argparsor::~Argparsor() {
+Args::~Args() {
     // delete all new element
     for (std::list<Argument*>::iterator it = _arguments.begin(); it != _arguments.end(); ++it) {
         delete (*it);
     }
 }
 
-void Argparsor::parseArguments(int argc, char* argv[]) {
+void Args::parseArguments(int argc, char* argv[]) {
     // clear the arguments
     for (std::list<Argument*>::iterator it = _arguments.begin(); it != _arguments.end(); ++it) {
         (*it)->_clear();
@@ -209,7 +203,7 @@ void Argparsor::parseArguments(int argc, char* argv[]) {
     }
 }
 
-Argument& Argparsor::addArgument(const Vector& nameOrFlags) {
+Argument& Args::addArgument(const Vector& nameOrFlags) {
     if (nameOrFlags.empty()) {
         throw ArgumentException("", "invalid empty flag");
     }
@@ -256,7 +250,7 @@ Argument& Argparsor::addArgument(const Vector& nameOrFlags) {
     return **addrNewArgument;
 }
 
-void Argparsor::removeArguments(const Vector& nameOrFlags) {
+void Args::removeArguments(const Vector& nameOrFlags) {
     if (nameOrFlags.empty()) {
         throw ArgumentException("", "invalid empty flag");
     }
@@ -303,7 +297,7 @@ void Argparsor::removeArguments(const Vector& nameOrFlags) {
     _arguments.sort(&Argument::_compareOption);
 }
 
-void Argparsor::clear() {
+void Args::clear() {
     // delete all new element
     for (std::list<Argument*>::iterator it = _arguments.begin(); it != _arguments.end(); ++it) {
         delete (*it);
@@ -332,7 +326,7 @@ void Argparsor::clear() {
 /*
 ** private
 */
-void Argparsor::_parseShortArgument(int maxIndex, char* argv[], int* index) {
+void Args::_parseShortArgument(int maxIndex, char* argv[], int* index) {
     std::string options;
     std::string arg;
     std::map<std::string, Argument**>::iterator it;
@@ -341,7 +335,7 @@ void Argparsor::_parseShortArgument(int maxIndex, char* argv[], int* index) {
         // try to find long option
         it = _argumentFromName.find("-" + options);
         if (it != _argumentFromName.end()) {
-            _parseArgument(maxIndex, argv, index, hasArg, options.c_str() + _ARGPARSOR_PREFIX_SIZEOF_SHORT_OPTION,
+            _parseArgument(maxIndex, argv, index, hasArg, options.c_str() + _ARGS_PREFIX_SIZEOF_SHORT_OPTION,
                            arg.c_str(), *(it->second));
             return;
         }
@@ -382,20 +376,20 @@ void Argparsor::_parseShortArgument(int maxIndex, char* argv[], int* index) {
     _parseArgument(maxIndex, argv, index, hasArg, charOption.c_str(), arg.c_str(), *(it->second));
 }
 
-void Argparsor::_parseLongArgument(int maxIndex, char* argv[], int* index) {
+void Args::_parseLongArgument(int maxIndex, char* argv[], int* index) {
     std::string option;
     std::string arg;
     std::map<std::string, Argument**>::iterator it;
     bool hasArg = takeArg(argv[*index], &option, &arg);
     it = _argumentFromName.find(option);
     if (it == _argumentFromName.end()) {
-        throw ParseArgumentException(option.c_str() + _ARGPARSOR_PREFIX_SIZEOF_LONG_OPTION, "invalid option");
+        throw ParseArgumentException(option.c_str() + _ARGS_PREFIX_SIZEOF_LONG_OPTION, "invalid option");
     }
-    _parseArgument(maxIndex, argv, index, hasArg, option.c_str() + _ARGPARSOR_PREFIX_SIZEOF_LONG_OPTION, arg.c_str(),
+    _parseArgument(maxIndex, argv, index, hasArg, option.c_str() + _ARGS_PREFIX_SIZEOF_LONG_OPTION, arg.c_str(),
                    *(it->second));
 }
 
-void Argparsor::_parseArgument(int maxIndex, char* argv[], int* index, bool hasArg, const char* option, const char* arg,
+void Args::_parseArgument(int maxIndex, char* argv[], int* index, bool hasArg, const char* option, const char* arg,
                                Argument* argument) {
     if (hasArg) {
         switch (argument->_type) {
@@ -528,7 +522,7 @@ void Argparsor::_parseArgument(int maxIndex, char* argv[], int* index, bool hasA
     ++argument->_count;
 }
 
-bool Argparsor::_endOfInfiniteArgument(const char* argument) {
+bool Args::_endOfInfiniteArgument(const char* argument) {
     std::string option;
     std::string arg;
     std::map<std::string, Argument**>::iterator it;
@@ -577,7 +571,7 @@ bool Argparsor::_endOfInfiniteArgument(const char* argument) {
     return true;
 }
 
-void Argparsor::_parsePositionnalArgument(int argc, char* argv[], int* index, bool hasEndOption) {
+void Args::_parsePositionnalArgument(int argc, char* argv[], int* index, bool hasEndOption) {
     // find not exists positionnal argument
     std::list<Argument*>::iterator it;
     for (it = _arguments.begin(); it != _arguments.end(); ++it) {
@@ -640,10 +634,9 @@ void Argparsor::_parsePositionnalArgument(int argc, char* argv[], int* index, bo
     }
 }
 
-} // namespace argparsor
+} // namespace args
 
-} // namespace mblet
+} // namespace blet
 
-#undef _ARGPARSOR_PREFIX_SIZEOF_SHORT_OPTION
-#undef _ARGPARSOR_PREFIX_SIZEOF_LONG_OPTION
-#undef _ARGPARSOR_SEPARATOR_PATH
+#undef _ARGS_PREFIX_SIZEOF_SHORT_OPTION
+#undef _ARGS_PREFIX_SIZEOF_LONG_OPTION

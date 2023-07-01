@@ -1,0 +1,13 @@
+{
+    "project": "Argparser for C++",
+    "target": "single_include/blet/args.h",
+    "sources": [
+        "include/blet/args.h",
+        "src/args.cpp",
+        "src/argument.cpp",
+        "src/exception.cpp",
+        "src/usage.cpp",
+        "src/valid.cpp"
+    ],
+    "include_paths": ["include"]
+}

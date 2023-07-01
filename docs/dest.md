@@ -5,7 +5,7 @@
 ```cpp
 #include <iostream>
 
-#include "mblet/argparsor.h"
+#include "blet/args.h"
 
 int main(int argc, char* argv[]) {
     int i = 0;
@@ -13,7 +13,7 @@ int main(int argc, char* argv[]) {
     float f = 0;
     unsigned int ui = 0;
 
-    mblet::Argparsor args;
+    blet::Args args;
     args.addArgument("--int").dest(i);
     args.addArgument("--double").dest(d);
     args.addArgument("--float").dest(f);
@@ -25,7 +25,7 @@ int main(int argc, char* argv[]) {
         std::cout << f << std::endl;
         std::cout << ui << std::endl;
     }
-    catch (const mblet::Argparsor::ParseArgumentException& e) {
+    catch (const blet::Args::ParseArgumentException& e) {
         std::cerr << args.getBynaryName() << ": " << e.what();
         std::cerr << " -- '" << e.argument() << "'" << std::endl;
         return 1; // END
@@ -47,7 +47,7 @@ $ a.out --int 42 --double 42.42 --float 24.24 --uint 42
 ```cpp
 #include <iostream>
 
-#include "mblet/argparsor.h"
+#include "blet/args.h"
 
 enum Enum {
     ENUM0,
@@ -71,9 +71,9 @@ void argToEnum(Enum& e, bool /*isExist*/, const std::string& argument) {
 int main(int argc, char* argv[]) {
     Enum e;
 
-    mblet::Argparsor args;
+    blet::Args args;
     args.addArgument("-e").flag("--enum").help("help of enum").metavar("ENUM")
-        .valid(new mblet::Argparsor::ValidChoise(args.vector("ENUM0", "ENUM1", "ENUM2", "ENUM3")))
+        .valid(new blet::Args::ValidChoise(args.vector("ENUM0", "ENUM1", "ENUM2", "ENUM3")))
         .defaults("ENUM0")
         .dest(e, argToEnum);
     try {
@@ -93,7 +93,7 @@ int main(int argc, char* argv[]) {
                 break;
         }
     }
-    catch (const mblet::Argparsor::ParseArgumentException& e) {
+    catch (const blet::Args::ParseArgumentException& e) {
         std::cerr << args.getBynaryName() << ": " << e.what();
         std::cerr << " -- '" << e.argument() << "'" << std::endl;
         return 1; // END
@@ -112,7 +112,7 @@ ENUM3
 ```cpp
 #include <iostream>
 
-#include "mblet/argparsor.h"
+#include "blet/args.h"
 
 int main(int argc, char* argv[]) {
     std::vector<int> i = 0;
@@ -120,7 +120,7 @@ int main(int argc, char* argv[]) {
     std::vector<float> f = 0;
     std::vector<unsigned int> ui = 0;
 
-    mblet::Argparsor args;
+    blet::Args args;
     args.addArgument("--int").action(args.APPEND).dest(i);
     args.addArgument("--double").action(args.APPEND).dest(d);
     args.addArgument("--float").action(args.APPEND).dest(f);
@@ -140,7 +140,7 @@ int main(int argc, char* argv[]) {
             std::cout << "ui: " << ui[j] << std::endl;
         }
     }
-    catch (const mblet::Argparsor::ParseArgumentException& e) {
+    catch (const blet::Args::ParseArgumentException& e) {
         std::cerr << args.getBynaryName() << ": " << e.what();
         std::cerr << " -- '" << e.argument() << "'" << std::endl;
         return 1; // END
@@ -162,7 +162,7 @@ d: 3
 ```cpp
 #include <iostream>
 
-#include "mblet/argparsor.h"
+#include "blet/args.h"
 
 int main(int argc, char* argv[]) {
     std::vector<std::vector<int> > i = 0;
@@ -170,7 +170,7 @@ int main(int argc, char* argv[]) {
     std::vector<std::vector<float> > f = 0;
     std::vector<std::vector<unsigned int> > ui = 0;
 
-    mblet::Argparsor args;
+    blet::Args args;
     args.addArgument("--int").action(args.APPEND).nargs(2).dest(i);
     args.addArgument("--double").action(args.APPEND).nargs(2).dest(d);
     args.addArgument("--float").action(args.APPEND).nargs(2).dest(f);
@@ -198,7 +198,7 @@ int main(int argc, char* argv[]) {
             }
         }
     }
-    catch (const mblet::Argparsor::ParseArgumentException& e) {
+    catch (const blet::Args::ParseArgumentException& e) {
         std::cerr << args.getBynaryName() << ": " << e.what();
         std::cerr << " -- '" << e.argument() << "'" << std::endl;
         return 1; // END

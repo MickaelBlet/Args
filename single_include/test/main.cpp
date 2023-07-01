@@ -1,10 +1,10 @@
 #include <iostream>
 
-#include "mblet/argparsor.h"
+#include "blet/args.h"
 #include "test/already_include.h"
 
 int main(int argc, char* argv[]) {
-    mblet::Argparsor args;
+    blet::Args args;
     args.addArgument("ARG").help("custom argument message");
     try {
         args.parseArguments(argc, argv);
