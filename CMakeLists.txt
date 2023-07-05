@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.5)
 
-project(args VERSION 4.0.0 LANGUAGES CXX)
+project(args VERSION 5.0.1 LANGUAGES CXX)
 
 # OPTIONS
 option(BUILD_EXAMPLE "Build example binaries" OFF)

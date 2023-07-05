@@ -372,15 +372,9 @@ GTEST_TEST(parseArguments, allType) {
         .nargs(1)
         .defaults(args.vector("0", "1", "2", "3"));
     // MULTI NUMBER
-    args.addArgument("--multi-number")
-        .action(blet::Args::APPEND)
-        .nargs(2)
-        .defaults(args.vector("0", "1", "2", "3"));
+    args.addArgument("--multi-number").action(blet::Args::APPEND).nargs(2).defaults(args.vector("0", "1", "2", "3"));
     // MULTI INFINITE
-    args.addArgument("--multi-infinite")
-        .action(blet::Args::EXTEND)
-        .nargs(1)
-        .defaults(args.vector("0", "1", "2", "3"));
+    args.addArgument("--multi-infinite").action(blet::Args::EXTEND).nargs(1).defaults(args.vector("0", "1", "2", "3"));
     // MULTI INFINITE NUMBER
     args.addArgument("--multi-infinite-number")
         .action(blet::Args::EXTEND)
@@ -811,9 +805,7 @@ GTEST_TEST(parseArguments, standartValid) {
         const char* argv[] = {"binaryName", "--option", "."};
         const int argc = sizeof(argv) / sizeof(*argv);
         blet::Args args;
-        args.addArgument("--option")
-            .nargs(1)
-            .valid(new blet::Args::ValidPath(blet::Args::ValidPath::IS_DIR));
+        args.addArgument("--option").nargs(1).valid(new blet::Args::ValidPath(blet::Args::ValidPath::IS_DIR));
         EXPECT_THROW(
             {
                 try {
@@ -832,9 +824,7 @@ GTEST_TEST(parseArguments, standartValid) {
         const char* argv[] = {"binaryName", "--option", "."};
         const int argc = sizeof(argv) / sizeof(*argv);
         blet::Args args;
-        args.addArgument("--option")
-            .nargs(1)
-            .valid(new blet::Args::ValidPath(blet::Args::ValidPath::IS_FILE));
+        args.addArgument("--option").nargs(1).valid(new blet::Args::ValidPath(blet::Args::ValidPath::IS_FILE));
         EXPECT_THROW(
             {
                 try {
@@ -853,9 +843,7 @@ GTEST_TEST(parseArguments, standartValid) {
         const char* argv[] = {"binaryName", "--option", "."};
         const int argc = sizeof(argv) / sizeof(*argv);
         blet::Args args;
-        args.addArgument("--option")
-            .nargs(1)
-            .valid(new blet::Args::ValidPath(blet::Args::ValidPath::IS_FILE));
+        args.addArgument("--option").nargs(1).valid(new blet::Args::ValidPath(blet::Args::ValidPath::IS_FILE));
         args.parseArguments(argc, const_cast<char**>(argv));
         EXPECT_EQ(args["--option"].getString(), std::string("."));
     }

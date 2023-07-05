@@ -9,5 +9,7 @@
         "src/usage.cpp",
         "src/valid.cpp"
     ],
-    "include_paths": ["include"]
+    "include_paths": [
+        "include"
+    ]
 }

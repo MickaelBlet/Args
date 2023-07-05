@@ -1,0 +1,3 @@
+[submodule "third/amalgamate"]
+	path = third/amalgamate
+	url = https://github.com/MickaelBlet/amalgamate.git

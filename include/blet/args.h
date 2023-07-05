@@ -107,13 +107,12 @@ class Args : public args::Args, public args::Action {
 #define _ARGS_VECTOR_ARG_(i, v) const char* _ARGS_VECTOR_CAT_(var_, i)
 #define _ARGS_VECTOR_PUSH_ARG_(i, v) v.push_back(_ARGS_VECTOR_CAT_(var_, i))
 
-#define _ARGS_VECTOR(nb)                                                                            \
-    static args::Vector vector(                                                                     \
-        _ARGS_VECTOR_CAT2_(_ARGS_VECTOR_COMMA_REPEAT_, nb, _)(_ARGS_VECTOR_ARG_, NULL)) { \
-        args::Vector ret;                                                                           \
-        ret.reserve(nb);                                                                                 \
-        _ARGS_VECTOR_CAT2_(_ARGS_VECTOR_SEMICOLON_REPEAT_, nb, _)                              \
-        (_ARGS_VECTOR_PUSH_ARG_, ret) return ret;                                                   \
+#define _ARGS_VECTOR(nb)                                                                                         \
+    static args::Vector vector(_ARGS_VECTOR_CAT2_(_ARGS_VECTOR_COMMA_REPEAT_, nb, _)(_ARGS_VECTOR_ARG_, NULL)) { \
+        args::Vector ret;                                                                                        \
+        ret.reserve(nb);                                                                                         \
+        _ARGS_VECTOR_CAT2_(_ARGS_VECTOR_SEMICOLON_REPEAT_, nb, _)                                                \
+        (_ARGS_VECTOR_PUSH_ARG_, ret) return ret;                                                                \
     }
 
     _ARGS_VECTOR(0)

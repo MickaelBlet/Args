@@ -5,7 +5,7 @@ find_program(CLANG_FORMAT "clang-format")
 if(PYTHON3 AND CLANG_FORMAT)
     get_target_property(library_source_files "${library_project_name}" SOURCES)
     add_custom_command(OUTPUT "${CMAKE_CURRENT_SOURCE_DIR}/../single_include/blet/args.h"
-        COMMAND ${PYTHON3} ./etc/script/amalgamate.py -c ./etc/script/config_args.json -s . > /dev/null
+        COMMAND ${PYTHON3} ./third/amalgamate/amalgamate.py -c ./single_include/amalgamate_config.json -s . > /dev/null
         COMMAND ${CLANG_FORMAT} -i ./single_include/blet/args.h
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/..
         DEPENDS
@@ -19,7 +19,7 @@ if(PYTHON3 AND CLANG_FORMAT)
             "${CMAKE_CURRENT_SOURCE_DIR}/../include/blet/args/utils.h"
             "${CMAKE_CURRENT_SOURCE_DIR}/../include/blet/args/valid.h"
             "${CMAKE_CURRENT_SOURCE_DIR}/../include/blet/args/vector.h"
-            "${CMAKE_CURRENT_SOURCE_DIR}/../etc/script/config_args.json"
+            "${CMAKE_CURRENT_SOURCE_DIR}/../single_include/amalgamate_config.json"
         COMMENT "Generating single_include/blet/args.h"
     )
     add_custom_target("${library_project_name}_single_include"

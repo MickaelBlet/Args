@@ -390,7 +390,7 @@ void Args::_parseLongArgument(int maxIndex, char* argv[], int* index) {
 }
 
 void Args::_parseArgument(int maxIndex, char* argv[], int* index, bool hasArg, const char* option, const char* arg,
-                               Argument* argument) {
+                          Argument* argument) {
     if (hasArg) {
         switch (argument->_type) {
             case Argument::SIMPLE_OPTION:
