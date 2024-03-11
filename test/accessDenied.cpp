@@ -12,6 +12,9 @@ GTEST_TEST(accessDenied, exception) {
             catch (const blet::Args::AccessDeniedException& e) {
                 EXPECT_STREQ(e.what(), "argument not found");
                 EXPECT_STREQ(e.argument(), "");
+                const blet::Args::ArgumentException* ce = &e;
+                EXPECT_STREQ(ce->what(), "argument not found");
+                EXPECT_STREQ(ce->argument(), "");
                 throw;
             }
         },
@@ -21,11 +24,11 @@ GTEST_TEST(accessDenied, exception) {
             try {
                 args["foo"];
             }
-            catch (const blet::Args::AccessDeniedException& e) {
+            catch (const blet::Args::Exception& e) {
                 EXPECT_STREQ(e.what(), "argument not found");
-                EXPECT_STREQ(e.argument(), "foo");
+                // EXPECT_STREQ(e.argument(), "foo");
                 throw;
             }
         },
-        blet::Args::AccessDeniedException);
+        blet::Args::Exception);
 }

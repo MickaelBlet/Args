@@ -6,9 +6,9 @@
 #include "blet/args/argument.h"
 
 #if defined _WIN32 || defined _WIN64 || defined __CYGWIN__
-#define _ARGS_SEPARATOR_PATH '\\'
+#define ARGS_SEPARATOR_PATH_ '\\'
 #else
-#define _ARGS_SEPARATOR_PATH '/'
+#define ARGS_SEPARATOR_PATH_ '/'
 #endif
 
 namespace blet {
@@ -16,14 +16,14 @@ namespace blet {
 namespace args {
 
 Usage::Usage(Args& args) :
-    _args(args),
-    _description(std::string()),
-    _epilog(std::string()),
-    _usage(std::string()),
-    _usagePadWidth(2),
-    _usageArgsWidth(20),
-    _usageSepWidth(2),
-    _usageHelpWidth(56) {}
+    args_(args),
+    description_(std::string()),
+    epilog_(std::string()),
+    usage_(std::string()),
+    usagePadWidth_(2),
+    usageArgsWidth_(20),
+    usageSepWidth_(2),
+    usageHelpWidth_(56) {}
 
 Usage::~Usage() {}
 
@@ -51,8 +51,8 @@ static inline std::vector<std::string> s_multilineWrap(const std::string& str, s
 }
 
 std::string Usage::getUsage() const {
-    if (!_usage.empty()) {
-        return _usage;
+    if (!usage_.empty()) {
+        return usage_;
     }
     std::ostringstream oss("");
     bool hasOption = false;
@@ -60,32 +60,32 @@ std::string Usage::getUsage() const {
     bool hasMultiLine = false;
     // get basename of binaryName
     std::string binaryName;
-    std::size_t lastDirCharacterPos = _args._binaryName.rfind(_ARGS_SEPARATOR_PATH);
+    std::size_t lastDirCharacterPos = args_.binaryName_.rfind(ARGS_SEPARATOR_PATH_);
     if (lastDirCharacterPos != std::string::npos) {
-        binaryName = _args._binaryName.substr(lastDirCharacterPos + 1);
+        binaryName = args_.binaryName_.substr(lastDirCharacterPos + 1);
     }
     else {
-        binaryName = _args._binaryName;
+        binaryName = args_.binaryName_;
     }
     // usage line
     std::string usageLine = std::string("usage: ") + binaryName;
     oss << usageLine;
     std::size_t binaryPad = usageLine.size();
     std::size_t index = binaryPad;
-    std::size_t indexMax = _usagePadWidth + _usageArgsWidth + _usageSepWidth + _usageHelpWidth;
+    std::size_t indexMax = usagePadWidth_ + usageArgsWidth_ + usageSepWidth_ + usageHelpWidth_;
     std::list<Argument*>::const_iterator it;
-    for (it = _args._arguments.begin(); it != _args._arguments.end(); ++it) {
-        if ((*it)->_isPositionnalArgument()) {
+    for (it = args_.arguments_.begin(); it != args_.arguments_.end(); ++it) {
+        if ((*it)->isPositionnalArgument_()) {
             hasPositionnal = true;
             continue;
         }
         hasOption = true;
         std::ostringstream ossArgument("");
-        if (!(*it)->_isRequired) {
+        if (!(*it)->isRequired_) {
             ossArgument << '[';
         }
-        ossArgument << (*it)->_nameOrFlags.front();
-        switch ((*it)->_type) {
+        ossArgument << (*it)->nameOrFlags_.front();
+        switch ((*it)->type_) {
             case Argument::SIMPLE_OPTION:
             case Argument::NUMBER_OPTION:
             case Argument::INFINITE_OPTION:
@@ -93,17 +93,17 @@ std::string Usage::getUsage() const {
             case Argument::MULTI_INFINITE_OPTION:
             case Argument::MULTI_NUMBER_OPTION:
             case Argument::MULTI_NUMBER_INFINITE_OPTION:
-                if ((*it)->_metavar.empty()) {
-                    ossArgument << ' ' << (*it)->_metavarDefault();
+                if ((*it)->metavar_.empty()) {
+                    ossArgument << ' ' << (*it)->metavarDefault_();
                 }
                 else {
-                    ossArgument << ' ' << (*it)->_metavar;
+                    ossArgument << ' ' << (*it)->metavar_;
                 }
                 break;
             default:
                 break;
         }
-        if (!(*it)->_isRequired) {
+        if (!(*it)->isRequired_) {
             ossArgument << ']';
         }
         std::string argument = ossArgument.str();
@@ -127,39 +127,39 @@ std::string Usage::getUsage() const {
             index += 3;
         }
     }
-    for (it = _args._arguments.begin(); it != _args._arguments.end(); ++it) {
-        if (!(*it)->_isPositionnalArgument()) {
+    for (it = args_.arguments_.begin(); it != args_.arguments_.end(); ++it) {
+        if (!(*it)->isPositionnalArgument_()) {
             continue;
         }
         std::ostringstream ossArgument("");
-        if (!(*it)->_isRequired) {
+        if (!(*it)->isRequired_) {
             ossArgument << '[';
         }
-        if ((*it)->_type == Argument::POSITIONAL_ARGUMENT) {
-            ossArgument << (*it)->_nameOrFlags.front();
+        if ((*it)->type_ == Argument::POSITIONAL_ARGUMENT) {
+            ossArgument << (*it)->nameOrFlags_.front();
         }
-        else if ((*it)->_type == Argument::NUMBER_POSITIONAL_ARGUMENT) {
-            for (std::size_t i = 0; i < (*it)->_nargs; ++i) {
+        else if ((*it)->type_ == Argument::NUMBER_POSITIONAL_ARGUMENT) {
+            for (std::size_t i = 0; i < (*it)->nargs_; ++i) {
                 if (i != 0) {
                     ossArgument << ' ';
                 }
-                ossArgument << (*it)->_nameOrFlags.front();
+                ossArgument << (*it)->nameOrFlags_.front();
             }
         }
-        else if ((*it)->_type == Argument::INFINITE_POSITIONAL_ARGUMENT) {
-            ossArgument << (*it)->_nameOrFlags.front() << " {" << (*it)->_nameOrFlags.front() << "}...";
+        else if ((*it)->type_ == Argument::INFINITE_POSITIONAL_ARGUMENT) {
+            ossArgument << (*it)->nameOrFlags_.front() << " {" << (*it)->nameOrFlags_.front() << "}...";
         }
-        else if ((*it)->_type == Argument::INFINITE_NUMBER_POSITIONAL_ARGUMENT) {
+        else if ((*it)->type_ == Argument::INFINITE_NUMBER_POSITIONAL_ARGUMENT) {
             ossArgument << "{";
-            for (std::size_t i = 0; i < (*it)->_nargs; ++i) {
+            for (std::size_t i = 0; i < (*it)->nargs_; ++i) {
                 if (i != 0) {
                     ossArgument << ' ';
                 }
-                ossArgument << (*it)->_nameOrFlags.front();
+                ossArgument << (*it)->nameOrFlags_.front();
             }
             ossArgument << "}...";
         }
-        if (!(*it)->_isRequired) {
+        if (!(*it)->isRequired_) {
             ossArgument << ']';
         }
         std::string argument = ossArgument.str();
@@ -174,54 +174,54 @@ std::string Usage::getUsage() const {
         }
     }
     // description
-    if (!_description.empty()) {
+    if (!description_.empty()) {
         oss << '\n';
-        std::vector<std::string> lines = s_multilineWrap(_description, indexMax);
+        std::vector<std::string> lines = s_multilineWrap(description_, indexMax);
         for (std::size_t i = 0; i < lines.size(); ++i) {
             oss << '\n';
             oss << lines[i];
         }
     }
     // optionnal
-    if (!_args._arguments.empty()) {
+    if (!args_.arguments_.empty()) {
         if (hasPositionnal) {
             index = 0;
             oss << "\n\npositional arguments:\n";
-            for (it = _args._arguments.begin(); it != _args._arguments.end(); ++it) {
-                if (!(*it)->_isPositionnalArgument()) {
+            for (it = args_.arguments_.begin(); it != args_.arguments_.end(); ++it) {
+                if (!(*it)->isPositionnalArgument_()) {
                     continue;
                 }
                 if (index != 0) {
                     oss << '\n';
                 }
                 ++index;
-                oss << std::string(_usagePadWidth, ' ');
-                if ((*it)->_nameOrFlags.front().size() + _usageSepWidth <= _usageArgsWidth + _usageSepWidth) {
-                    oss.width(_usageArgsWidth + _usageSepWidth);
+                oss << std::string(usagePadWidth_, ' ');
+                if ((*it)->nameOrFlags_.front().size() + usageSepWidth_ <= usageArgsWidth_ + usageSepWidth_) {
+                    oss.width(usageArgsWidth_ + usageSepWidth_);
                     oss.flags(std::ios::left);
-                    oss << (*it)->_nameOrFlags.front();
+                    oss << (*it)->nameOrFlags_.front();
                     oss.width(0);
                 }
                 else {
-                    oss << (*it)->_nameOrFlags.front();
+                    oss << (*it)->nameOrFlags_.front();
                     oss << '\n';
-                    oss << std::string(_usagePadWidth + _usageArgsWidth + _usageSepWidth, ' ');
+                    oss << std::string(usagePadWidth_ + usageArgsWidth_ + usageSepWidth_, ' ');
                 }
                 std::ostringstream ossHelp("");
-                ossHelp << (*it)->_help;
-                if ((*it)->_isRequired) {
+                ossHelp << (*it)->help_;
+                if ((*it)->isRequired_) {
                     ossHelp << " (required)";
                 }
                 else {
-                    if (!(*it)->_default.empty()) {
-                        ossHelp << " (default: " + (*it)->_default + ")";
+                    if (!(*it)->default_.empty()) {
+                        ossHelp << " (default: " + (*it)->default_ + ")";
                     }
                 }
-                std::vector<std::string> lines = s_multilineWrap(ossHelp.str(), _usageHelpWidth);
+                std::vector<std::string> lines = s_multilineWrap(ossHelp.str(), usageHelpWidth_);
                 for (std::size_t i = 0; i < lines.size(); ++i) {
                     if (i != 0) {
                         oss << '\n';
-                        oss << std::string(_usagePadWidth + _usageArgsWidth + _usageSepWidth, ' ');
+                        oss << std::string(usagePadWidth_ + usageArgsWidth_ + usageSepWidth_, ' ');
                     }
                     oss << lines[i];
                 }
@@ -230,8 +230,8 @@ std::string Usage::getUsage() const {
         if (hasOption) {
             index = 0;
             oss << "\n\noptional arguments:\n";
-            for (it = _args._arguments.begin(); it != _args._arguments.end(); ++it) {
-                if ((*it)->_isPositionnalArgument()) {
+            for (it = args_.arguments_.begin(); it != args_.arguments_.end(); ++it) {
+                if ((*it)->isPositionnalArgument_()) {
                     continue;
                 }
                 if (index != 0) {
@@ -239,13 +239,13 @@ std::string Usage::getUsage() const {
                 }
                 ++index;
                 std::ostringstream ossArgument("");
-                for (std::size_t i = 0; i < (*it)->_nameOrFlags.size(); ++i) {
+                for (std::size_t i = 0; i < (*it)->nameOrFlags_.size(); ++i) {
                     if (i != 0) {
                         ossArgument << ", ";
                     }
-                    ossArgument << (*it)->_nameOrFlags[i];
+                    ossArgument << (*it)->nameOrFlags_[i];
                 }
-                switch ((*it)->_type) {
+                switch ((*it)->type_) {
                     case Argument::SIMPLE_OPTION:
                     case Argument::NUMBER_OPTION:
                     case Argument::INFINITE_OPTION:
@@ -253,22 +253,22 @@ std::string Usage::getUsage() const {
                     case Argument::MULTI_INFINITE_OPTION:
                     case Argument::MULTI_NUMBER_OPTION:
                     case Argument::MULTI_NUMBER_INFINITE_OPTION:
-                        if ((*it)->_metavar.empty()) {
+                        if ((*it)->metavar_.empty()) {
                             ossArgument << ' ';
-                            ossArgument << (*it)->_metavarDefault();
+                            ossArgument << (*it)->metavarDefault_();
                         }
                         else {
                             ossArgument << ' ';
-                            ossArgument << (*it)->_metavar;
+                            ossArgument << (*it)->metavar_;
                         }
                         break;
                     default:
                         break;
                 }
                 const std::string option = ossArgument.str();
-                oss << std::string(_usagePadWidth, ' ');
-                if (option.size() + _usageSepWidth <= _usageArgsWidth + _usageSepWidth) {
-                    oss.width(_usageArgsWidth + _usageSepWidth);
+                oss << std::string(usagePadWidth_, ' ');
+                if (option.size() + usageSepWidth_ <= usageArgsWidth_ + usageSepWidth_) {
+                    oss.width(usageArgsWidth_ + usageSepWidth_);
                     oss.flags(std::ios::left);
                     oss << option;
                     oss.width(0);
@@ -276,23 +276,23 @@ std::string Usage::getUsage() const {
                 else {
                     oss << option;
                     oss << '\n';
-                    oss << std::string(_usagePadWidth + _usageArgsWidth + _usageSepWidth, ' ');
+                    oss << std::string(usagePadWidth_ + usageArgsWidth_ + usageSepWidth_, ' ');
                 }
                 std::ostringstream ossHelp("");
-                ossHelp << (*it)->_help;
-                if ((*it)->_isRequired) {
+                ossHelp << (*it)->help_;
+                if ((*it)->isRequired_) {
                     ossHelp << " (required)";
                 }
                 else {
-                    if (!(*it)->_default.empty()) {
-                        ossHelp << " (default: " + (*it)->_default + ")";
+                    if (!(*it)->default_.empty()) {
+                        ossHelp << " (default: " + (*it)->default_ + ")";
                     }
                 }
-                std::vector<std::string> lines = s_multilineWrap(ossHelp.str(), _usageHelpWidth);
+                std::vector<std::string> lines = s_multilineWrap(ossHelp.str(), usageHelpWidth_);
                 for (std::size_t i = 0; i < lines.size(); ++i) {
                     if (i != 0) {
                         oss << '\n';
-                        oss << std::string(_usagePadWidth + _usageArgsWidth + _usageSepWidth, ' ');
+                        oss << std::string(usagePadWidth_ + usageArgsWidth_ + usageSepWidth_, ' ');
                     }
                     oss << lines[i];
                 }
@@ -300,9 +300,9 @@ std::string Usage::getUsage() const {
         }
     }
     // epilog
-    if (!_epilog.empty()) {
+    if (!epilog_.empty()) {
         oss << '\n';
-        std::vector<std::string> lines = s_multilineWrap(_epilog, indexMax);
+        std::vector<std::string> lines = s_multilineWrap(epilog_, indexMax);
         for (std::size_t i = 0; i < lines.size(); ++i) {
             oss << '\n';
             oss << lines[i];
@@ -315,4 +315,4 @@ std::string Usage::getUsage() const {
 
 } // namespace blet
 
-#undef _ARGS_SEPARATOR_PATH
+#undef ARGS_SEPARATOR_PATH_

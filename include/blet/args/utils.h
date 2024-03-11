@@ -23,8 +23,8 @@
  * SOFTWARE.
  */
 
-#ifndef _BLET_ARGS_UTILS_H_
-#define _BLET_ARGS_UTILS_H_
+#ifndef BLET_ARGS_UTILS_H_
+#define BLET_ARGS_UTILS_H_
 
 #include <cstring> // strchr
 #include <string>
@@ -125,4 +125,4 @@ inline bool takeArg(const char* arg, std::string* retOptionName, std::string* re
 
 } // namespace blet
 
-#endif // #ifndef _BLET_ARGS_UTILS_H_
+#endif // #ifndef BLET_ARGS_UTILS_H_

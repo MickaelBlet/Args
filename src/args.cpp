@@ -33,8 +33,8 @@
 #include "blet/args/utils.h"
 #include "blet/args/vector.h"
 
-#define _ARGS_PREFIX_SIZEOF_SHORT_OPTION (sizeof("-") - 1)
-#define _ARGS_PREFIX_SIZEOF_LONG_OPTION (sizeof("--") - 1)
+#define ARGS_PREFIX_SIZEOF_SHORT_OPTION_ (sizeof("-") - 1)
+#define ARGS_PREFIX_SIZEOF_LONG_OPTION_ (sizeof("--") - 1)
 
 namespace blet {
 
@@ -42,63 +42,63 @@ namespace args {
 
 Args::Args(bool addHelp) :
     Usage(*this),
-    _binaryName(),
-    _arguments(),
-    _argumentFromName(),
-    _helpOption(NULL),
-    _versionOption(NULL),
-    _isAlternative(false),
-    _isStrict(false),
-    _isHelpException(false),
-    _isVersionException(false),
-    _additionalArguments() {
+    binaryName_(),
+    arguments_(),
+    argumentFromName_(),
+    helpOption_(NULL),
+    versionOption_(NULL),
+    isAlternative_(false),
+    isStrict_(false),
+    isHelpException_(false),
+    isVersionException_(false),
+    additionalArguments_() {
     if (addHelp) {
-        // define _helpOption
+        // define helpOption_
         addArgument("-h").flag("--help").action(Action::HELP).help("show this help message and exit");
     }
 }
 
 Args::~Args() {
     // delete all new element
-    for (std::list<Argument*>::iterator it = _arguments.begin(); it != _arguments.end(); ++it) {
+    for (std::list<Argument*>::iterator it = arguments_.begin(); it != arguments_.end(); ++it) {
         delete (*it);
     }
 }
 
 void Args::parseArguments(int argc, char* argv[]) {
     // clear the arguments
-    for (std::list<Argument*>::iterator it = _arguments.begin(); it != _arguments.end(); ++it) {
-        (*it)->_clear();
+    for (std::list<Argument*>::iterator it = arguments_.begin(); it != arguments_.end(); ++it) {
+        (*it)->clear_();
     }
     // get argv[0] if filename is empty
-    if (_binaryName.empty()) {
-        _binaryName = argv[0];
+    if (binaryName_.empty()) {
+        binaryName_ = argv[0];
     }
     // save index of "--" if exist
     int endIndex = endOptionIndex(argc, argv);
     // foreach argument
     for (int i = 1; i < argc; ++i) {
         if (isShortOption(argv[i])) {
-            _parseShortArgument(endIndex, argv, &i);
+            parseShortArgument_(endIndex, argv, &i);
         }
         else if (isLongOption(argv[i])) {
-            _parseLongArgument(endIndex, argv, &i);
+            parseLongArgument_(endIndex, argv, &i);
         }
         else if (isEndOption(argv[i])) {
             ++i;
             while (i < argc) {
-                _parsePositionnalArgument(argc, argv, &i, true);
+                parsePositionnalArgument_(argc, argv, &i, true);
                 ++i;
             }
             break;
         }
         else {
-            _parsePositionnalArgument(endIndex, argv, &i);
+            parsePositionnalArgument_(endIndex, argv, &i);
         }
     }
     // check help option
-    if (_helpOption != NULL && _helpOption->_isExist) {
-        if (_isHelpException) {
+    if (helpOption_ != NULL && helpOption_->isExist_) {
+        if (isHelpException_) {
             throw HelpException(getUsage().c_str());
         }
         else {
@@ -108,8 +108,8 @@ void Args::parseArguments(int argc, char* argv[]) {
         }
     }
     // check version option
-    if (_versionOption != NULL && _versionOption->_isExist) {
-        if (_isVersionException) {
+    if (versionOption_ != NULL && versionOption_->isExist_) {
+        if (isVersionException_) {
             throw VersionException(getVersion().c_str());
         }
         else {
@@ -120,22 +120,22 @@ void Args::parseArguments(int argc, char* argv[]) {
     }
     // check require option
     std::list<Argument*>::iterator it;
-    for (it = _arguments.begin(); it != _arguments.end(); ++it) {
-        if ((*it)->_isRequired && (*it)->_isExist == false) {
-            if ((*it)->_type == Argument::POSITIONAL_ARGUMENT) {
-                throw ParseArgumentRequiredException((*it)->_nameOrFlags.front().c_str(), "argument is required");
+    for (it = arguments_.begin(); it != arguments_.end(); ++it) {
+        if ((*it)->isRequired_ && (*it)->isExist_ == false) {
+            if ((*it)->type_ == Argument::POSITIONAL_ARGUMENT) {
+                throw ParseArgumentRequiredException((*it)->nameOrFlags_.front().c_str(), "argument is required");
             }
             else {
-                throw ParseArgumentRequiredException((*it)->_nameOrFlags.front().c_str(), "option is required");
+                throw ParseArgumentRequiredException((*it)->nameOrFlags_.front().c_str(), "option is required");
             }
         }
     }
     // check valid configuration function
-    for (it = _arguments.begin(); it != _arguments.end(); ++it) {
-        if ((*it)->_isExist && (*it)->_valid != NULL) {
+    for (it = arguments_.begin(); it != arguments_.end(); ++it) {
+        if ((*it)->isExist_ && (*it)->valid_ != NULL) {
             try {
                 std::vector<std::string> arguments;
-                switch ((*it)->_type) {
+                switch ((*it)->type_) {
                     case Argument::POSITIONAL_ARGUMENT:
                     case Argument::NUMBER_POSITIONAL_ARGUMENT:
                     case Argument::INFINITE_POSITIONAL_ARGUMENT:
@@ -154,14 +154,14 @@ void Args::parseArguments(int argc, char* argv[]) {
                     default:
                         break;
                 }
-                if ((*it)->_valid->isValid(arguments) == false) {
+                if ((*it)->valid_->isValid(arguments) == false) {
                     throw ParseArgumentValidException("invalid check function");
                 }
-                switch ((*it)->_type) {
+                switch ((*it)->type_) {
                     case Argument::POSITIONAL_ARGUMENT:
                     case Argument::SIMPLE_OPTION:
                         if (!arguments.empty()) {
-                            (*it)->_argument = arguments.front();
+                            (*it)->argument_ = arguments.front();
                         }
                         break;
                     case Argument::NUMBER_OPTION:
@@ -171,7 +171,7 @@ void Args::parseArguments(int argc, char* argv[]) {
                     case Argument::NUMBER_POSITIONAL_ARGUMENT:
                     case Argument::INFINITE_POSITIONAL_ARGUMENT:
                         for (std::size_t i = 0; i < (*it)->size() && i < arguments.size(); ++i) {
-                            (*it)->at(i)._argument = arguments[i];
+                            (*it)->at(i).argument_ = arguments[i];
                         }
                         break;
                     case Argument::MULTI_NUMBER_OPTION:
@@ -180,7 +180,7 @@ void Args::parseArguments(int argc, char* argv[]) {
                         std::size_t i = 0;
                         for (std::size_t j = 0; j < (*it)->size() && i < arguments.size(); ++j) {
                             for (std::size_t k = 0; k < (*it)->at(j).size() && i < arguments.size(); ++k) {
-                                (*it)->at(j).at(k)._argument = arguments[i];
+                                (*it)->at(j).at(k).argument_ = arguments[i];
                                 ++i;
                             }
                         }
@@ -193,13 +193,13 @@ void Args::parseArguments(int argc, char* argv[]) {
             }
             catch (const ParseArgumentValidException& e) {
                 // add name or first flag in exception
-                throw ParseArgumentValidException((*it)->_nameOrFlags.front().c_str(), e.what());
+                throw ParseArgumentValidException((*it)->nameOrFlags_.front().c_str(), e.what());
             }
         }
         // tranform argument to number
-        (*it)->_toNumber();
+        (*it)->toNumber_();
         // dest
-        (*it)->_toDest();
+        (*it)->toDest_();
     }
 }
 
@@ -213,21 +213,21 @@ Argument& Args::addArgument(const Vector& nameOrFlags) {
         if (nameOrFlags.front().empty()) {
             throw ArgumentException("", "bad name argument");
         }
-        if (_argumentFromName.find(nameOrFlags.front()) != _argumentFromName.end()) {
+        if (argumentFromName_.find(nameOrFlags.front()) != argumentFromName_.end()) {
             throw ArgumentException(nameOrFlags.front().c_str(), "bad name argument already exist");
         }
         // create argument
         argument = new Argument(*this);
-        argument->_nameOrFlags.push_back(nameOrFlags.front());
-        argument->_nargs = 1;
-        argument->_type = Argument::POSITIONAL_ARGUMENT;
+        argument->nameOrFlags_.push_back(nameOrFlags.front());
+        argument->nargs_ = 1;
+        argument->type_ = Argument::POSITIONAL_ARGUMENT;
     }
     else {
         std::vector<std::string> newFlags;
 
         for (std::size_t i = 0; i < nameOrFlags.size(); ++i) {
-            Argument::_validFormatFlag(nameOrFlags[i].c_str());
-            if (_argumentFromName.find(nameOrFlags.front()) != _argumentFromName.end()) {
+            Argument::validFormatFlag_(nameOrFlags[i].c_str());
+            if (argumentFromName_.find(nameOrFlags.front()) != argumentFromName_.end()) {
                 throw ArgumentException(nameOrFlags.front().c_str(), "invalid flag already exist");
             }
             if (std::find(newFlags.begin(), newFlags.end(), nameOrFlags[i]) == newFlags.end()) {
@@ -236,17 +236,17 @@ Argument& Args::addArgument(const Vector& nameOrFlags) {
         }
 
         argument = new Argument(*this);
-        argument->_nameOrFlags = nameOrFlags;
-        argument->_sortNameOrFlags();
+        argument->nameOrFlags_ = nameOrFlags;
+        argument->sortNameOrFlags_();
     }
 
-    _arguments.push_back(argument);
-    Argument** addrNewArgument = &(_arguments.back());
-    argument->_this = addrNewArgument;
-    for (std::size_t i = 0; i < argument->_nameOrFlags.size(); ++i) {
-        _argumentFromName.insert(std::pair<std::string, Argument**>(argument->_nameOrFlags[i], addrNewArgument));
+    arguments_.push_back(argument);
+    Argument** addrNewArgument = &(arguments_.back());
+    argument->this_ = addrNewArgument;
+    for (std::size_t i = 0; i < argument->nameOrFlags_.size(); ++i) {
+        argumentFromName_.insert(std::pair<std::string, Argument**>(argument->nameOrFlags_[i], addrNewArgument));
     }
-    _arguments.sort(&Argument::_compareOption);
+    arguments_.sort(&Argument::compareOption_);
     return **addrNewArgument;
 }
 
@@ -257,8 +257,8 @@ void Args::removeArguments(const Vector& nameOrFlags) {
     std::vector<std::map<std::string, Argument**>::iterator> vIt;
     // check if all element is exists and store iterator
     for (std::size_t i = 0; i < nameOrFlags.size(); ++i) {
-        std::map<std::string, Argument**>::iterator it = _argumentFromName.find(nameOrFlags[i]);
-        if (it == _argumentFromName.end()) {
+        std::map<std::string, Argument**>::iterator it = argumentFromName_.find(nameOrFlags[i]);
+        if (it == argumentFromName_.end()) {
             throw ArgumentException(nameOrFlags[i].c_str(), "argument not found");
         }
         vIt.push_back(it);
@@ -267,75 +267,75 @@ void Args::removeArguments(const Vector& nameOrFlags) {
         Argument** ppArgument = vIt[i]->second;
         // remove name or flag in argument object
         std::vector<std::string>::iterator namesIt =
-            std::find((*ppArgument)->_nameOrFlags.begin(), (*ppArgument)->_nameOrFlags.end(), vIt[i]->first);
-        (*ppArgument)->_nameOrFlags.erase(namesIt);
+            std::find((*ppArgument)->nameOrFlags_.begin(), (*ppArgument)->nameOrFlags_.end(), vIt[i]->first);
+        (*ppArgument)->nameOrFlags_.erase(namesIt);
         // remove argument
-        _argumentFromName.erase(vIt[i]);
+        argumentFromName_.erase(vIt[i]);
         // check if ppArgument not exists
-        std::map<std::string, Argument**>::iterator it = _argumentFromName.begin();
-        for (it = _argumentFromName.begin(); it != _argumentFromName.end(); ++it) {
+        std::map<std::string, Argument**>::iterator it = argumentFromName_.begin();
+        for (it = argumentFromName_.begin(); it != argumentFromName_.end(); ++it) {
             if (it->second == ppArgument) {
                 break;
             }
         }
         // remove from argument list
-        if (it == _argumentFromName.end()) {
-            std::list<Argument*>::iterator aIt = std::find(_arguments.begin(), _arguments.end(), *ppArgument);
-            if (*aIt == _helpOption) {
-                _helpOption = NULL;
+        if (it == argumentFromName_.end()) {
+            std::list<Argument*>::iterator aIt = std::find(arguments_.begin(), arguments_.end(), *ppArgument);
+            if (*aIt == helpOption_) {
+                helpOption_ = NULL;
             }
-            else if (*aIt == _versionOption) {
-                _versionOption = NULL;
+            else if (*aIt == versionOption_) {
+                versionOption_ = NULL;
             }
             delete (*aIt);
-            _arguments.erase(aIt);
+            arguments_.erase(aIt);
         }
         else {
-            (**it->second)._sortNameOrFlags();
+            (**it->second).sortNameOrFlags_();
         }
     }
-    _arguments.sort(&Argument::_compareOption);
+    arguments_.sort(&Argument::compareOption_);
 }
 
 void Args::clear() {
     // delete all new element
-    for (std::list<Argument*>::iterator it = _arguments.begin(); it != _arguments.end(); ++it) {
+    for (std::list<Argument*>::iterator it = arguments_.begin(); it != arguments_.end(); ++it) {
         delete (*it);
     }
-    _arguments.clear();
-    _argumentFromName.clear();
-    _binaryName = "";
-    _helpOption = NULL;
-    _versionOption = NULL;
-    _version = "";
-    _isAlternative = false;
-    _isStrict = false;
-    _isHelpException = false;
-    _isVersionException = false;
-    _additionalArguments.clear();
+    arguments_.clear();
+    argumentFromName_.clear();
+    binaryName_ = "";
+    helpOption_ = NULL;
+    versionOption_ = NULL;
+    version_ = "";
+    isAlternative_ = false;
+    isStrict_ = false;
+    isHelpException_ = false;
+    isVersionException_ = false;
+    additionalArguments_.clear();
     // usage
-    _description = "";
-    _epilog = "";
-    _usage = "";
-    _usagePadWidth = 2;
-    _usageArgsWidth = 20;
-    _usageSepWidth = 2;
-    _usageHelpWidth = 56;
+    description_ = "";
+    epilog_ = "";
+    usage_ = "";
+    usagePadWidth_ = 2;
+    usageArgsWidth_ = 20;
+    usageSepWidth_ = 2;
+    usageHelpWidth_ = 56;
 }
 
 /*
 ** private
 */
-void Args::_parseShortArgument(int maxIndex, char* argv[], int* index) {
+void Args::parseShortArgument_(int maxIndex, char* argv[], int* index) {
     std::string options;
     std::string arg;
     std::map<std::string, Argument**>::iterator it;
     bool hasArg = takeArg(argv[*index], &options, &arg);
-    if (_isAlternative) {
+    if (isAlternative_) {
         // try to find long option
-        it = _argumentFromName.find("-" + options);
-        if (it != _argumentFromName.end()) {
-            _parseArgument(maxIndex, argv, index, hasArg, options.c_str() + _ARGS_PREFIX_SIZEOF_SHORT_OPTION,
+        it = argumentFromName_.find("-" + options);
+        if (it != argumentFromName_.end()) {
+            parseArgument_(maxIndex, argv, index, hasArg, options.c_str() + ARGS_PREFIX_SIZEOF_SHORT_OPTION_,
                            arg.c_str(), *(it->second));
             return;
         }
@@ -343,58 +343,58 @@ void Args::_parseShortArgument(int maxIndex, char* argv[], int* index) {
     // get firsts option
     for (std::size_t i = 1; i < options.size() - 1; ++i) {
         std::string charOption(options, i, 1);
-        it = _argumentFromName.find("-" + charOption);
-        if (it == _argumentFromName.end()) {
+        it = argumentFromName_.find("-" + charOption);
+        if (it == argumentFromName_.end()) {
             throw ParseArgumentException(charOption.c_str(), "invalid option");
         }
-        else if (!hasArg && ((*(it->second))->_type == Argument::SIMPLE_OPTION ||
-                             (*(it->second))->_type == Argument::NUMBER_OPTION ||
-                             (*(it->second))->_type == Argument::INFINITE_OPTION ||
-                             (*(it->second))->_type == Argument::MULTI_OPTION ||
-                             (*(it->second))->_type == Argument::MULTI_INFINITE_OPTION ||
-                             (*(it->second))->_type == Argument::MULTI_NUMBER_OPTION)) {
+        else if (!hasArg && ((*(it->second))->type_ == Argument::SIMPLE_OPTION ||
+                             (*(it->second))->type_ == Argument::NUMBER_OPTION ||
+                             (*(it->second))->type_ == Argument::INFINITE_OPTION ||
+                             (*(it->second))->type_ == Argument::MULTI_OPTION ||
+                             (*(it->second))->type_ == Argument::MULTI_INFINITE_OPTION ||
+                             (*(it->second))->type_ == Argument::MULTI_NUMBER_OPTION)) {
             hasArg = true;
             arg = options.substr(i + 1, options.size() - i);
-            (*(it->second))->_isExist = true;
-            ++(*(it->second))->_count;
-            _parseArgument(maxIndex, argv, index, hasArg, charOption.c_str(), arg.c_str(), *(it->second));
+            (*(it->second))->isExist_ = true;
+            ++(*(it->second))->count_;
+            parseArgument_(maxIndex, argv, index, hasArg, charOption.c_str(), arg.c_str(), *(it->second));
             return;
         }
-        else if ((*(it->second))->_type != Argument::BOOLEAN_OPTION &&
-                 (*(it->second))->_type != Argument::REVERSE_BOOLEAN_OPTION) {
+        else if ((*(it->second))->type_ != Argument::BOOLEAN_OPTION &&
+                 (*(it->second))->type_ != Argument::REVERSE_BOOLEAN_OPTION) {
             throw ParseArgumentException(charOption.c_str(), "only last option can be use a parameter");
         }
-        (*(it->second))->_isExist = true;
-        ++(*(it->second))->_count;
+        (*(it->second))->isExist_ = true;
+        ++(*(it->second))->count_;
     }
     // get last option
     std::string charOption(options, options.size() - 1, 1);
-    it = _argumentFromName.find("-" + charOption);
-    if (it == _argumentFromName.end()) {
+    it = argumentFromName_.find("-" + charOption);
+    if (it == argumentFromName_.end()) {
         throw ParseArgumentException(charOption.c_str(), "invalid option");
     }
-    _parseArgument(maxIndex, argv, index, hasArg, charOption.c_str(), arg.c_str(), *(it->second));
+    parseArgument_(maxIndex, argv, index, hasArg, charOption.c_str(), arg.c_str(), *(it->second));
 }
 
-void Args::_parseLongArgument(int maxIndex, char* argv[], int* index) {
+void Args::parseLongArgument_(int maxIndex, char* argv[], int* index) {
     std::string option;
     std::string arg;
     std::map<std::string, Argument**>::iterator it;
     bool hasArg = takeArg(argv[*index], &option, &arg);
-    it = _argumentFromName.find(option);
-    if (it == _argumentFromName.end()) {
-        throw ParseArgumentException(option.c_str() + _ARGS_PREFIX_SIZEOF_LONG_OPTION, "invalid option");
+    it = argumentFromName_.find(option);
+    if (it == argumentFromName_.end()) {
+        throw ParseArgumentException(option.c_str() + ARGS_PREFIX_SIZEOF_LONG_OPTION_, "invalid option");
     }
-    _parseArgument(maxIndex, argv, index, hasArg, option.c_str() + _ARGS_PREFIX_SIZEOF_LONG_OPTION, arg.c_str(),
+    parseArgument_(maxIndex, argv, index, hasArg, option.c_str() + ARGS_PREFIX_SIZEOF_LONG_OPTION_, arg.c_str(),
                    *(it->second));
 }
 
-void Args::_parseArgument(int maxIndex, char* argv[], int* index, bool hasArg, const char* option, const char* arg,
+void Args::parseArgument_(int maxIndex, char* argv[], int* index, bool hasArg, const char* option, const char* arg,
                           Argument* argument) {
     if (hasArg) {
-        switch (argument->_type) {
+        switch (argument->type_) {
             case Argument::SIMPLE_OPTION:
-                argument->_argument = arg;
+                argument->argument_ = arg;
                 break;
             case Argument::NUMBER_OPTION:
             case Argument::MULTI_NUMBER_OPTION:
@@ -408,7 +408,7 @@ void Args::_parseArgument(int maxIndex, char* argv[], int* index, bool hasArg, c
             }
             case Argument::MULTI_OPTION:
             case Argument::MULTI_INFINITE_OPTION: {
-                if (argument->_isExist == false) {
+                if (argument->isExist_ == false) {
                     argument->clear();
                 }
                 argument->push_back(arg);
@@ -420,29 +420,29 @@ void Args::_parseArgument(int maxIndex, char* argv[], int* index, bool hasArg, c
         }
     }
     else {
-        switch (argument->_type) {
+        switch (argument->type_) {
             case Argument::SIMPLE_OPTION:
                 if (*index + 1 >= maxIndex) {
                     throw ParseArgumentException(option, "bad number of argument");
                 }
                 ++(*index);
-                argument->_argument = argv[*index];
+                argument->argument_ = argv[*index];
                 break;
             case Argument::NUMBER_OPTION:
                 argument->clear();
-                if (*index + argument->_nargs >= static_cast<unsigned int>(maxIndex)) {
+                if (*index + argument->nargs_ >= static_cast<unsigned int>(maxIndex)) {
                     throw ParseArgumentException(option, "bad number of argument");
                 }
-                for (unsigned int i = *index + 1; i <= (*index + argument->_nargs); ++i) {
+                for (unsigned int i = *index + 1; i <= (*index + argument->nargs_); ++i) {
                     argument->push_back(argv[i]);
                 }
-                *index += argument->_nargs;
+                *index += argument->nargs_;
                 break;
             case Argument::INFINITE_OPTION: {
                 argument->clear();
                 std::size_t countArg = 0;
                 for (int i = *index + 1; i < maxIndex; ++i) {
-                    if (_endOfInfiniteArgument(argv[i])) {
+                    if (endOfInfiniteArgument_(argv[i])) {
                         break;
                     }
                     argument->push_back(argv[i]);
@@ -452,7 +452,7 @@ void Args::_parseArgument(int maxIndex, char* argv[], int* index, bool hasArg, c
                 break;
             }
             case Argument::MULTI_OPTION: {
-                if (argument->_isExist == false) {
+                if (argument->isExist_ == false) {
                     argument->clear();
                 }
                 if (*index + 1 >= maxIndex) {
@@ -463,12 +463,12 @@ void Args::_parseArgument(int maxIndex, char* argv[], int* index, bool hasArg, c
                 break;
             }
             case Argument::MULTI_INFINITE_OPTION: {
-                if (argument->_isExist == false) {
+                if (argument->isExist_ == false) {
                     argument->clear();
                 }
                 std::size_t countArg = 0;
                 for (int i = *index + 1; i < maxIndex; ++i) {
-                    if (_endOfInfiniteArgument(argv[i])) {
+                    if (endOfInfiniteArgument_(argv[i])) {
                         break;
                     }
                     argument->push_back(argv[i]);
@@ -478,34 +478,34 @@ void Args::_parseArgument(int maxIndex, char* argv[], int* index, bool hasArg, c
                 break;
             }
             case Argument::MULTI_NUMBER_OPTION: {
-                if (argument->_isExist == false) {
+                if (argument->isExist_ == false) {
                     argument->clear();
                 }
-                if (*index + argument->_nargs >= static_cast<unsigned int>(maxIndex)) {
+                if (*index + argument->nargs_ >= static_cast<unsigned int>(maxIndex)) {
                     throw ParseArgumentException(option, "bad number of argument");
                 }
                 ArgumentElement newNumberArgument;
-                for (unsigned int i = *index + 1; i <= *index + argument->_nargs; ++i) {
+                for (unsigned int i = *index + 1; i <= *index + argument->nargs_; ++i) {
                     newNumberArgument.push_back(argv[i]);
                 }
                 argument->push_back(newNumberArgument);
-                *index += argument->_nargs;
+                *index += argument->nargs_;
                 break;
             }
             case Argument::MULTI_NUMBER_INFINITE_OPTION: {
-                if (argument->_isExist == false) {
+                if (argument->isExist_ == false) {
                     argument->clear();
                 }
                 std::size_t countArg = 0;
-                for (int i = *index + 1; i < maxIndex; i += argument->_nargs) {
-                    if (_endOfInfiniteArgument(argv[i])) {
+                for (int i = *index + 1; i < maxIndex; i += argument->nargs_) {
+                    if (endOfInfiniteArgument_(argv[i])) {
                         break;
                     }
-                    if (i + argument->_nargs > static_cast<unsigned int>(maxIndex)) {
+                    if (i + argument->nargs_ > static_cast<unsigned int>(maxIndex)) {
                         throw ParseArgumentException(option, "bad number of argument");
                     }
                     ArgumentElement newNumberArgument;
-                    for (unsigned int j = i; j < i + argument->_nargs; ++j) {
+                    for (unsigned int j = i; j < i + argument->nargs_; ++j) {
                         newNumberArgument.push_back(argv[j]);
                         ++countArg;
                     }
@@ -518,85 +518,85 @@ void Args::_parseArgument(int maxIndex, char* argv[], int* index, bool hasArg, c
                 break;
         }
     }
-    argument->_isExist = true;
-    ++argument->_count;
+    argument->isExist_ = true;
+    ++argument->count_;
 }
 
-bool Args::_endOfInfiniteArgument(const char* argument) {
+bool Args::endOfInfiniteArgument_(const char* argument) {
     std::string option;
     std::string arg;
     std::map<std::string, Argument**>::iterator it;
     if (isShortOption(argument)) {
         bool hasArg = takeArg(argument, &option, &arg);
-        if (_isAlternative) {
-            it = _argumentFromName.find("-" + option);
-            if (it != _argumentFromName.end()) {
+        if (isAlternative_) {
+            it = argumentFromName_.find("-" + option);
+            if (it != argumentFromName_.end()) {
                 return true;
             }
         }
         // get firsts option
         for (std::size_t i = 1; i < option.size() - 1; ++i) {
             std::string charOption(option, i, 1);
-            it = _argumentFromName.find("-" + charOption);
-            if (it == _argumentFromName.end()) {
+            it = argumentFromName_.find("-" + charOption);
+            if (it == argumentFromName_.end()) {
                 return false;
             }
-            else if (!hasArg && ((*(it->second))->_type == Argument::SIMPLE_OPTION ||
-                                 (*(it->second))->_type == Argument::NUMBER_OPTION ||
-                                 (*(it->second))->_type == Argument::INFINITE_OPTION ||
-                                 (*(it->second))->_type == Argument::MULTI_OPTION ||
-                                 (*(it->second))->_type == Argument::MULTI_INFINITE_OPTION ||
-                                 (*(it->second))->_type == Argument::MULTI_NUMBER_OPTION)) {
+            else if (!hasArg && ((*(it->second))->type_ == Argument::SIMPLE_OPTION ||
+                                 (*(it->second))->type_ == Argument::NUMBER_OPTION ||
+                                 (*(it->second))->type_ == Argument::INFINITE_OPTION ||
+                                 (*(it->second))->type_ == Argument::MULTI_OPTION ||
+                                 (*(it->second))->type_ == Argument::MULTI_INFINITE_OPTION ||
+                                 (*(it->second))->type_ == Argument::MULTI_NUMBER_OPTION)) {
                 return true;
             }
-            else if ((*(it->second))->_type == Argument::BOOLEAN_OPTION ||
-                     (*(it->second))->_type == Argument::REVERSE_BOOLEAN_OPTION) {
+            else if ((*(it->second))->type_ == Argument::BOOLEAN_OPTION ||
+                     (*(it->second))->type_ == Argument::REVERSE_BOOLEAN_OPTION) {
                 return true;
             }
         }
         // get last option
         std::string charOption(option, option.size() - 1, 1);
-        it = _argumentFromName.find("-" + charOption);
+        it = argumentFromName_.find("-" + charOption);
     }
     else if (isLongOption(argument)) {
         takeArg(argument, &option, &arg);
-        it = _argumentFromName.find(option);
+        it = argumentFromName_.find(option);
     }
     else {
         return false;
     }
-    if (it == _argumentFromName.end()) {
+    if (it == argumentFromName_.end()) {
         return false;
     }
     return true;
 }
 
-void Args::_parsePositionnalArgument(int argc, char* argv[], int* index, bool hasEndOption) {
+void Args::parsePositionnalArgument_(int argc, char* argv[], int* index, bool hasEndOption) {
     // find not exists positionnal argument
     std::list<Argument*>::iterator it;
-    for (it = _arguments.begin(); it != _arguments.end(); ++it) {
-        if ((*it)->_isExist == false && (*it)->_isPositionnalArgument()) {
+    for (it = arguments_.begin(); it != arguments_.end(); ++it) {
+        if ((*it)->isExist_ == false && (*it)->isPositionnalArgument_()) {
             break;
         }
     }
-    if (it != _arguments.end()) {
+    if (it != arguments_.end()) {
         Argument& argument = *(*it);
-        if (argument._type == Argument::POSITIONAL_ARGUMENT) {
-            argument._argument = argv[*index];
+        if (argument.type_ == Argument::POSITIONAL_ARGUMENT) {
+            argument.argument_ = argv[*index];
         }
-        else if (argument._type == Argument::NUMBER_POSITIONAL_ARGUMENT) {
-            if (*index + argument._nargs > static_cast<unsigned int>(argc)) {
-                throw ParseArgumentException(argument._nameOrFlags.front().c_str(), "bad number of argument");
+        else if (argument.type_ == Argument::NUMBER_POSITIONAL_ARGUMENT) {
+            if (*index + argument.nargs_ > static_cast<unsigned int>(argc)) {
+                throw ParseArgumentException(argument.nameOrFlags_.front().c_str(), "bad number of argument");
             }
-            for (unsigned int i = *index; i < (*index + argument._nargs); ++i) {
+            for (unsigned int i = *index; i < (*index + argument.nargs_); ++i) {
                 argument.push_back(argv[i]);
             }
-            *index += argument._nargs - 1;
+            *index += argument.nargs_ - 1;
         }
-        else if (argument._type == Argument::INFINITE_POSITIONAL_ARGUMENT) {
+        else if (argument.type_ == Argument::INFINITE_POSITIONAL_ARGUMENT) {
             std::size_t countArg = 0;
             for (int i = *index; i < argc; ++i) {
-                if (!hasEndOption && _endOfInfiniteArgument(argv[i])) {
+                if (!hasEndOption && endOfInfiniteArgument_(argv[i])) {
                     break;
                 }
                 (*it)->push_back(argv[i]);
@@ -604,17 +604,17 @@ void Args::_parsePositionnalArgument(int argc, char* argv[], int* index, bool ha
             }
             *index += countArg - 1;
         }
-        else if (argument._type == Argument::INFINITE_NUMBER_POSITIONAL_ARGUMENT) {
+        else if (argument.type_ == Argument::INFINITE_NUMBER_POSITIONAL_ARGUMENT) {
             std::size_t countArg = 0;
-            for (int i = *index; i < argc; i += argument._nargs) {
-                if (!hasEndOption && _endOfInfiniteArgument(argv[i])) {
+            for (int i = *index; i < argc; i += argument.nargs_) {
+                if (!hasEndOption && endOfInfiniteArgument_(argv[i])) {
                     break;
                 }
-                if (i + argument._nargs > static_cast<unsigned int>(argc)) {
-                    throw ParseArgumentException(argument._nameOrFlags.front().c_str(), "bad number of argument");
+                if (i + argument.nargs_ > static_cast<unsigned int>(argc)) {
+                    throw ParseArgumentException(argument.nameOrFlags_.front().c_str(), "bad number of argument");
                 }
                 ArgumentElement newNumberArgument;
-                for (unsigned int j = i; j < i + argument._nargs; ++j) {
+                for (unsigned int j = i; j < i + argument.nargs_; ++j) {
                     newNumberArgument.push_back(argv[j]);
                     ++countArg;
                 }
@@ -622,14 +622,14 @@ void Args::_parsePositionnalArgument(int argc, char* argv[], int* index, bool ha
             }
             *index += countArg - 1;
         }
-        argument._isExist = true;
+        argument.isExist_ = true;
     }
     else {
-        if (_isStrict) {
+        if (isStrict_) {
             throw ParseArgumentException(argv[*index], "invalid additional argument");
         }
         else {
-            _additionalArguments.push_back(argv[*index]);
+            additionalArguments_.push_back(argv[*index]);
         }
     }
 }
@@ -638,5 +638,5 @@ void Args::_parsePositionnalArgument(int argc, char* argv[], int* index, bool ha
 
 } // namespace blet
 
-#undef _ARGS_PREFIX_SIZEOF_SHORT_OPTION
-#undef _ARGS_PREFIX_SIZEOF_LONG_OPTION
+#undef ARGS_PREFIX_SIZEOF_SHORT_OPTION_
+#undef ARGS_PREFIX_SIZEOF_LONG_OPTION_

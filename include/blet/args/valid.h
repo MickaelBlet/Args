@@ -23,8 +23,8 @@
  * SOFTWARE.
  */
 
-#ifndef _BLET_ARGS_VALID_H_
-#define _BLET_ARGS_VALID_H_
+#ifndef BLET_ARGS_VALID_H_
+#define BLET_ARGS_VALID_H_
 
 #include <string>
 #include <vector>
@@ -98,8 +98,8 @@ class ValidMinMax : public IValid {
     bool isValid(std::vector<std::string>& args);
 
   private:
-    double _min;
-    double _max;
+    double min_;
+    double max_;
 };
 
 class ValidChoise : public IValid {
@@ -125,7 +125,7 @@ class ValidChoise : public IValid {
     bool isValid(std::vector<std::string>& args);
 
   private:
-    std::vector<std::string> _choises;
+    std::vector<std::string> choises_;
 };
 
 class ValidPath : public IValid {
@@ -156,11 +156,11 @@ class ValidPath : public IValid {
     bool isValid(std::vector<std::string>& args);
 
   private:
-    enum eMode _mode;
+    enum eMode mode_;
 };
 
 } // namespace args
 
 } // namespace blet
 
-#endif // #ifndef _BLET_ARGS_VALID_H_
+#endif // #ifndef BLET_ARGS_VALID_H_

@@ -8,7 +8,7 @@ GTEST_TEST(getUsage, custom) {
     EXPECT_EQ(args.getUsage(), std::string("foo"));
 }
 
-GTEST_TEST(getUsage, _compareOption) {
+GTEST_TEST(getUsage, compareOption_) {
     blet::Args args(false);
     args.addArgument(args.vector("-h", "--help")).action(blet::Args::HELP).help("custom help option message");
     args.addArgument("NOTREQUIRED1").help("help of positional argument");

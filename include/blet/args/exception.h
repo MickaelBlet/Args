@@ -23,8 +23,8 @@
  * SOFTWARE.
  */
 
-#ifndef _BLET_ARGS_EXCEPTION_H_
-#define _BLET_ARGS_EXCEPTION_H_
+#ifndef BLET_ARGS_EXCEPTION_H_
+#define BLET_ARGS_EXCEPTION_H_
 
 #include <exception>
 #include <string>
@@ -43,7 +43,7 @@ class Exception : public std::exception {
     const char* what() const throw();
 
   protected:
-    std::string _str;
+    std::string str_;
 };
 
 /**
@@ -73,7 +73,7 @@ class ArgumentException : public Exception {
     const char* argument() const throw();
 
   protected:
-    std::string _argument;
+    std::string argument_;
 };
 
 struct AccessDeniedException : public ArgumentException {
@@ -102,4 +102,4 @@ struct ParseArgumentValidException : public ParseArgumentException {
 
 } // namespace blet
 
-#endif // #ifndef _BLET_ARGS_EXCEPTION_H_
+#endif // #ifndef BLET_ARGS_EXCEPTION_H_

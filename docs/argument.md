@@ -3,7 +3,7 @@
 ## flag
 
 ```cpp
-Argument& flag(const char* flag_);
+Argument& flag(const char* flag__);
 ```
 
 Add flag in argument object.
@@ -17,7 +17,7 @@ args.addArgument("-f").flag("--foo");
 ## action
 
 ```cpp
-Argument& action(enum Action::eAction action_);
+Argument& action(enum Action::eAction action__);
 ```
 
 Add a action when this argument is encountered at the command line.
@@ -84,7 +84,7 @@ Example at [examples.md/version](examples.md#version).
 ## help
 
 ```cpp
-Argument& help(const char* help_);
+Argument& help(const char* help__);
 ```
 
 Set the help description massge for this argument.
@@ -92,7 +92,7 @@ Set the help description massge for this argument.
 ## required
 
 ```cpp
-Argument& required(bool required_);
+Argument& required(bool required__);
 ```
 
 Whether or not the command-line argument may be omitted.
@@ -100,7 +100,7 @@ Whether or not the command-line argument may be omitted.
 ## metavar
 
 ```cpp
-Argument& metavar(const char* metavar_);
+Argument& metavar(const char* metavar__);
 ```
 
 A name for the argument in usage messages.
@@ -108,7 +108,7 @@ A name for the argument in usage messages.
 ## nargs
 
 ```cpp
-Argument& nargs(std::size_t nargs_);
+Argument& nargs(std::size_t nargs__);
 ```
 
 The number of command-line arguments that should be consumed by this object.
@@ -116,7 +116,7 @@ The number of command-line arguments that should be consumed by this object.
 ## defaults
 
 ```cpp
-Argument& defaults(const Vector& defaults_);
+Argument& defaults(const Vector& defaults__);
 ```
 
 Define the defaults string values.

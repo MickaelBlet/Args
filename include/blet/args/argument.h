@@ -23,8 +23,8 @@
  * SOFTWARE.
  */
 
-#ifndef _BLET_ARGS_ARGUMENT_H_
-#define _BLET_ARGS_ARGUMENT_H_
+#ifndef BLET_ARGS_ARGUMENT_H_
+#define BLET_ARGS_ARGUMENT_H_
 
 #include <cstdlib> // stdtod
 #include <cstring> // memcpy
@@ -248,17 +248,17 @@ class ArgumentElement : public std::vector<ArgumentElement> {
   public:
     ArgumentElement();
     ArgumentElement(const ArgumentElement& rhs);
-    ArgumentElement(const char* arg_, const char* default_);
+    ArgumentElement(const char* arg__, const char* default__);
     ArgumentElement(const char* arg);
     ~ArgumentElement();
 
     /**
      * @brief Get the string argument
      *
-     * @return const std::string&
+     * @return std::string
      */
-    const std::string& getString() const {
-        return _argument;
+    std::string getString() const {
+        return argument_;
     }
 
     /**
@@ -267,7 +267,7 @@ class ArgumentElement : public std::vector<ArgumentElement> {
      * @return const std::string&
      */
     const std::string& getDefault() const {
-        return _default;
+        return default_;
     }
 
     /**
@@ -276,7 +276,7 @@ class ArgumentElement : public std::vector<ArgumentElement> {
      * @return [true] if is number
      */
     bool isNumber() const {
-        return _isNumber;
+        return isNumber_;
     }
 
     /**
@@ -287,8 +287,8 @@ class ArgumentElement : public std::vector<ArgumentElement> {
      * @throw Exception is not a number
      */
     double getNumber() const {
-        if (_isNumber) {
-            return _number;
+        if (isNumber_) {
+            return number_;
         }
         throw Exception("is not a number");
     }
@@ -315,10 +315,10 @@ class ArgumentElement : public std::vector<ArgumentElement> {
     }
 
   protected:
-    std::string _argument;
-    std::string _default;
-    bool _isNumber;
-    double _number;
+    std::string argument_;
+    std::string default_;
+    bool isNumber_;
+    double number_;
 };
 
 template<typename T>
@@ -357,39 +357,39 @@ class Argument : public ArgumentElement {
     virtual ~Argument();
 
     bool isExists() const {
-        return _isExist;
+        return isExist_;
     }
 
     bool isRequired() const {
-        return _isRequired;
+        return isRequired_;
     }
 
     std::size_t count() const {
-        return _count;
+        return count_;
     }
 
     std::size_t getNargs() const {
-        return _nargs;
+        return nargs_;
     }
 
     const std::string& getHelp() const {
-        return _help;
+        return help_;
     }
 
     const std::string& getMetavar() const {
-        return _metavar;
+        return metavar_;
     }
 
     const std::vector<std::string>& getNameOrFlags() const {
-        return _nameOrFlags;
+        return nameOrFlags_;
     }
 
     const std::vector<std::string>& getDefaults() const {
-        return _defaults;
+        return defaults_;
     }
 
     Action::eAction getAction() const {
-        return _action;
+        return action_;
     }
 
     std::string getString() const;
@@ -400,11 +400,11 @@ class Argument : public ArgumentElement {
      * @return true if exist or false if not exist
      */
     operator bool() const {
-        if (_type == REVERSE_BOOLEAN_OPTION) {
-            return !_isExist;
+        if (type_ == REVERSE_BOOLEAN_OPTION) {
+            return !isExist_;
         }
         else {
-            return _isExist;
+            return isExist_;
         }
     }
 
@@ -459,79 +459,79 @@ class Argument : public ArgumentElement {
     /**
      * @brief Option strings, e.g. -f, --foo
      *
-     * @param flag_
+     * @param flag__
      * @return this reference
      *
      * @throw ArgumentException
      */
-    Argument& flag(const char* flag_);
+    Argument& flag(const char* flag__);
 
     /**
      * @brief The basic type of action to be taken when this argument is encountered at the command line
      *
-     * @param action_
+     * @param action__
      * @return this reference
      *
      * @throw ArgumentException
      */
-    Argument& action(enum Action::eAction action_);
+    Argument& action(enum Action::eAction action__);
 
     /**
      * @brief A brief description of what the argument does
      *
-     * @param help_
+     * @param help__
      * @return this reference
      */
-    Argument& help(const char* help_) {
-        _help = help_;
+    Argument& help(const char* help__) {
+        help_ = help__;
         return *this;
     }
 
     /**
      * @brief Whether or not the command-line option may be omitted (optionals only)
      *
-     * @param required_
+     * @param required__
      * @return this reference
      */
-    Argument& required(bool required_ = true);
+    Argument& required(bool required__ = true);
 
     /**
      * @brief A name for the argument in usage messages
      *
-     * @param metavar_
+     * @param metavar__
      * @return this reference
      */
-    Argument& metavar(const char* metavar_) {
-        _metavar = metavar_;
+    Argument& metavar(const char* metavar__) {
+        metavar_ = metavar__;
         return *this;
     }
 
     /**
      * @brief The number of command-line arguments that should be consumed
      *
-     * @param nargs_
+     * @param nargs__
      * @return this reference
      *
      * @throw ArgumentException
      */
-    Argument& nargs(std::size_t nargs_) {
-        _nargs = nargs_;
-        _typeConstructor();
-        _defaultsConstructor();
+    Argument& nargs(std::size_t nargs__) {
+        nargs_ = nargs__;
+        typeConstructor_();
+        defaultsConstructor_();
         return *this;
     }
 
     /**
      * @brief The value produced if the argument is absent from the command line
      *
-     * @param defaults_
+     * @param defaults__
      * @return this reference
      *
      * @throw ArgumentException
      */
-    Argument& defaults(const Vector& defaults_) {
-        _defaults = defaults_;
-        _defaultsConstructor();
+    Argument& defaults(const Vector& defaults__) {
+        defaults_ = defaults__;
+        defaultsConstructor_();
         return *this;
     }
 
@@ -543,11 +543,11 @@ class Argument : public ArgumentElement {
      * @return this reference
      */
     Argument& valid(IValid* pValid, bool isDeletable = true) {
-        if (_valid != NULL && _validDeletable) {
-            delete _valid;
+        if (valid_ != NULL && validDeletable_) {
+            delete valid_;
         }
-        _valid = pValid;
-        _validDeletable = isDeletable;
+        valid_ = pValid;
+        validDeletable_ = isDeletable;
         return *this;
     }
 
@@ -563,10 +563,10 @@ class Argument : public ArgumentElement {
     Argument& dest(std::vector<std::vector<T> >& dest,
                    void (*toDest)(std::vector<std::vector<T> >& dest, bool isExists,
                                   const std::vector<std::vector<std::string> >& arguments) = NULL) {
-        bool validDeletable = _validDeletable;
-        _validDeletable = false;
+        bool validDeletable = validDeletable_;
+        validDeletable_ = false;
         Argument* argumentType = new ArgumentVectorVectorType<T>(this, dest, toDest);
-        argumentType->_validDeletable = validDeletable;
+        argumentType->validDeletable_ = validDeletable;
         return *argumentType;
     }
 
@@ -581,10 +581,10 @@ class Argument : public ArgumentElement {
     template<typename T>
     Argument& dest(std::vector<T>& dest, void (*toDest)(std::vector<T>& dest, bool isExists,
                                                         const std::vector<std::string>& arguments) = NULL) {
-        bool validDeletable = _validDeletable;
-        _validDeletable = false;
+        bool validDeletable = validDeletable_;
+        validDeletable_ = false;
         Argument* argumentType = new ArgumentVectorType<T>(this, dest, toDest);
-        argumentType->_validDeletable = validDeletable;
+        argumentType->validDeletable_ = validDeletable;
         return *argumentType;
     }
 
@@ -598,10 +598,10 @@ class Argument : public ArgumentElement {
      */
     template<typename T>
     Argument& dest(T& dest, void (*toDest)(T& dest, bool isExists, const std::string& argument) = NULL) {
-        bool validDeletable = _validDeletable;
-        _validDeletable = false;
+        bool validDeletable = validDeletable_;
+        validDeletable_ = false;
         Argument* argumentType = new ArgumentType<T>(this, dest, toDest);
-        argumentType->_validDeletable = validDeletable;
+        argumentType->validDeletable_ = validDeletable;
         return *argumentType;
     }
 
@@ -637,8 +637,8 @@ class Argument : public ArgumentElement {
         INFINITE_NUMBER_POSITIONAL_ARGUMENT
     };
 
-    bool _isPositionnalArgument() const {
-        switch (_type) {
+    bool isPositionnalArgument_() const {
+        switch (type_) {
             case POSITIONAL_ARGUMENT:
             case NUMBER_POSITIONAL_ARGUMENT:
             case INFINITE_POSITIONAL_ARGUMENT:
@@ -649,43 +649,43 @@ class Argument : public ArgumentElement {
         }
     }
 
-    virtual void _toDest() {
+    virtual void toDest_() {
         /* do nothing */
     }
 
-    void _toNumber();
+    void toNumber_();
 
-    std::string _metavarDefault();
+    std::string metavarDefault_();
 
-    void _typeConstructor();
+    void typeConstructor_();
 
-    void _defaultsConstructor();
+    void defaultsConstructor_();
 
-    void _sortNameOrFlags();
+    void sortNameOrFlags_();
 
-    void _clear();
+    void clear_();
 
-    static void _validFormatFlag(const char* flag);
+    static void validFormatFlag_(const char* flag);
 
-    static bool _compareOption(const Argument* first, const Argument* second);
+    static bool compareOption_(const Argument* first, const Argument* second);
 
-    Args& _args;
+    Args& args_;
 
-    std::vector<std::string> _nameOrFlags;
-    enum Type _type;
-    bool _isExist;
-    bool _isRequired;
-    std::size_t _count;
-    std::size_t _nargs;
-    std::string _help;
-    std::string _metavar;
+    std::vector<std::string> nameOrFlags_;
+    enum Type type_;
+    bool isExist_;
+    bool isRequired_;
+    std::size_t count_;
+    std::size_t nargs_;
+    std::string help_;
+    std::string metavar_;
 
-    IValid* _valid;
-    bool _validDeletable;
+    IValid* valid_;
+    bool validDeletable_;
 
-    Argument** _this;
-    enum Action::eAction _action;
-    std::vector<std::string> _defaults;
+    Argument** this_;
+    enum Action::eAction action_;
+    std::vector<std::string> defaults_;
 };
 
 template<typename T>
@@ -693,33 +693,33 @@ class ArgumentType : public Argument {
   public:
     ArgumentType(Argument* argument, T& dest, void (*toDest)(T&, bool, const std::string&)) :
         Argument(*argument),
-        _dest(dest),
-        _toDestCustom(toDest) {
+        dest_(dest),
+        toDestCustom_(toDest) {
         delete argument;
-        *_this = this;
+        *this_ = this;
     }
     virtual ~ArgumentType() {}
 
   private:
-    void _toDest() {
-        if (_toDestCustom != NULL) {
-            _toDestCustom(_dest, _isExist, _argument);
+    void toDest_() {
+        if (toDestCustom_ != NULL) {
+            toDestCustom_(dest_, isExist_, argument_);
         }
         else {
-            if (_type == BOOLEAN_OPTION) {
-                boolTo(_isExist, _dest);
+            if (type_ == BOOLEAN_OPTION) {
+                boolTo(isExist_, dest_);
             }
-            else if (_type == REVERSE_BOOLEAN_OPTION) {
-                boolTo(!_isExist, _dest);
+            else if (type_ == REVERSE_BOOLEAN_OPTION) {
+                boolTo(!isExist_, dest_);
             }
             else {
-                strTo(_argument, _dest);
+                strTo(argument_, dest_);
             }
         }
     }
 
-    T& _dest;
-    void (*_toDestCustom)(T&, bool, const std::string&);
+    T& dest_;
+    void (*toDestCustom_)(T&, bool, const std::string&);
 };
 
 template<typename T>
@@ -728,16 +728,16 @@ class ArgumentVectorType : public Argument {
     ArgumentVectorType(Argument* argument, std::vector<T>& dest,
                        void (*toDest)(std::vector<T>&, bool, const std::vector<std::string>&)) :
         Argument(*argument),
-        _dest(dest),
-        _toDestCustom(toDest) {
+        dest_(dest),
+        toDestCustom_(toDest) {
         delete argument;
-        *_this = this;
+        *this_ = this;
     }
     virtual ~ArgumentVectorType() {}
 
   private:
-    void _toDest() {
-        if (_toDestCustom != NULL) {
+    void toDest_() {
+        if (toDestCustom_ != NULL) {
             std::vector<std::string> arguments;
             if (!empty()) {
                 for (std::size_t i = 0; i < size(); ++i) {
@@ -752,9 +752,9 @@ class ArgumentVectorType : public Argument {
                 }
             }
             else {
-                arguments.push_back(_argument);
+                arguments.push_back(argument_);
             }
-            _toDestCustom(_dest, _isExist, arguments);
+            toDestCustom_(dest_, isExist_, arguments);
         }
         else {
             if (!empty()) {
@@ -763,34 +763,34 @@ class ArgumentVectorType : public Argument {
                         for (std::size_t j = 0; j < at(i).size(); ++j) {
                             T dest;
                             strTo(at(i).at(j).getString(), dest);
-                            _dest.push_back(dest);
+                            dest_.push_back(dest);
                         }
                     }
                     else {
                         T dest;
                         strTo(at(i).getString(), dest);
-                        _dest.push_back(dest);
+                        dest_.push_back(dest);
                     }
                 }
             }
             else {
                 T dest;
-                if (_type == BOOLEAN_OPTION) {
-                    boolTo(_isExist, dest);
+                if (type_ == BOOLEAN_OPTION) {
+                    boolTo(isExist_, dest);
                 }
-                else if (_type == REVERSE_BOOLEAN_OPTION) {
-                    boolTo(!_isExist, dest);
+                else if (type_ == REVERSE_BOOLEAN_OPTION) {
+                    boolTo(!isExist_, dest);
                 }
                 else {
-                    strTo(_argument, dest);
+                    strTo(argument_, dest);
                 }
-                _dest.push_back(dest);
+                dest_.push_back(dest);
             }
         }
     }
 
-    std::vector<T>& _dest;
-    void (*_toDestCustom)(std::vector<T>&, bool, const std::vector<std::string>&);
+    std::vector<T>& dest_;
+    void (*toDestCustom_)(std::vector<T>&, bool, const std::vector<std::string>&);
 };
 
 template<typename T>
@@ -800,16 +800,16 @@ class ArgumentVectorVectorType : public Argument {
                              void (*toDest)(std::vector<std::vector<T> >&, bool,
                                             const std::vector<std::vector<std::string> >&)) :
         Argument(*argument),
-        _dest(dest),
-        _toDestCustom(toDest) {
+        dest_(dest),
+        toDestCustom_(toDest) {
         delete argument;
-        *_this = this;
+        *this_ = this;
     }
     virtual ~ArgumentVectorVectorType() {}
 
   private:
-    void _toDest() {
-        if (_toDestCustom != NULL) {
+    void toDest_() {
+        if (toDestCustom_ != NULL) {
             std::vector<std::vector<std::string> > arguments;
             if (!empty()) {
                 for (std::size_t i = 0; i < size(); ++i) {
@@ -827,10 +827,10 @@ class ArgumentVectorVectorType : public Argument {
             }
             else {
                 std::vector<std::string> tmpVector;
-                tmpVector.push_back(_argument);
+                tmpVector.push_back(argument_);
                 arguments.push_back(tmpVector);
             }
-            _toDestCustom(_dest, _isExist, arguments);
+            toDestCustom_(dest_, isExist_, arguments);
         }
         else {
             if (!empty()) {
@@ -848,33 +848,33 @@ class ArgumentVectorVectorType : public Argument {
                         strTo(at(i).getString(), dest);
                         vectorDest.push_back(dest);
                     }
-                    _dest.push_back(vectorDest);
+                    dest_.push_back(vectorDest);
                 }
             }
             else {
                 T dest;
-                if (_type == BOOLEAN_OPTION) {
-                    boolTo(_isExist, dest);
+                if (type_ == BOOLEAN_OPTION) {
+                    boolTo(isExist_, dest);
                 }
-                else if (_type == REVERSE_BOOLEAN_OPTION) {
-                    boolTo(!_isExist, dest);
+                else if (type_ == REVERSE_BOOLEAN_OPTION) {
+                    boolTo(!isExist_, dest);
                 }
                 else {
-                    strTo(_argument, dest);
+                    strTo(argument_, dest);
                 }
                 std::vector<T> vectorDest;
                 vectorDest.push_back(dest);
-                _dest.push_back(vectorDest);
+                dest_.push_back(vectorDest);
             }
         }
     }
 
-    std::vector<std::vector<T> >& _dest;
-    void (*_toDestCustom)(std::vector<std::vector<T> >&, bool, const std::vector<std::vector<std::string> >&);
+    std::vector<std::vector<T> >& dest_;
+    void (*toDestCustom_)(std::vector<std::vector<T> >&, bool, const std::vector<std::vector<std::string> >&);
 };
 
 } // namespace args
 
 } // namespace blet
 
-#endif // #ifndef _BLET_ARGS_ARGUMENT_H_
+#endif // #ifndef BLET_ARGS_ARGUMENT_H_

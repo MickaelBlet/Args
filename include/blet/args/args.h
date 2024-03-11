@@ -23,8 +23,8 @@
  * SOFTWARE.
  */
 
-#ifndef _BLET_ARGS_ARGS_H_
-#define _BLET_ARGS_ARGS_H_
+#ifndef BLET_ARGS_ARGS_H_
+#define BLET_ARGS_ARGS_H_
 
 #include <list>
 #include <map>
@@ -68,7 +68,7 @@ class Args : public Usage {
      * @param version
      */
     void setVersion(const std::string& version) {
-        _version = version;
+        version_ = version;
     }
 
     /**
@@ -77,7 +77,7 @@ class Args : public Usage {
      * @return const std::string&
      */
     const std::string& getVersion() const {
-        return _version;
+        return version_;
     }
 
     /**
@@ -86,7 +86,7 @@ class Args : public Usage {
      * @param alternivative
      */
     Args& setAlternative(bool alternivative = true) {
-        _isAlternative = alternivative;
+        isAlternative_ = alternivative;
         return *this;
     }
 
@@ -96,7 +96,7 @@ class Args : public Usage {
      * @return [true] at alternative
      */
     bool isAlternative() const {
-        return _isAlternative;
+        return isAlternative_;
     }
 
     /**
@@ -106,7 +106,7 @@ class Args : public Usage {
      * @param strict
      */
     Args& setStrict(bool strict = true) {
-        _isStrict = strict;
+        isStrict_ = strict;
         return *this;
     }
 
@@ -116,7 +116,7 @@ class Args : public Usage {
      * @return [true] at strict
      */
     bool isStrict() const {
-        return _isStrict;
+        return isStrict_;
     }
 
     /**
@@ -126,7 +126,7 @@ class Args : public Usage {
      * @param helpException
      */
     Args& setHelpException(bool helpException = true) {
-        _isHelpException = helpException;
+        isHelpException_ = helpException;
         return *this;
     }
 
@@ -136,7 +136,7 @@ class Args : public Usage {
      * @return [true] at usage exception
      */
     bool isHelpException() const {
-        return _isHelpException;
+        return isHelpException_;
     }
 
     /**
@@ -146,7 +146,7 @@ class Args : public Usage {
      * @param versionException
      */
     Args& setVersionException(bool versionException = true) {
-        _isVersionException = versionException;
+        isVersionException_ = versionException;
         return *this;
     }
 
@@ -156,7 +156,7 @@ class Args : public Usage {
      * @return [true] at version exception
      */
     bool isVersionException() const {
-        return _isVersionException;
+        return isVersionException_;
     }
 
     /**
@@ -165,7 +165,7 @@ class Args : public Usage {
      * @param binaryName
      */
     void setBinaryName(const char* binaryName) {
-        _binaryName = binaryName;
+        binaryName_ = binaryName;
     }
 
     /**
@@ -174,7 +174,7 @@ class Args : public Usage {
      * @return const std::string&
      */
     const std::string& getBinaryName() const {
-        return _binaryName;
+        return binaryName_;
     }
 
     /**
@@ -184,7 +184,7 @@ class Args : public Usage {
      * @return [true] argument is in map, [false] argument is not in map
      */
     bool argumentExists(const std::string& nameOrFlag) const {
-        return (_argumentFromName.find(nameOrFlag) != _argumentFromName.end());
+        return (argumentFromName_.find(nameOrFlag) != argumentFromName_.end());
     }
 
     /**
@@ -194,8 +194,8 @@ class Args : public Usage {
      * @return const Argument&
      */
     const Argument& getArgument(const std::string& nameOrFlag) const {
-        std::map<std::string, Argument**>::const_iterator cit = _argumentFromName.find(nameOrFlag);
-        if (cit == _argumentFromName.end()) {
+        std::map<std::string, Argument**>::const_iterator cit = argumentFromName_.find(nameOrFlag);
+        if (cit == argumentFromName_.end()) {
             throw AccessDeniedException(nameOrFlag.c_str(), "argument not found");
         }
         return **(cit->second);
@@ -217,7 +217,7 @@ class Args : public Usage {
      * @return const std::vector<std::string>&
      */
     const std::vector<std::string>& getAdditionalArguments() const {
-        return _additionalArguments;
+        return additionalArguments_;
     }
 
     /**
@@ -255,8 +255,8 @@ class Args : public Usage {
      * @throw ArgumentException
      */
     Argument& updateArgument(const std::string& nameOrFlag) {
-        std::map<std::string, Argument**>::iterator it = _argumentFromName.find(nameOrFlag);
-        if (it == _argumentFromName.end()) {
+        std::map<std::string, Argument**>::iterator it = argumentFromName_.find(nameOrFlag);
+        if (it == argumentFromName_.end()) {
             throw AccessDeniedException(nameOrFlag.c_str(), "argument not found");
         }
         return **(it->second);
@@ -287,7 +287,7 @@ class Args : public Usage {
      * @param argv
      * @param index
      */
-    void _parseShortArgument(int maxIndex, char* argv[], int* index);
+    void parseShortArgument_(int maxIndex, char* argv[], int* index);
 
     /**
      * @brief Get the long argument
@@ -296,7 +296,7 @@ class Args : public Usage {
      * @param argv
      * @param index
      */
-    void _parseLongArgument(int maxIndex, char* argv[], int* index);
+    void parseLongArgument_(int maxIndex, char* argv[], int* index);
 
     /**
      * @brief Get the argument
@@ -310,7 +310,7 @@ class Args : public Usage {
      * @param argument
      * @param alternative
      */
-    void _parseArgument(int maxIndex, char* argv[], int* index, bool hasArg, const char* option, const char* arg,
+    void parseArgument_(int maxIndex, char* argv[], int* index, bool hasArg, const char* option, const char* arg,
                         Argument* argument);
 
     /**
@@ -320,7 +320,7 @@ class Args : public Usage {
      * @param index
      * @param strict
      */
-    void _parsePositionnalArgument(int argc, char* argv[], int* index, bool hasEndOption = false);
+    void parsePositionnalArgument_(int argc, char* argv[], int* index, bool hasEndOption = false);
 
     /**
      * @brief Check end of infinite parsing
@@ -330,27 +330,27 @@ class Args : public Usage {
      * @return true
      * @return false
      */
-    bool _endOfInfiniteArgument(const char* argument);
+    bool endOfInfiniteArgument_(const char* argument);
 
-    std::string _binaryName;
+    std::string binaryName_;
 
-    std::list<Argument*> _arguments;
-    std::map<std::string, Argument**> _argumentFromName;
+    std::list<Argument*> arguments_;
+    std::map<std::string, Argument**> argumentFromName_;
 
-    Argument* _helpOption;
-    Argument* _versionOption;
+    Argument* helpOption_;
+    Argument* versionOption_;
 
-    std::string _version;
+    std::string version_;
 
-    bool _isAlternative;
-    bool _isStrict;
-    bool _isHelpException;
-    bool _isVersionException;
-    std::vector<std::string> _additionalArguments;
+    bool isAlternative_;
+    bool isStrict_;
+    bool isHelpException_;
+    bool isVersionException_;
+    std::vector<std::string> additionalArguments_;
 };
 
 } // namespace args
 
 } // namespace blet
 
-#endif // #ifndef _BLET_ARGS_ARGS_H_
+#endif // #ifndef BLET_ARGS_ARGS_H_

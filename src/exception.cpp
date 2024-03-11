@@ -31,12 +31,12 @@ namespace args {
 
 Exception::Exception(const char* str) :
     std::exception(),
-    _str(str) {}
+    str_(str) {}
 
 Exception::~Exception() throw() {}
 
 const char* Exception::what() const throw() {
-    return _str.c_str();
+    return str_.c_str();
 }
 
 HelpException::HelpException(const char* message) :
@@ -51,16 +51,16 @@ VersionException::~VersionException() throw() {}
 
 ArgumentException::ArgumentException(const char* message) :
     Exception(message),
-    _argument() {}
+    argument_() {}
 
 ArgumentException::ArgumentException(const char* argument, const char* message) :
     Exception(message),
-    _argument(argument) {}
+    argument_(argument) {}
 
 ArgumentException::~ArgumentException() throw() {}
 
 const char* ArgumentException::argument() const throw() {
-    return _argument.c_str();
+    return argument_.c_str();
 }
 
 AccessDeniedException::AccessDeniedException(const char* argument, const char* message) :

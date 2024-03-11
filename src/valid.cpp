@@ -65,12 +65,12 @@ bool ValidNumber::isValid(std::vector<std::string>& args) {
 */
 
 ValidMinMax::ValidMinMax(double min, double max) :
-    _min(min),
-    _max(max) {
+    min_(min),
+    max_(max) {
     // bad initialized reverse value
     if (min > max) {
-        _min = max;
-        _max = min;
+        min_ = max;
+        max_ = min;
     }
 }
 
@@ -86,9 +86,9 @@ bool ValidMinMax::isValid(std::vector<std::string>& args) {
             oss << "\"" << args[i] << "\" is not a number";
             throw ParseArgumentValidException(oss.str().c_str());
         }
-        if (number < _min || number > _max) {
+        if (number < min_ || number > max_) {
             std::ostringstream oss("");
-            oss << args[i] << " is not between " << _min << " and " << _max;
+            oss << args[i] << " is not between " << min_ << " and " << max_;
             throw ParseArgumentValidException(oss.str().c_str());
         }
     }
@@ -102,26 +102,26 @@ bool ValidMinMax::isValid(std::vector<std::string>& args) {
 */
 
 ValidChoise::ValidChoise(const std::vector<std::string>& choises) :
-    _choises(choises) {}
+    choises_(choises) {}
 
 ValidChoise::~ValidChoise() {}
 
 bool ValidChoise::isValid(std::vector<std::string>& args) {
     std::ostringstream ossChoise("");
-    for (std::size_t i = 0; i < _choises.size(); ++i) {
+    for (std::size_t i = 0; i < choises_.size(); ++i) {
         if (i > 0) {
             ossChoise << ", ";
         }
-        ossChoise << '\"' << _choises[i] << '\"';
+        ossChoise << '\"' << choises_[i] << '\"';
     }
     for (std::size_t i = 0; i < args.size(); ++i) {
         std::size_t j;
-        for (j = 0; j < _choises.size(); ++j) {
-            if (args[i] == _choises[j]) {
+        for (j = 0; j < choises_.size(); ++j) {
+            if (args[i] == choises_[j]) {
                 break;
             }
         }
-        if (j == _choises.size()) {
+        if (j == choises_.size()) {
             std::ostringstream oss("");
             oss << '\"' << args[i] << "\" is not a choise value (" << ossChoise.str() << ')';
             throw ParseArgumentValidException(oss.str().c_str());
@@ -137,7 +137,7 @@ bool ValidChoise::isValid(std::vector<std::string>& args) {
 */
 
 ValidPath::ValidPath(enum eMode mode) :
-    _mode(mode) {}
+    mode_(mode) {}
 
 ValidPath::~ValidPath() {}
 
@@ -149,12 +149,12 @@ bool ValidPath::isValid(std::vector<std::string>& args) {
             oss << '\"' << args[i] << "\" is not a valid path";
             throw ParseArgumentValidException(oss.str().c_str());
         }
-        if (_mode == ValidPath::IS_DIR && !S_ISDIR(statBuff.st_mode)) {
+        if (mode_ == ValidPath::IS_DIR && !S_ISDIR(statBuff.st_mode)) {
             std::ostringstream oss("");
             oss << '\"' << args[i] << "\" is not a valid directory";
             throw ParseArgumentValidException(oss.str().c_str());
         }
-        else if (_mode == ValidPath::IS_FILE && !S_ISREG(statBuff.st_mode)) {
+        else if (mode_ == ValidPath::IS_FILE && !S_ISREG(statBuff.st_mode)) {
             std::ostringstream oss("");
             oss << '\"' << args[i] << "\" is not a valid file";
             throw ParseArgumentValidException(oss.str().c_str());

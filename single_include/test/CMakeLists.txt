@@ -1,4 +1,4 @@
-set(library_project_name args)
+set(library_project_name "${PROJECT_NAME}")
 
 add_executable("already_include.single_include_test"
     "${CMAKE_CURRENT_SOURCE_DIR}/already_include.cpp"

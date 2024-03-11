@@ -23,8 +23,8 @@
  * SOFTWARE.
  */
 
-#ifndef _BLET_ARGS_VECTOR_H_
-#define _BLET_ARGS_VECTOR_H_
+#ifndef BLET_ARGS_VECTOR_H_
+#define BLET_ARGS_VECTOR_H_
 
 #include <string>
 #include <vector>
@@ -91,4 +91,4 @@ class Vector : public std::vector<std::string> {
 
 } // namespace blet
 
-#endif // #ifndef _BLET_ARGS_VECTOR_H_
+#endif // #ifndef BLET_ARGS_VECTOR_H_

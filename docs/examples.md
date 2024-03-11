@@ -1061,18 +1061,18 @@ optional arguments:
 class ValidCustom : public blet::Args::IValid {
   public:
     ValidCustom(const std::string& prefix, const std::string& suffix) :
-        _prefix(prefix),
-        _suffix(suffix) {}
+        prefix_(prefix),
+        suffix_(suffix) {}
     ~ValidCustom() {}
 
     bool isValid(std::vector<std::string>& arguments) {
         for (std::size_t i = 0; i < arguments.size(); ++i) {
-            if (arguments[i] == _prefix) {
-                arguments[i] += _suffix;
+            if (arguments[i] == prefix_) {
+                arguments[i] += suffix_;
             }
             else {
                 std::ostringstream oss("");
-                oss << "\"" << arguments[i] << "\" is not \"" << _prefix << "\"";
+                oss << "\"" << arguments[i] << "\" is not \"" << prefix_ << "\"";
                 throw blet::Args::ParseArgumentValidException(oss.str().c_str());
             }
         }
@@ -1080,8 +1080,8 @@ class ValidCustom : public blet::Args::IValid {
     }
 
   private:
-    std::string _prefix;
-    std::string _suffix;
+    std::string prefix_;
+    std::string suffix_;
 };
 
 int main(int argc, char* argv[]) {

@@ -32,8 +32,8 @@
 #include "blet/args/args.h"
 #include "blet/args/utils.h"
 
-#define _ARGS_PREFIX_SIZEOF_SHORT_OPTION (sizeof("-") - 1)
-#define _ARGS_PREFIX_SIZEOF_LONG_OPTION (sizeof("--") - 1)
+#define ARGS_PREFIX_SIZEOF_SHORT_OPTION_ (sizeof("-") - 1)
+#define ARGS_PREFIX_SIZEOF_LONG_OPTION_ (sizeof("--") - 1)
 
 namespace blet {
 
@@ -62,35 +62,35 @@ static inline bool compareFlag(const std::string& first, const std::string& seco
 
 ArgumentElement::ArgumentElement() :
     std::vector<ArgumentElement>(),
-    _argument(),
-    _default(),
-    _isNumber(false),
-    _number(0.0) {}
+    argument_(),
+    default_(),
+    isNumber_(false),
+    number_(0.0) {}
 ArgumentElement::ArgumentElement(const ArgumentElement& rhs) :
     std::vector<ArgumentElement>(rhs),
-    _argument(rhs._argument),
-    _default(rhs._default),
-    _isNumber(rhs._isNumber),
-    _number(rhs._number) {}
-ArgumentElement::ArgumentElement(const char* arg_, const char* default_) :
+    argument_(rhs.argument_),
+    default_(rhs.default_),
+    isNumber_(rhs.isNumber_),
+    number_(rhs.number_) {}
+ArgumentElement::ArgumentElement(const char* arg__, const char* default__) :
     std::vector<ArgumentElement>(),
-    _argument(arg_),
-    _default(default_),
-    _isNumber(false),
-    _number(0.0) {}
+    argument_(arg__),
+    default_(default__),
+    isNumber_(false),
+    number_(0.0) {}
 ArgumentElement::ArgumentElement(const char* arg) :
     std::vector<ArgumentElement>(),
-    _argument(arg),
-    _default(),
-    _isNumber(false),
-    _number(0.0) {}
+    argument_(arg),
+    default_(),
+    isNumber_(false),
+    number_(0.0) {}
 ArgumentElement::~ArgumentElement() {}
 
 ArgumentElement::operator std::vector<std::string>() const {
     if (!empty() && front().empty()) {
         std::vector<std::string> ret;
         for (std::size_t i = 0; i < size(); ++i) {
-            ret.push_back(at(i)._argument);
+            ret.push_back(at(i).argument_);
         }
         return ret;
     }
@@ -105,51 +105,51 @@ ArgumentElement::operator std::vector<std::string>() const {
 
 Argument::Argument(Args& args) :
     ArgumentElement(),
-    _args(args),
-    _nameOrFlags(),
-    _type(SIMPLE_OPTION),
-    _isExist(false),
-    _isRequired(false),
-    _count(0),
-    _nargs(1),
-    _help(),
-    _metavar(),
-    _valid(NULL),
-    _validDeletable(true),
-    _this(NULL),
-    _action(Action::NONE),
-    _defaults() {}
+    args_(args),
+    nameOrFlags_(),
+    type_(SIMPLE_OPTION),
+    isExist_(false),
+    isRequired_(false),
+    count_(0),
+    nargs_(1),
+    help_(),
+    metavar_(),
+    valid_(NULL),
+    validDeletable_(true),
+    this_(NULL),
+    action_(Action::NONE),
+    defaults_() {}
 
 Argument::Argument(const Argument& rhs) :
     ArgumentElement(rhs),
-    _args(rhs._args),
-    _nameOrFlags(rhs._nameOrFlags),
-    _type(rhs._type),
-    _isExist(rhs._isExist),
-    _isRequired(rhs._isRequired),
-    _count(rhs._count),
-    _nargs(rhs._nargs),
-    _help(rhs._help),
-    _metavar(rhs._metavar),
-    _valid(rhs._valid),
-    _validDeletable(rhs._validDeletable),
-    _this(rhs._this),
-    _action(rhs._action),
-    _defaults() {}
+    args_(rhs.args_),
+    nameOrFlags_(rhs.nameOrFlags_),
+    type_(rhs.type_),
+    isExist_(rhs.isExist_),
+    isRequired_(rhs.isRequired_),
+    count_(rhs.count_),
+    nargs_(rhs.nargs_),
+    help_(rhs.help_),
+    metavar_(rhs.metavar_),
+    valid_(rhs.valid_),
+    validDeletable_(rhs.validDeletable_),
+    this_(rhs.this_),
+    action_(rhs.action_),
+    defaults_() {}
 
 Argument::~Argument() {
-    if (_valid != NULL && _validDeletable) {
-        delete _valid;
+    if (valid_ != NULL && validDeletable_) {
+        delete valid_;
     }
 }
 
 std::string Argument::getString() const {
-    std::string ret;
-    if (_type == BOOLEAN_OPTION) {
-        ret = (_isExist) ? "true" : "false";
+    std::string ret("");
+    if (type_ == BOOLEAN_OPTION) {
+        ret = (isExist_) ? "true" : "false";
     }
-    else if (_type == REVERSE_BOOLEAN_OPTION) {
-        ret = (_isExist) ? "false" : "true";
+    else if (type_ == REVERSE_BOOLEAN_OPTION) {
+        ret = (isExist_) ? "false" : "true";
     }
     else {
         std::ostringstream oss("");
@@ -164,17 +164,17 @@ std::string Argument::getString() const {
                         if (j > 0) {
                             oss << ", ";
                         }
-                        oss << at(i).at(j)._argument;
+                        oss << at(i).at(j).argument_;
                     }
                     oss << ")";
                 }
                 else {
-                    oss << at(i)._argument;
+                    oss << at(i).argument_;
                 }
             }
         }
         else {
-            oss << _argument;
+            oss << argument_;
         }
         ret = oss.str();
     }
@@ -183,10 +183,10 @@ std::string Argument::getString() const {
 
 Argument::operator std::vector<std::string>() const {
     std::vector<std::string> ret;
-    switch (_type) {
+    switch (type_) {
         case POSITIONAL_ARGUMENT:
         case SIMPLE_OPTION:
-            ret.push_back(_argument);
+            ret.push_back(argument_);
             break;
         case NUMBER_POSITIONAL_ARGUMENT:
         case INFINITE_POSITIONAL_ARGUMENT:
@@ -195,7 +195,7 @@ Argument::operator std::vector<std::string>() const {
         case INFINITE_OPTION:
         case MULTI_INFINITE_OPTION:
             for (std::size_t i = 0; i < size(); ++i) {
-                ret.push_back(at(i)._argument);
+                ret.push_back(at(i).argument_);
             }
             break;
         case MULTI_NUMBER_OPTION:
@@ -203,7 +203,7 @@ Argument::operator std::vector<std::string>() const {
         case INFINITE_NUMBER_POSITIONAL_ARGUMENT:
             for (std::size_t i = 0; i < size(); ++i) {
                 for (std::size_t j = 0; j < at(i).size(); ++j) {
-                    ret.push_back(at(i).at(j)._argument);
+                    ret.push_back(at(i).at(j).argument_);
                 }
             }
             break;
@@ -216,14 +216,14 @@ Argument::operator std::vector<std::string>() const {
 
 Argument::operator std::vector<std::vector<std::string> >() const {
     std::vector<std::vector<std::string> > ret;
-    switch (_type) {
+    switch (type_) {
         case MULTI_NUMBER_OPTION:
         case MULTI_NUMBER_INFINITE_OPTION:
         case INFINITE_NUMBER_POSITIONAL_ARGUMENT:
             for (std::size_t i = 0; i < size(); ++i) {
                 ret.push_back(std::vector<std::string>());
                 for (std::size_t j = 0; j < at(i).size(); ++j) {
-                    ret[i].push_back(at(i).at(j)._argument);
+                    ret[i].push_back(at(i).at(j).argument_);
                 }
             }
             break;
@@ -234,47 +234,47 @@ Argument::operator std::vector<std::vector<std::string> >() const {
     return ret;
 }
 
-Argument& Argument::flag(const char* flag_) {
-    if (_isPositionnalArgument()) {
-        throw ArgumentException(flag_, "can't add flag in positionnal argument");
+Argument& Argument::flag(const char* flag__) {
+    if (isPositionnalArgument_()) {
+        throw ArgumentException(flag__, "can't add flag in positionnal argument");
     }
-    _validFormatFlag(flag_);
-    if (_args.argumentExists(flag_)) {
-        throw ArgumentException(flag_, "invalid flag already exist");
+    validFormatFlag_(flag__);
+    if (args_.argumentExists(flag__)) {
+        throw ArgumentException(flag__, "invalid flag already exist");
     }
-    _nameOrFlags.push_back(flag_);
-    _sortNameOrFlags();
-    _args._argumentFromName.insert(std::pair<std::string, Argument**>(flag_, _this));
-    _args._arguments.sort(&Argument::_compareOption);
+    nameOrFlags_.push_back(flag__);
+    sortNameOrFlags_();
+    args_.argumentFromName_.insert(std::pair<std::string, Argument**>(flag__, this_));
+    args_.arguments_.sort(&Argument::compareOption_);
     return *this;
 }
 
-Argument& Argument::action(enum Action::eAction action_) {
+Argument& Argument::action(enum Action::eAction action__) {
     // reset help option
-    if (_action == Action::HELP) {
-        _args._helpOption = NULL;
+    if (action_ == Action::HELP) {
+        args_.helpOption_ = NULL;
     }
     // reset version option
-    if (_action == Action::VERSION) {
-        _args._versionOption = NULL;
+    if (action_ == Action::VERSION) {
+        args_.versionOption_ = NULL;
     }
-    _action = action_;
-    _typeConstructor();
-    _defaultsConstructor();
+    action_ = action__;
+    typeConstructor_();
+    defaultsConstructor_();
     return *this;
 }
 
-Argument& Argument::required(bool required_) {
-    _isRequired = required_;
-    _args._arguments.sort(&Argument::_compareOption);
+Argument& Argument::required(bool required__) {
+    isRequired_ = required__;
+    args_.arguments_.sort(&Argument::compareOption_);
     return *this;
 }
 
-void Argument::_sortNameOrFlags() {
-    std::sort(_nameOrFlags.begin(), _nameOrFlags.end(), &compareFlag);
+void Argument::sortNameOrFlags_() {
+    std::sort(nameOrFlags_.begin(), nameOrFlags_.end(), &compareFlag);
 }
 
-void Argument::_validFormatFlag(const char* flag) {
+void Argument::validFormatFlag_(const char* flag) {
     if (flag[0] != '-') {
         throw ArgumentException(flag, "invalid flag not start by '-' character");
     }
@@ -289,58 +289,58 @@ void Argument::_validFormatFlag(const char* flag) {
     }
 }
 
-bool Argument::_compareOption(const Argument* first, const Argument* second) {
-    if (first->_isPositionnalArgument() && first->_isRequired && second->_isPositionnalArgument() &&
-        second->_isRequired) {
+bool Argument::compareOption_(const Argument* first, const Argument* second) {
+    if (first->isPositionnalArgument_() && first->isRequired_ && second->isPositionnalArgument_() &&
+        second->isRequired_) {
         return false;
     }
-    else if (first->_isPositionnalArgument() && first->_isRequired && second->_isPositionnalArgument()) {
+    else if (first->isPositionnalArgument_() && first->isRequired_ && second->isPositionnalArgument_()) {
         return true;
     }
-    else if (first->_isPositionnalArgument() && second->_isPositionnalArgument() && second->_isRequired) {
+    else if (first->isPositionnalArgument_() && second->isPositionnalArgument_() && second->isRequired_) {
         return false;
     }
-    else if (first->_isPositionnalArgument() && second->_isPositionnalArgument()) {
+    else if (first->isPositionnalArgument_() && second->isPositionnalArgument_()) {
         return false;
     }
-    else if (first->_isPositionnalArgument()) {
+    else if (first->isPositionnalArgument_()) {
         return false;
     }
-    else if (second->_isPositionnalArgument()) {
+    else if (second->isPositionnalArgument_()) {
         return true;
     }
-    if (isShortOption(first->_nameOrFlags.front().c_str()) && isShortOption(second->_nameOrFlags.front().c_str())) {
-        if (first->_isRequired && !second->_isRequired) {
+    if (isShortOption(first->nameOrFlags_.front().c_str()) && isShortOption(second->nameOrFlags_.front().c_str())) {
+        if (first->isRequired_ && !second->isRequired_) {
             return true;
         }
-        else if (!first->_isRequired && second->_isRequired) {
+        else if (!first->isRequired_ && second->isRequired_) {
             return false;
         }
         else {
-            return first->_nameOrFlags.front() < second->_nameOrFlags.front();
+            return first->nameOrFlags_.front() < second->nameOrFlags_.front();
         }
     }
-    else if (isShortOption(first->_nameOrFlags.front().c_str()) &&
-             !isShortOption(second->_nameOrFlags.front().c_str())) {
+    else if (isShortOption(first->nameOrFlags_.front().c_str()) &&
+             !isShortOption(second->nameOrFlags_.front().c_str())) {
         /*
-        if (first->_isRequired && !second->_isRequired) {
+        if (first->isRequired_ && !second->isRequired_) {
             return true;
         }
         else
         */
-        if (!first->_isRequired && second->_isRequired) {
+        if (!first->isRequired_ && second->isRequired_) {
             return false;
         }
         else {
             return true;
         }
     }
-    else if (!isShortOption(first->_nameOrFlags.front().c_str()) &&
-             isShortOption(second->_nameOrFlags.front().c_str())) {
-        if (first->_isRequired && !second->_isRequired) {
+    else if (!isShortOption(first->nameOrFlags_.front().c_str()) &&
+             isShortOption(second->nameOrFlags_.front().c_str())) {
+        if (first->isRequired_ && !second->isRequired_) {
             return true;
         }
-        else if (!first->_isRequired && second->_isRequired) {
+        else if (!first->isRequired_ && second->isRequired_) {
             return false;
         }
         else {
@@ -348,18 +348,18 @@ bool Argument::_compareOption(const Argument* first, const Argument* second) {
         }
     }
     else {
-        if (first->_isRequired && !second->_isRequired) {
+        if (first->isRequired_ && !second->isRequired_) {
             return true;
         }
-        else if (!first->_isRequired && second->_isRequired) {
+        else if (!first->isRequired_ && second->isRequired_) {
             return false;
         }
-        return first->_nameOrFlags.front() < second->_nameOrFlags.front();
+        return first->nameOrFlags_.front() < second->nameOrFlags_.front();
     }
 }
 
-void Argument::_toNumber() {
-    if (_type == BOOLEAN_OPTION || _type == REVERSE_BOOLEAN_OPTION) {
+void Argument::toNumber_() {
+    if (type_ == BOOLEAN_OPTION || type_ == REVERSE_BOOLEAN_OPTION) {
         return;
     }
     else {
@@ -367,33 +367,33 @@ void Argument::_toNumber() {
             for (std::size_t i = 0; i < size(); ++i) {
                 if (!at(i).empty()) {
                     for (std::size_t j = 0; j < at(i).size(); ++j) {
-                        std::stringstream ss(at(i).at(j)._argument);
-                        at(i).at(j)._isNumber = static_cast<bool>(ss >> at(i).at(j)._number);
+                        std::stringstream ss(at(i).at(j).argument_);
+                        at(i).at(j).isNumber_ = static_cast<bool>(ss >> at(i).at(j).number_);
                     }
                 }
                 else {
-                    std::stringstream ss(at(i)._argument);
-                    at(i)._isNumber = static_cast<bool>(ss >> at(i)._number);
+                    std::stringstream ss(at(i).argument_);
+                    at(i).isNumber_ = static_cast<bool>(ss >> at(i).number_);
                 }
             }
         }
         else {
-            std::stringstream ss(_argument);
-            _isNumber = static_cast<bool>(ss >> _number);
+            std::stringstream ss(argument_);
+            isNumber_ = static_cast<bool>(ss >> number_);
         }
     }
 }
 
-std::string Argument::_metavarDefault() {
+std::string Argument::metavarDefault_() {
     const char* flag = NULL;
     // get short or long name
-    for (std::size_t i = 0; i < _nameOrFlags.size(); ++i) {
-        if (_nameOrFlags[i][0] == '-' && _nameOrFlags[i][1] == '-') {
-            flag = _nameOrFlags[i].c_str() + _ARGS_PREFIX_SIZEOF_LONG_OPTION;
+    for (std::size_t i = 0; i < nameOrFlags_.size(); ++i) {
+        if (nameOrFlags_[i][0] == '-' && nameOrFlags_[i][1] == '-') {
+            flag = nameOrFlags_[i].c_str() + ARGS_PREFIX_SIZEOF_LONG_OPTION_;
             break;
         }
-        else if (flag == NULL && _nameOrFlags[i][0] == '-' && _nameOrFlags[i][1] != '-') {
-            flag = _nameOrFlags[i].c_str() + _ARGS_PREFIX_SIZEOF_SHORT_OPTION;
+        else if (flag == NULL && nameOrFlags_[i][0] == '-' && nameOrFlags_[i][1] != '-') {
+            flag = nameOrFlags_[i].c_str() + ARGS_PREFIX_SIZEOF_SHORT_OPTION_;
         }
     }
     // create a defaultUsageName from longName or shortName
@@ -402,12 +402,12 @@ std::string Argument::_metavarDefault() {
         defaultUsageName[i] = ::toupper(defaultUsageName[i]);
     }
 
-    if (_action == Action::INFINITE || _nargs == '+') {
+    if (action_ == Action::INFINITE || nargs_ == '+') {
         return defaultUsageName + "...";
     }
-    else if (_nargs > 1) {
+    else if (nargs_ > 1) {
         std::string numberDefaultUsageName;
-        for (std::size_t i = 0; i < _nargs; ++i) {
+        for (std::size_t i = 0; i < nargs_; ++i) {
             if (i > 0) {
                 numberDefaultUsageName += " ";
             }
@@ -420,167 +420,167 @@ std::string Argument::_metavarDefault() {
     }
 }
 
-void Argument::_typeConstructor() {
-    if (_isPositionnalArgument()) {
-        if (_nargs == 1 && _action == Action::NONE) {
-            _type = Argument::POSITIONAL_ARGUMENT;
+void Argument::typeConstructor_() {
+    if (isPositionnalArgument_()) {
+        if (nargs_ == 1 && action_ == Action::NONE) {
+            type_ = Argument::POSITIONAL_ARGUMENT;
         }
-        else if ((_nargs == '+' && _action == Action::NONE) || (_nargs == 1 && _action == Action::INFINITE)) {
-            _nargs = 1;
-            _action = Action::INFINITE;
-            _type = Argument::INFINITE_POSITIONAL_ARGUMENT;
+        else if ((nargs_ == '+' && action_ == Action::NONE) || (nargs_ == 1 && action_ == Action::INFINITE)) {
+            nargs_ = 1;
+            action_ = Action::INFINITE;
+            type_ = Argument::INFINITE_POSITIONAL_ARGUMENT;
         }
-        else if (_nargs > 1 && _action == Action::NONE) {
-            _type = Argument::NUMBER_POSITIONAL_ARGUMENT;
+        else if (nargs_ > 1 && action_ == Action::NONE) {
+            type_ = Argument::NUMBER_POSITIONAL_ARGUMENT;
         }
-        else if (_nargs > 1 && _action == Action::INFINITE) {
-            _type = Argument::INFINITE_NUMBER_POSITIONAL_ARGUMENT;
+        else if (nargs_ > 1 && action_ == Action::INFINITE) {
+            type_ = Argument::INFINITE_NUMBER_POSITIONAL_ARGUMENT;
         }
         else {
-            throw ArgumentException(_nameOrFlags.front().c_str(),
+            throw ArgumentException(nameOrFlags_.front().c_str(),
                                     "positional argument cannot use with this action or this nargs");
         }
     }
-    else if (_nargs == 0 || _action == Action::STORE_TRUE) {
-        _nargs = 0;
-        _type = Argument::BOOLEAN_OPTION;
+    else if (nargs_ == 0 || action_ == Action::STORE_TRUE) {
+        nargs_ = 0;
+        type_ = Argument::BOOLEAN_OPTION;
     }
-    else if (_action == Action::STORE_FALSE) {
-        _nargs = 0;
-        _type = Argument::REVERSE_BOOLEAN_OPTION;
+    else if (action_ == Action::STORE_FALSE) {
+        nargs_ = 0;
+        type_ = Argument::REVERSE_BOOLEAN_OPTION;
     }
-    else if (_action == Action::HELP) {
-        if (_args._helpOption == NULL) {
-            _args._helpOption = this;
+    else if (action_ == Action::HELP) {
+        if (args_.helpOption_ == NULL) {
+            args_.helpOption_ = this;
         }
-        if (_args._helpOption != NULL && _args._helpOption != this) {
-            throw ArgumentException(_nameOrFlags.front().c_str(), "help action already defined");
+        if (args_.helpOption_ != NULL && args_.helpOption_ != this) {
+            throw ArgumentException(nameOrFlags_.front().c_str(), "help action already defined");
         }
-        _nargs = 0;
-        _type = Argument::HELP_OPTION;
+        nargs_ = 0;
+        type_ = Argument::HELP_OPTION;
     }
-    else if (_action == Action::VERSION) {
-        if (_args._versionOption == NULL) {
-            _args._versionOption = this;
+    else if (action_ == Action::VERSION) {
+        if (args_.versionOption_ == NULL) {
+            args_.versionOption_ = this;
         }
-        if (_args._versionOption != NULL && _args._versionOption != this) {
-            throw ArgumentException(_nameOrFlags.front().c_str(), "version action already defined");
+        if (args_.versionOption_ != NULL && args_.versionOption_ != this) {
+            throw ArgumentException(nameOrFlags_.front().c_str(), "version action already defined");
         }
-        _nargs = 0;
-        _type = Argument::VERSION_OPTION;
+        nargs_ = 0;
+        type_ = Argument::VERSION_OPTION;
     }
     // is simple
-    else if (_nargs == 1 && _action == Action::NONE) {
-        _type = Argument::SIMPLE_OPTION;
+    else if (nargs_ == 1 && action_ == Action::NONE) {
+        type_ = Argument::SIMPLE_OPTION;
     }
     // is infinite
-    else if ((_nargs == '+' && _action == Action::NONE) || _action == Action::INFINITE) {
-        _nargs = 1;
-        _action = Action::INFINITE;
-        _type = Argument::INFINITE_OPTION;
+    else if ((nargs_ == '+' && action_ == Action::NONE) || action_ == Action::INFINITE) {
+        nargs_ = 1;
+        action_ = Action::INFINITE;
+        type_ = Argument::INFINITE_OPTION;
     }
     // is number
-    else if (_nargs > 1 && _action == Action::NONE) {
-        _type = Argument::NUMBER_OPTION;
+    else if (nargs_ > 1 && action_ == Action::NONE) {
+        type_ = Argument::NUMBER_OPTION;
     }
     // is multi
-    else if (_nargs == 1 && _action == Action::APPEND) {
-        _type = Argument::MULTI_OPTION;
+    else if (nargs_ == 1 && action_ == Action::APPEND) {
+        type_ = Argument::MULTI_OPTION;
     }
     // is multi number
-    else if (_nargs > 1 && _action == Action::APPEND) {
-        _type = Argument::MULTI_NUMBER_OPTION;
+    else if (nargs_ > 1 && action_ == Action::APPEND) {
+        type_ = Argument::MULTI_NUMBER_OPTION;
     }
     // is multi infinite
-    else if (_nargs == 1 && _action == Action::EXTEND) {
-        _type = Argument::MULTI_INFINITE_OPTION;
+    else if (nargs_ == 1 && action_ == Action::EXTEND) {
+        type_ = Argument::MULTI_INFINITE_OPTION;
     }
     // is multi number infinite
-    else if (_nargs > 1 && _action == Action::EXTEND) {
-        _type = Argument::MULTI_NUMBER_INFINITE_OPTION;
+    else if (nargs_ > 1 && action_ == Action::EXTEND) {
+        type_ = Argument::MULTI_NUMBER_INFINITE_OPTION;
     }
 }
 
-void Argument::_defaultsConstructor() {
+void Argument::defaultsConstructor_() {
     // default arguments
-    if (_nargs > 0 && _defaults.size() > 0) {
+    if (nargs_ > 0 && defaults_.size() > 0) {
         clear();
-        if (_type == Argument::POSITIONAL_ARGUMENT || _type == Argument::SIMPLE_OPTION) {
-            if (_defaults.size() != _nargs) {
-                throw ArgumentException(_nameOrFlags.front().c_str(),
+        if (type_ == Argument::POSITIONAL_ARGUMENT || type_ == Argument::SIMPLE_OPTION) {
+            if (defaults_.size() != nargs_) {
+                throw ArgumentException(nameOrFlags_.front().c_str(),
                                         "invalid number of argument with number of default argument");
             }
-            _argument = _defaults.front();
-            _default = _defaults.front();
+            argument_ = defaults_.front();
+            default_ = defaults_.front();
         }
-        if (_type == Argument::NUMBER_POSITIONAL_ARGUMENT || _type == Argument::NUMBER_OPTION) {
-            if (_defaults.size() != _nargs) {
-                throw ArgumentException(_nameOrFlags.front().c_str(),
+        if (type_ == Argument::NUMBER_POSITIONAL_ARGUMENT || type_ == Argument::NUMBER_OPTION) {
+            if (defaults_.size() != nargs_) {
+                throw ArgumentException(nameOrFlags_.front().c_str(),
                                         "invalid number of argument with number of default argument");
             }
-            _default = "";
-            for (std::size_t i = 0; i < _defaults.size(); ++i) {
+            default_ = "";
+            for (std::size_t i = 0; i < defaults_.size(); ++i) {
                 if (i > 0) {
-                    _default += ", ";
+                    default_ += ", ";
                 }
-                _default += _defaults[i];
-                push_back(ArgumentElement(_defaults[i].c_str(), _defaults[i].c_str()));
+                default_ += defaults_[i];
+                push_back(ArgumentElement(defaults_[i].c_str(), defaults_[i].c_str()));
             }
         }
-        if (_type == Argument::INFINITE_POSITIONAL_ARGUMENT || _type == Argument::MULTI_OPTION ||
-            _type == Argument::INFINITE_OPTION || _type == Argument::MULTI_INFINITE_OPTION) {
-            _default = "";
-            for (std::size_t i = 0; i < _defaults.size(); ++i) {
+        if (type_ == Argument::INFINITE_POSITIONAL_ARGUMENT || type_ == Argument::MULTI_OPTION ||
+            type_ == Argument::INFINITE_OPTION || type_ == Argument::MULTI_INFINITE_OPTION) {
+            default_ = "";
+            for (std::size_t i = 0; i < defaults_.size(); ++i) {
                 if (i > 0) {
-                    _default += ", ";
+                    default_ += ", ";
                 }
-                _default += _defaults[i];
-                push_back(ArgumentElement(_defaults[i].c_str(), _defaults[i].c_str()));
+                default_ += defaults_[i];
+                push_back(ArgumentElement(defaults_[i].c_str(), defaults_[i].c_str()));
             }
         }
-        if (_type == Argument::INFINITE_NUMBER_POSITIONAL_ARGUMENT || _type == Argument::MULTI_NUMBER_OPTION ||
-            _type == Argument::MULTI_NUMBER_INFINITE_OPTION) {
-            if (_defaults.size() % _nargs != 0) {
-                throw ArgumentException(_nameOrFlags.front().c_str(),
+        if (type_ == Argument::INFINITE_NUMBER_POSITIONAL_ARGUMENT || type_ == Argument::MULTI_NUMBER_OPTION ||
+            type_ == Argument::MULTI_NUMBER_INFINITE_OPTION) {
+            if (defaults_.size() % nargs_ != 0) {
+                throw ArgumentException(nameOrFlags_.front().c_str(),
                                         "invalid number of argument with number of default argument");
             }
-            for (std::size_t i = 0; i < _defaults.size() / _nargs; ++i) {
+            for (std::size_t i = 0; i < defaults_.size() / nargs_; ++i) {
                 if (i > 0) {
-                    _default += ", ";
+                    default_ += ", ";
                 }
-                _default += "(";
+                default_ += "(";
                 ArgumentElement newNumberArgument;
-                for (std::size_t j = 0; j < _nargs; ++j) {
+                for (std::size_t j = 0; j < nargs_; ++j) {
                     if (j > 0) {
-                        _default += ", ";
-                        newNumberArgument._default += ", ";
+                        default_ += ", ";
+                        newNumberArgument.default_ += ", ";
                     }
-                    _default += _defaults[i * _nargs + j];
-                    newNumberArgument._default += _defaults[i * _nargs + j];
+                    default_ += defaults_[i * nargs_ + j];
+                    newNumberArgument.default_ += defaults_[i * nargs_ + j];
                     newNumberArgument.push_back(
-                        ArgumentElement(_defaults[i * _nargs + j].c_str(), _defaults[i * _nargs + j].c_str()));
+                        ArgumentElement(defaults_[i * nargs_ + j].c_str(), defaults_[i * nargs_ + j].c_str()));
                 }
-                _default += ")";
+                default_ += ")";
                 push_back(newNumberArgument);
             }
         }
     }
 }
 
-void Argument::_clear() {
-    _argument = _default;
-    _isNumber = false;
-    _number = 0.0;
-    _count = 0;
-    _isExist = false;
+void Argument::clear_() {
+    argument_ = default_;
+    isNumber_ = false;
+    number_ = 0.0;
+    count_ = 0;
+    isExist_ = false;
     for (std::size_t i = 0; i < size(); ++i) {
-        at(i)._argument = at(i)._default;
-        at(i)._isNumber = false;
-        at(i)._number = 0.0;
+        at(i).argument_ = at(i).default_;
+        at(i).isNumber_ = false;
+        at(i).number_ = 0.0;
         for (std::size_t j = 0; j < at(i).size(); ++j) {
-            at(i).at(j)._argument = at(i).at(j)._default;
-            at(i).at(j)._isNumber = false;
-            at(i).at(j)._number = 0.0;
+            at(i).at(j).argument_ = at(i).at(j).default_;
+            at(i).at(j).isNumber_ = false;
+            at(i).at(j).number_ = 0.0;
         }
     }
 }
@@ -589,5 +589,5 @@ void Argument::_clear() {
 
 } // namespace blet
 
-#undef _ARGS_PREFIX_SIZEOF_SHORT_OPTION
-#undef _ARGS_PREFIX_SIZEOF_LONG_OPTION
+#undef ARGS_PREFIX_SIZEOF_SHORT_OPTION_
+#undef ARGS_PREFIX_SIZEOF_LONG_OPTION_

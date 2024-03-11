@@ -23,8 +23,8 @@
  * SOFTWARE.
  */
 
-#ifndef _BLET_ARGS_USAGE_H_
-#define _BLET_ARGS_USAGE_H_
+#ifndef BLET_ARGS_USAGE_H_
+#define BLET_ARGS_USAGE_H_
 
 #include <string>
 
@@ -54,7 +54,7 @@ class Usage {
      * @param usage
      */
     void setUsage(const char* usage) {
-        _usage = usage;
+        usage_ = usage;
     }
 
     /**
@@ -70,7 +70,7 @@ class Usage {
      * @param description
      */
     void setDescription(const char* description) {
-        _description = description;
+        description_ = description;
     }
 
     /**
@@ -79,7 +79,7 @@ class Usage {
      * @return const std::string&
      */
     const std::string& getDescription() const {
-        return _description;
+        return description_;
     }
 
     /**
@@ -88,7 +88,7 @@ class Usage {
      * @param epilog
      */
     void setEpilog(const char* epilog) {
-        _epilog = epilog;
+        epilog_ = epilog;
     }
 
     /**
@@ -97,7 +97,7 @@ class Usage {
      * @return const std::string&
      */
     const std::string& getEpilog() const {
-        return _epilog;
+        return epilog_;
     }
 
     /**
@@ -114,26 +114,26 @@ class Usage {
      * @param helpWidth width of second column of usage message
      */
     void setUsageWidth(std::size_t padWidth, std::size_t argsWidth, std::size_t sepWidth, std::size_t helpWidth) {
-        _usagePadWidth = padWidth;
-        _usageArgsWidth = argsWidth;
-        _usageSepWidth = sepWidth;
-        _usageHelpWidth = helpWidth;
+        usagePadWidth_ = padWidth;
+        usageArgsWidth_ = argsWidth;
+        usageSepWidth_ = sepWidth;
+        usageHelpWidth_ = helpWidth;
     }
 
   protected:
-    Args& _args;
+    Args& args_;
 
-    std::string _description;
-    std::string _epilog;
-    std::string _usage;
-    std::size_t _usagePadWidth;
-    std::size_t _usageArgsWidth;
-    std::size_t _usageSepWidth;
-    std::size_t _usageHelpWidth;
+    std::string description_;
+    std::string epilog_;
+    std::string usage_;
+    std::size_t usagePadWidth_;
+    std::size_t usageArgsWidth_;
+    std::size_t usageSepWidth_;
+    std::size_t usageHelpWidth_;
 };
 
 } // namespace args
 
 } // namespace blet
 
-#endif // #ifndef _BLET_ARGS_USAGE_H_
+#endif // #ifndef BLET_ARGS_USAGE_H_

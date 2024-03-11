@@ -23,8 +23,8 @@
  * SOFTWARE.
  */
 
-#ifndef _BLET_ARGS_ACTION_H_
-#define _BLET_ARGS_ACTION_H_
+#ifndef BLET_ARGS_ACTION_H_
+#define BLET_ARGS_ACTION_H_
 
 namespace blet {
 
@@ -47,4 +47,4 @@ struct Action {
 
 } // namespace blet
 
-#endif // #ifndef _BLET_ARGS_ACTION_H_
+#endif // #ifndef BLET_ARGS_ACTION_H_
