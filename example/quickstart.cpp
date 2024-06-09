@@ -41,7 +41,7 @@ int main(int argc, char* argv[]) {
         .dest(logLevel, &argToLogLevel); // fill logLevel by argToLogLevel
 
     try {
-        args.setStrict()           // except with additionnal argument
+        args.setStrict()           // except with additional argument
             .setAlternative()      // accept simple '-' with a long flag
             .setHelpException()    // except when help flag is called
             .setVersionException() // except when version flag is called

@@ -54,7 +54,7 @@ Get the status of alternative.
 Args& setStrict(bool strict = true);
 ```
 
-Active exception if not all argument is used else you can take additionnals arguments with [getAdditionalArguments](#getadditionalarguments) method.
+Active exception if not all argument is used else you can take additionals arguments with [getAdditionalArguments](#getadditionalarguments) method.
 
 ## isStrict
 
@@ -144,7 +144,7 @@ Get the const argument from name or flag.
 const std::vector<std::string>& getAdditionalArguments() const;
 ```
 
-Get the additionnal arguments after [parseArguments](#parsearguments) method if not strict mode activated.
+Get the additional arguments after [parseArguments](#parsearguments) method if not strict mode activated.
 
 ## parseArguments
 

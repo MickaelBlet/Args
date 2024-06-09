@@ -1,9 +1,9 @@
 # Args
 
-Parse and stock options from argc and argv.  
-Inspired from python library [python.readthedocs.io/library/argparse](https://python.readthedocs.io/en/latest/library/argparse.html).  
-Header only library at [single_include/blet/args.h](single_include/blet/args.h).  
-Documentations at [documentations](#documentations).
+Parse and store options from `argc` and `argv`.  
+Inspired by the Python library [argparse](https://python.readthedocs.io/en/latest/library/argparse.html).  
+Header-only library available at [single_include/blet/args.h](single_include/blet/args.h).  
+Documentations available at [documentations](#documentations).
 
 ## Quick Start
 
@@ -48,10 +48,10 @@ int main(int argc, char* argv[]) {
         .metavar("LEVEL")
         .valid(new blet::Args::ValidChoise(args.vector("DEBUG", "INFO", "WARNING", "ERROR")))
         .defaults("INFO")
-        .dest(logLevel, &argToLogLevel); // fill logLevel by argToLogLevel
+        .dest(logLevel, &argToLogLevel); // fill logLevel using argToLogLevel
 
     try {
-        args.setStrict()           // except with additionnal argument
+        args.setStrict()           // except with additional argument
             .setAlternative()      // accept simple '-' with a long flag
             .setHelpException()    // except when help flag is called
             .setVersionException() // except when version flag is called
@@ -72,7 +72,7 @@ int main(int argc, char* argv[]) {
     }
 
     std::cout << "ARGUMENT: " << args["ARGUMENT"] << '\n';
-    // check if option is exists
+    // check if option exists
     if (args["--option"]) {
         std::cout << "--option: " << args["--option"][0] << ", " << args["--option"][1] << '\n';
     }
@@ -116,7 +116,7 @@ optional arguments:
 $ ./a.out
 ./a.out: argument is required -- 'ARGUMENT'
 $ ./a.out 42 -log-level Foo
-./a.out: "Foo" is not a choise value ("DEBUG", "INFO", "WARNING", "ERROR") -- '-l'
+./a.out: "Foo" is not a valid choise ("DEBUG", "INFO", "WARNING", "ERROR") -- '-l'
 $ ./a.out 42
 ARGUMENT: 42
 --log-level: INFO
@@ -191,7 +191,7 @@ args.addArgument({"-E", "--example"}) // Either a name or a list of option strin
     .required(true)                   // Whether or not the command-line option may be omitted(optionals only)
     .metavar("ARGUMENT")              // A name for the argument in usage messages
     .nargs(1)                         // The number of command-line arguments that should be consumed
-    .defaults({"0"})                  // A list of default strings argument value
+    .defaults({"0"})                  // A list of default string argument values
     .valid(new blet::Args::ValidMinMax(0, 100)) // Validate class from IValid interface
     .dest(doublesFromArg);            // Fill argument in destination
 ```
@@ -216,15 +216,15 @@ void parseArguments(int argc, char* argv[]);
 #### Parse Options
 
 ```cpp
-blet::Args& setStrict(); // Active exception if not all argument is used else you can take additionnal argument with getAdditionalArguments method
-blet::Args& setAlternative() // Active parsing for accept long option with only one '-' character
-blet::Args& setHelpException() // Throw a UsageException when help action is present in arguments else exit(0) the your program after output usage at stdout
-blet::Args& setVersionException() // Throw a VersionException when version action is present in arguments else exit(0) the your program after output version at stdout
+blet::Args& setStrict(); // Activate exception if not all arguments are used; otherwise, you can take additional arguments with getAdditionalArguments method
+blet::Args& setAlternative(); // Activate parsing to accept long option with only one '-' character
+blet::Args& setHelpException(); // Throw a HelpException when help action is present in arguments; otherwise, exit(0) after outputting usage to stdout
+blet::Args& setVersionException(); // Throw a VersionException when version action is present in arguments; otherwise, exit(0) after outputting version to stdout
 ```
 
 ## Vector
 
-Vector is a object can be initialize with initialize string list or single string or for C++98 with `vector` static method.
+Vector is an object that can be initialized with an initializer list, single string, or for C++98 with the `vector` static method.
 
 ```cpp
 blet::Args args;
@@ -301,4 +301,4 @@ args.addArgument((const char*[]){"-s", "--simple"}); // C++98
 
 ### Examples
 
-[docs/examples.md](docs/examples.md).
+For more examples, see [docs/examples.md](docs/examples.md).

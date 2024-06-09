@@ -81,7 +81,7 @@ class Args : public Usage {
     }
 
     /**
-     * @brief Active parsing for accept long option with only one '-' character
+     * @brief Activate parsing to accept long option with only one '-' character
      *
      * @param alternivative
      */
@@ -100,8 +100,8 @@ class Args : public Usage {
     }
 
     /**
-     * @brief Active exception if not all argument is used else you can take additionnal argument with
-     *        getAdditionalArguments method
+     * @brief Activate exception if not all arguments are used; otherwise, you can take additional arguments with
+     * getAdditionalArguments method
      *
      * @param strict
      */
@@ -120,8 +120,8 @@ class Args : public Usage {
     }
 
     /**
-     * @brief Throw a HelpException when help action is present in arguments else exit(0) the your
-     *        program after output usage at stdout
+     * @brief Throw a HelpException when help action is present in arguments; otherwise, exit(0) after outputting usage
+     * to stdout
      *
      * @param helpException
      */
@@ -140,8 +140,8 @@ class Args : public Usage {
     }
 
     /**
-     * @brief Throw a VersionException when version action is present in arguments else exit(0) the your
-     *        program after output usage at stdout
+     * @brief Throw a VersionException when version action is present in arguments; otherwise, exit(0) after outputting
+     * version to stdout
      *
      * @param versionException
      */

@@ -363,7 +363,7 @@ int main(int argc, char* argv[]) {
         std::cout << args["ARG"] << std::endl;
     }
     if (args.getAdditionalArguments().size() > 0) {
-        std::cout << "Additionnal argument(s):" << std::endl;
+        std::cout << "Additional argument(s):" << std::endl;
         for (std::size_t i = 0; i < args.getAdditionalArguments().size(); ++i) {
             std::cout << args.getAdditionalArguments()[i] << std::endl;
         }
@@ -409,7 +409,7 @@ int main(int argc, char* argv[]) {
         std::cout << args["ARG"] << std::endl;
     }
     if (args.getAdditionalArguments().size() > 0) {
-        std::cout << "Additionnal argument(s):" << std::endl;
+        std::cout << "Additional argument(s):" << std::endl;
         for (std::size_t i = 0; i < args.getAdditionalArguments().size(); ++i) {
             std::cout << args.getAdditionalArguments()[i] << std::endl;
         }
@@ -426,7 +426,7 @@ $ ./a.out -- 42
 42
 $ ./a.out -- 42 1 2 3
 42
-Additionnal argument(s):
+Additional argument(s):
 1
 2
 3
@@ -462,7 +462,7 @@ int main(int argc, char* argv[]) {
         std::cout << args["ARG"] << std::endl;
     }
     if (args.getAdditionalArguments().size() > 0) {
-        std::cout << "Additionnal argument(s):" << std::endl;
+        std::cout << "Additional argument(s):" << std::endl;
         for (std::size_t i = 0; i < args.getAdditionalArguments().size(); ++i) {
             std::cout << args.getAdditionalArguments()[i] << std::endl;
         }
@@ -510,7 +510,7 @@ int main(int argc, char* argv[]) {
         std::cout << args["ARG"] << std::endl;
     }
     if (args.getAdditionalArguments().size() > 0) {
-        std::cout << "Additionnal argument(s):" << std::endl;
+        std::cout << "Additional argument(s):" << std::endl;
         for (std::size_t i = 0; i < args.getAdditionalArguments().size(); ++i) {
             std::cout << args.getAdditionalArguments()[i] << std::endl;
         }
@@ -527,7 +527,7 @@ $ ./a.out -- 1 2 3
 1, 2, 3
 $ ./a.out -- 1 2 3 42
 1, 2, 3
-Additionnal argument(s):
+Additional argument(s):
 42
 ```
 With nargs == 3 and action == INFINITE
@@ -560,7 +560,7 @@ int main(int argc, char* argv[]) {
         std::cout << args["ARG"] << std::endl;
     }
     if (args.getAdditionalArguments().size() > 0) {
-        std::cout << "Additionnal argument(s):" << std::endl;
+        std::cout << "Additional argument(s):" << std::endl;
         for (std::size_t i = 0; i < args.getAdditionalArguments().size(); ++i) {
             std::cout << args.getAdditionalArguments()[i] << std::endl;
         }
@@ -577,7 +577,7 @@ $ ./a.out -- 1 2 3
 (1, 2, 3)
 $ ./a.out 1 2 3 -- 42
 (1, 2, 3)
-Additionnal argument(s):
+Additional argument(s):
 42
 ```
 

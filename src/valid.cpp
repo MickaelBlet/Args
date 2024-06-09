@@ -123,7 +123,7 @@ bool ValidChoise::isValid(std::vector<std::string>& args) {
         }
         if (j == choises_.size()) {
             std::ostringstream oss("");
-            oss << '\"' << args[i] << "\" is not a choise value (" << ossChoise.str() << ')';
+            oss << '\"' << args[i] << "\" is not a valid choise (" << ossChoise.str() << ')';
             throw ParseArgumentValidException(oss.str().c_str());
         }
     }

@@ -332,7 +332,7 @@ GTEST_TEST(parseArguments, allType) {
         "--multi-infinite-number", "C", "D", "E", "F",
         "--",
         "ISREQUIRED",
-        "ADDITIONNAL"
+        "ADDITIONAL"
     };
     // clang-format on
 
@@ -765,7 +765,7 @@ GTEST_TEST(parseArguments, standartValid) {
                     args.parseArguments(argc, const_cast<char**>(argv));
                 }
                 catch (const blet::Args::ParseArgumentValidException& e) {
-                    EXPECT_STREQ(e.what(), "\"-1\" is not a choise value (\"0\", \"100\")");
+                    EXPECT_STREQ(e.what(), "\"-1\" is not a valid choise (\"0\", \"100\")");
                     EXPECT_STREQ(e.argument(), "--option");
                     throw;
                 }

@@ -570,7 +570,6 @@ class Vector : public std::vector<std::string> {
 
 namespace blet {
 
-class Args;
 class Usage;
 
 namespace args {
@@ -772,7 +771,6 @@ inline void strTo(const std::string& str, char (&ret)[Size]) {
 class Args;
 
 class ArgumentElement : public std::vector<ArgumentElement> {
-    friend class ::blet::Args;
     friend class Args;
     friend class Argument;
     friend class Usage;
@@ -866,7 +864,6 @@ class ArgumentVectorVectorType;
  * @brief Argument object
  */
 class Argument : public ArgumentElement {
-    friend class ::blet::Args;
     friend class Args;
     friend class Usage;
 
@@ -1084,7 +1081,7 @@ class Argument : public ArgumentElement {
     }
 
     /**
-     * @brief define a reference of object for insert the value after parseArguments method
+     * @brief Define a reference of object for insert the value after parseArguments method
      *
      * @tparam T
      * @param dest
@@ -1103,7 +1100,7 @@ class Argument : public ArgumentElement {
     }
 
     /**
-     * @brief define a reference of object for insert the value after parseArguments method
+     * @brief Define a reference of object for insert the value after parseArguments method
      *
      * @tparam T
      * @param dest
@@ -1121,7 +1118,7 @@ class Argument : public ArgumentElement {
     }
 
     /**
-     * @brief define a reference of object for insert the value after parseArguments method
+     * @brief Define a reference of object for insert the value after parseArguments method
      *
      * @tparam T
      * @param dest
@@ -1616,7 +1613,7 @@ class Args : public Usage {
     }
 
     /**
-     * @brief Active parsing for accept long option with only one '-' character
+     * @brief Activate parsing to accept long option with only one '-' character
      *
      * @param alternivative
      */
@@ -1635,8 +1632,8 @@ class Args : public Usage {
     }
 
     /**
-     * @brief Active exception if not all argument is used else you can take additionnal argument with
-     *        getAdditionalArguments method
+     * @brief Activate exception if not all arguments are used; otherwise, you can take additional arguments with
+     * getAdditionalArguments method
      *
      * @param strict
      */
@@ -1655,8 +1652,8 @@ class Args : public Usage {
     }
 
     /**
-     * @brief Throw a HelpException when help action is present in arguments else exit(0) the your
-     *        program after output usage at stdout
+     * @brief Throw a HelpException when help action is present in arguments; otherwise, exit(0) after outputting usage
+     * to stdout
      *
      * @param helpException
      */
@@ -1675,8 +1672,8 @@ class Args : public Usage {
     }
 
     /**
-     * @brief Throw a VersionException when version action is present in arguments else exit(0) the your
-     *        program after output usage at stdout
+     * @brief Throw a VersionException when version action is present in arguments; otherwise, exit(0) after outputting
+     * version to stdout
      *
      * @param versionException
      */
@@ -4016,7 +4013,7 @@ inline bool ValidChoise::isValid(std::vector<std::string>& args) {
         }
         if (j == choises_.size()) {
             std::ostringstream oss("");
-            oss << '\"' << args[i] << "\" is not a choise value (" << ossChoise.str() << ')';
+            oss << '\"' << args[i] << "\" is not a valid choise (" << ossChoise.str() << ')';
             throw ParseArgumentValidException(oss.str().c_str());
         }
     }

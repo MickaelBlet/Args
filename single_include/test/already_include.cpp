@@ -7,7 +7,7 @@ void test(blet::Args& args, int argc, char* argv[]) {
             std::cout << args["ARG"] << std::endl;
         }
         if (args.getAdditionalArguments().size() > 0) {
-            std::cout << "Additionnal argument(s):" << std::endl;
+            std::cout << "Additional argument(s):" << std::endl;
             for (std::size_t i = 0; i < args.getAdditionalArguments().size(); ++i) {
                 std::cout << args.getAdditionalArguments()[i] << std::endl;
             }
