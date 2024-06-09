@@ -38,7 +38,6 @@
 
 namespace blet {
 
-class Args;
 class Usage;
 
 namespace args {
@@ -240,7 +239,6 @@ inline void strTo(const std::string& str, char (&ret)[Size]) {
 class Args;
 
 class ArgumentElement : public std::vector<ArgumentElement> {
-    friend class ::blet::Args;
     friend class Args;
     friend class Argument;
     friend class Usage;
@@ -334,7 +332,6 @@ class ArgumentVectorVectorType;
  * @brief Argument object
  */
 class Argument : public ArgumentElement {
-    friend class ::blet::Args;
     friend class Args;
     friend class Usage;
 

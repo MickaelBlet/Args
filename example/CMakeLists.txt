@@ -18,6 +18,10 @@ set(example_files
     "${CMAKE_CURRENT_SOURCE_DIR}/none1.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/none3.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/quickstart.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/storeFalse.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/storeTrue.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/usageWidth.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/version.cpp"
 )
 
 foreach(file ${example_files})
@@ -31,5 +35,5 @@ foreach(file ${example_files})
             NO_SYSTEM_FROM_IMPORTED ON
             COMPILE_FLAGS "-pedantic -Wall -Wextra -Werror"
     )
-    target_link_libraries("${filenamewe}.${library_project_name}.example" PUBLIC "${library_project_name}_single_include")
+    target_link_libraries("${filenamewe}.${library_project_name}.example" PUBLIC "${library_project_name}")
 endforeach()
