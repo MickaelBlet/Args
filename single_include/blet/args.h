@@ -505,6 +505,9 @@ class Vector : public std::vector<std::string> {
     inline Vector() :
         std::vector<std::string>() {}
 
+    inline Vector(int size) :
+        std::vector<std::string>(size) {}
+
     template<std::size_t S>
     inline Vector(const char* (&v)[S]) :
         std::vector<std::string>() {
@@ -1923,135 +1926,352 @@ class Args : public args::Args, public args::Action {
     typedef args::ValidMinMax ValidMinMax;
     typedef args::ValidPath ValidPath;
 
-/**
- * @brief Generate static vector methods
- */
-#define ARGS_VECTOR_CAT_IMPL_(x, y) x##y
-#define ARGS_VECTOR_CAT_(x, y) ARGS_VECTOR_CAT_IMPL_(x, y)
-#define ARGS_VECTOR_CAT2_(x, y, z) ARGS_VECTOR_CAT_(ARGS_VECTOR_CAT_(x, y), z)
-#define ARGS_VECTOR_COMMA_REPEAT_0_(m, v) /* nothing */
-#define ARGS_VECTOR_COMMA_REPEAT_1_(m, v) m(1, v)
-#define ARGS_VECTOR_COMMA_REPEAT_2_(m, v) ARGS_VECTOR_COMMA_REPEAT_1_(m, v), m(2, v)
-#define ARGS_VECTOR_COMMA_REPEAT_3_(m, v) ARGS_VECTOR_COMMA_REPEAT_2_(m, v), m(3, v)
-#define ARGS_VECTOR_COMMA_REPEAT_4_(m, v) ARGS_VECTOR_COMMA_REPEAT_3_(m, v), m(4, v)
-#define ARGS_VECTOR_COMMA_REPEAT_5_(m, v) ARGS_VECTOR_COMMA_REPEAT_4_(m, v), m(5, v)
-#define ARGS_VECTOR_COMMA_REPEAT_6_(m, v) ARGS_VECTOR_COMMA_REPEAT_5_(m, v), m(6, v)
-#define ARGS_VECTOR_COMMA_REPEAT_7_(m, v) ARGS_VECTOR_COMMA_REPEAT_6_(m, v), m(7, v)
-#define ARGS_VECTOR_COMMA_REPEAT_8_(m, v) ARGS_VECTOR_COMMA_REPEAT_7_(m, v), m(8, v)
-#define ARGS_VECTOR_COMMA_REPEAT_9_(m, v) ARGS_VECTOR_COMMA_REPEAT_8_(m, v), m(9, v)
-#define ARGS_VECTOR_COMMA_REPEAT_10_(m, v) ARGS_VECTOR_COMMA_REPEAT_9_(m, v), m(10, v)
-#define ARGS_VECTOR_COMMA_REPEAT_11_(m, v) ARGS_VECTOR_COMMA_REPEAT_10_(m, v), m(11, v)
-#define ARGS_VECTOR_COMMA_REPEAT_12_(m, v) ARGS_VECTOR_COMMA_REPEAT_11_(m, v), m(12, v)
-#define ARGS_VECTOR_COMMA_REPEAT_13_(m, v) ARGS_VECTOR_COMMA_REPEAT_12_(m, v), m(13, v)
-#define ARGS_VECTOR_COMMA_REPEAT_14_(m, v) ARGS_VECTOR_COMMA_REPEAT_13_(m, v), m(14, v)
-#define ARGS_VECTOR_COMMA_REPEAT_15_(m, v) ARGS_VECTOR_COMMA_REPEAT_14_(m, v), m(15, v)
-#define ARGS_VECTOR_COMMA_REPEAT_16_(m, v) ARGS_VECTOR_COMMA_REPEAT_15_(m, v), m(16, v)
-#define ARGS_VECTOR_COMMA_REPEAT_17_(m, v) ARGS_VECTOR_COMMA_REPEAT_16_(m, v), m(17, v)
-#define ARGS_VECTOR_COMMA_REPEAT_18_(m, v) ARGS_VECTOR_COMMA_REPEAT_17_(m, v), m(18, v)
-#define ARGS_VECTOR_COMMA_REPEAT_19_(m, v) ARGS_VECTOR_COMMA_REPEAT_18_(m, v), m(19, v)
-#define ARGS_VECTOR_COMMA_REPEAT_20_(m, v) ARGS_VECTOR_COMMA_REPEAT_19_(m, v), m(20, v)
-#define ARGS_VECTOR_SEMICOLON_REPEAT_0_(m, v) /* nothing */
-#define ARGS_VECTOR_SEMICOLON_REPEAT_1_(m, v) m(1, v);
-#define ARGS_VECTOR_SEMICOLON_REPEAT_2_(m, v) ARGS_VECTOR_SEMICOLON_REPEAT_1_(m, v) m(2, v);
-#define ARGS_VECTOR_SEMICOLON_REPEAT_3_(m, v) ARGS_VECTOR_SEMICOLON_REPEAT_2_(m, v) m(3, v);
-#define ARGS_VECTOR_SEMICOLON_REPEAT_4_(m, v) ARGS_VECTOR_SEMICOLON_REPEAT_3_(m, v) m(4, v);
-#define ARGS_VECTOR_SEMICOLON_REPEAT_5_(m, v) ARGS_VECTOR_SEMICOLON_REPEAT_4_(m, v) m(5, v);
-#define ARGS_VECTOR_SEMICOLON_REPEAT_6_(m, v) ARGS_VECTOR_SEMICOLON_REPEAT_5_(m, v) m(6, v);
-#define ARGS_VECTOR_SEMICOLON_REPEAT_7_(m, v) ARGS_VECTOR_SEMICOLON_REPEAT_6_(m, v) m(7, v);
-#define ARGS_VECTOR_SEMICOLON_REPEAT_8_(m, v) ARGS_VECTOR_SEMICOLON_REPEAT_7_(m, v) m(8, v);
-#define ARGS_VECTOR_SEMICOLON_REPEAT_9_(m, v) ARGS_VECTOR_SEMICOLON_REPEAT_8_(m, v) m(9, v);
-#define ARGS_VECTOR_SEMICOLON_REPEAT_10_(m, v) ARGS_VECTOR_SEMICOLON_REPEAT_9_(m, v) m(10, v);
-#define ARGS_VECTOR_SEMICOLON_REPEAT_11_(m, v) ARGS_VECTOR_SEMICOLON_REPEAT_10_(m, v) m(11, v);
-#define ARGS_VECTOR_SEMICOLON_REPEAT_12_(m, v) ARGS_VECTOR_SEMICOLON_REPEAT_11_(m, v) m(12, v);
-#define ARGS_VECTOR_SEMICOLON_REPEAT_13_(m, v) ARGS_VECTOR_SEMICOLON_REPEAT_12_(m, v) m(13, v);
-#define ARGS_VECTOR_SEMICOLON_REPEAT_14_(m, v) ARGS_VECTOR_SEMICOLON_REPEAT_13_(m, v) m(14, v);
-#define ARGS_VECTOR_SEMICOLON_REPEAT_15_(m, v) ARGS_VECTOR_SEMICOLON_REPEAT_14_(m, v) m(15, v);
-#define ARGS_VECTOR_SEMICOLON_REPEAT_16_(m, v) ARGS_VECTOR_SEMICOLON_REPEAT_15_(m, v) m(16, v);
-#define ARGS_VECTOR_SEMICOLON_REPEAT_17_(m, v) ARGS_VECTOR_SEMICOLON_REPEAT_16_(m, v) m(17, v);
-#define ARGS_VECTOR_SEMICOLON_REPEAT_18_(m, v) ARGS_VECTOR_SEMICOLON_REPEAT_17_(m, v) m(18, v);
-#define ARGS_VECTOR_SEMICOLON_REPEAT_19_(m, v) ARGS_VECTOR_SEMICOLON_REPEAT_18_(m, v) m(19, v);
-#define ARGS_VECTOR_SEMICOLON_REPEAT_20_(m, v) ARGS_VECTOR_SEMICOLON_REPEAT_19_(m, v) m(20, v);
-#define ARGS_VECTOR_ARG_(i, v) const char* ARGS_VECTOR_CAT_(s, i)
-#define ARGS_VECTOR_PUSH_ARG_(i, v) v.push_back(ARGS_VECTOR_CAT_(s, i))
-
-#define ARGS_VECTOR(nb)                                                                                       \
-    static args::Vector vector(ARGS_VECTOR_CAT2_(ARGS_VECTOR_COMMA_REPEAT_, nb, _)(ARGS_VECTOR_ARG_, NULL)) { \
-        args::Vector ret;                                                                                     \
-        ret.reserve(nb);                                                                                      \
-        ARGS_VECTOR_CAT2_(ARGS_VECTOR_SEMICOLON_REPEAT_, nb, _)                                               \
-        (ARGS_VECTOR_PUSH_ARG_, ret) return ret;                                                              \
+    static inline args::Vector vector() {
+        return args::Vector();
     }
 
-    ARGS_VECTOR(0)
-    ARGS_VECTOR(1)
-    ARGS_VECTOR(2)
-    ARGS_VECTOR(3)
-    ARGS_VECTOR(4)
-    ARGS_VECTOR(5)
-    ARGS_VECTOR(6)
-    ARGS_VECTOR(7)
-    ARGS_VECTOR(8)
-    ARGS_VECTOR(9)
-    ARGS_VECTOR(10)
-    ARGS_VECTOR(11)
-    ARGS_VECTOR(12)
-    ARGS_VECTOR(13)
-    ARGS_VECTOR(14)
-    ARGS_VECTOR(15)
-    ARGS_VECTOR(16)
-    ARGS_VECTOR(17)
-    ARGS_VECTOR(18)
-    ARGS_VECTOR(19)
-    ARGS_VECTOR(20)
+    static inline args::Vector vector(const char* s1) {
+        args::Vector ret(1);
+        ret[0] = s1;
+        return ret;
+    }
 
-#undef ARGS_VECTOR
-#undef ARGS_VECTOR_PUSH_ARG_
-#undef ARGS_VECTOR_ARG_
-#undef ARGS_VECTOR_COMMA_REPEAT_20_
-#undef ARGS_VECTOR_COMMA_REPEAT_19_
-#undef ARGS_VECTOR_COMMA_REPEAT_18_
-#undef ARGS_VECTOR_COMMA_REPEAT_17_
-#undef ARGS_VECTOR_COMMA_REPEAT_16_
-#undef ARGS_VECTOR_COMMA_REPEAT_15_
-#undef ARGS_VECTOR_COMMA_REPEAT_14_
-#undef ARGS_VECTOR_COMMA_REPEAT_13_
-#undef ARGS_VECTOR_COMMA_REPEAT_12_
-#undef ARGS_VECTOR_COMMA_REPEAT_11_
-#undef ARGS_VECTOR_COMMA_REPEAT_10_
-#undef ARGS_VECTOR_COMMA_REPEAT_9_
-#undef ARGS_VECTOR_COMMA_REPEAT_8_
-#undef ARGS_VECTOR_COMMA_REPEAT_7_
-#undef ARGS_VECTOR_COMMA_REPEAT_6_
-#undef ARGS_VECTOR_COMMA_REPEAT_5_
-#undef ARGS_VECTOR_COMMA_REPEAT_4_
-#undef ARGS_VECTOR_COMMA_REPEAT_3_
-#undef ARGS_VECTOR_COMMA_REPEAT_2_
-#undef ARGS_VECTOR_COMMA_REPEAT_1_
-#undef ARGS_VECTOR_COMMA_REPEAT_0_
-#undef ARGS_VECTOR_SEMICOLON_REPEAT_20_
-#undef ARGS_VECTOR_SEMICOLON_REPEAT_19_
-#undef ARGS_VECTOR_SEMICOLON_REPEAT_18_
-#undef ARGS_VECTOR_SEMICOLON_REPEAT_17_
-#undef ARGS_VECTOR_SEMICOLON_REPEAT_16_
-#undef ARGS_VECTOR_SEMICOLON_REPEAT_15_
-#undef ARGS_VECTOR_SEMICOLON_REPEAT_14_
-#undef ARGS_VECTOR_SEMICOLON_REPEAT_13_
-#undef ARGS_VECTOR_SEMICOLON_REPEAT_12_
-#undef ARGS_VECTOR_SEMICOLON_REPEAT_11_
-#undef ARGS_VECTOR_SEMICOLON_REPEAT_10_
-#undef ARGS_VECTOR_SEMICOLON_REPEAT_9_
-#undef ARGS_VECTOR_SEMICOLON_REPEAT_8_
-#undef ARGS_VECTOR_SEMICOLON_REPEAT_7_
-#undef ARGS_VECTOR_SEMICOLON_REPEAT_6_
-#undef ARGS_VECTOR_SEMICOLON_REPEAT_5_
-#undef ARGS_VECTOR_SEMICOLON_REPEAT_4_
-#undef ARGS_VECTOR_SEMICOLON_REPEAT_3_
-#undef ARGS_VECTOR_SEMICOLON_REPEAT_2_
-#undef ARGS_VECTOR_SEMICOLON_REPEAT_1_
-#undef ARGS_VECTOR_SEMICOLON_REPEAT_0_
-#undef ARGS_VECTOR_CAT2_
-#undef ARGS_VECTOR_CAT_
-#undef ARGS_VECTOR_CAT_IMPL_
+    static inline args::Vector vector(const char* s1, const char* s2) {
+        args::Vector ret(2);
+        ret[0] = s1;
+        ret[1] = s2;
+        return ret;
+    }
+
+    static inline args::Vector vector(const char* s1, const char* s2, const char* s3) {
+        args::Vector ret(3);
+        ret[0] = s1;
+        ret[1] = s2;
+        ret[2] = s3;
+        return ret;
+    }
+
+    static inline args::Vector vector(const char* s1, const char* s2, const char* s3, const char* s4) {
+        args::Vector ret(4);
+        ret[0] = s1;
+        ret[1] = s2;
+        ret[2] = s3;
+        ret[3] = s4;
+        return ret;
+    }
+
+    static inline args::Vector vector(const char* s1, const char* s2, const char* s3, const char* s4, const char* s5) {
+        args::Vector ret(5);
+        ret[0] = s1;
+        ret[1] = s2;
+        ret[2] = s3;
+        ret[3] = s4;
+        ret[4] = s5;
+        return ret;
+    }
+
+    static inline args::Vector vector(const char* s1, const char* s2, const char* s3, const char* s4, const char* s5,
+                                      const char* s6) {
+        args::Vector ret(6);
+        ret[0] = s1;
+        ret[1] = s2;
+        ret[2] = s3;
+        ret[3] = s4;
+        ret[4] = s5;
+        ret[5] = s6;
+        return ret;
+    }
+
+    static inline args::Vector vector(const char* s1, const char* s2, const char* s3, const char* s4, const char* s5,
+                                      const char* s6, const char* s7) {
+        args::Vector ret(7);
+        ret[0] = s1;
+        ret[1] = s2;
+        ret[2] = s3;
+        ret[3] = s4;
+        ret[4] = s5;
+        ret[5] = s6;
+        ret[6] = s7;
+        return ret;
+    }
+
+    static inline args::Vector vector(const char* s1, const char* s2, const char* s3, const char* s4, const char* s5,
+                                      const char* s6, const char* s7, const char* s8) {
+        args::Vector ret(8);
+        ret[0] = s1;
+        ret[1] = s2;
+        ret[2] = s3;
+        ret[3] = s4;
+        ret[4] = s5;
+        ret[5] = s6;
+        ret[6] = s7;
+        ret[7] = s8;
+        return ret;
+    }
+
+    static inline args::Vector vector(const char* s1, const char* s2, const char* s3, const char* s4, const char* s5,
+                                      const char* s6, const char* s7, const char* s8, const char* s9) {
+        args::Vector ret(9);
+        ret[0] = s1;
+        ret[1] = s2;
+        ret[2] = s3;
+        ret[3] = s4;
+        ret[4] = s5;
+        ret[5] = s6;
+        ret[6] = s7;
+        ret[7] = s8;
+        ret[8] = s9;
+        return ret;
+    }
+
+    static inline args::Vector vector(const char* s1, const char* s2, const char* s3, const char* s4, const char* s5,
+                                      const char* s6, const char* s7, const char* s8, const char* s9, const char* s10) {
+        args::Vector ret(10);
+        ret[0] = s1;
+        ret[1] = s2;
+        ret[2] = s3;
+        ret[3] = s4;
+        ret[4] = s5;
+        ret[5] = s6;
+        ret[6] = s7;
+        ret[7] = s8;
+        ret[8] = s9;
+        ret[9] = s10;
+        return ret;
+    }
+
+    static inline args::Vector vector(const char* s1, const char* s2, const char* s3, const char* s4, const char* s5,
+                                      const char* s6, const char* s7, const char* s8, const char* s9, const char* s10,
+                                      const char* s11) {
+        args::Vector ret(11);
+        ret[0] = s1;
+        ret[1] = s2;
+        ret[2] = s3;
+        ret[3] = s4;
+        ret[4] = s5;
+        ret[5] = s6;
+        ret[6] = s7;
+        ret[7] = s8;
+        ret[8] = s9;
+        ret[9] = s10;
+        ret[10] = s11;
+        return ret;
+    }
+
+    static inline args::Vector vector(const char* s1, const char* s2, const char* s3, const char* s4, const char* s5,
+                                      const char* s6, const char* s7, const char* s8, const char* s9, const char* s10,
+                                      const char* s11, const char* s12) {
+        args::Vector ret(12);
+        ret[0] = s1;
+        ret[1] = s2;
+        ret[2] = s3;
+        ret[3] = s4;
+        ret[4] = s5;
+        ret[5] = s6;
+        ret[6] = s7;
+        ret[7] = s8;
+        ret[8] = s9;
+        ret[9] = s10;
+        ret[10] = s11;
+        ret[11] = s12;
+        return ret;
+    }
+
+    static inline args::Vector vector(const char* s1, const char* s2, const char* s3, const char* s4, const char* s5,
+                                      const char* s6, const char* s7, const char* s8, const char* s9, const char* s10,
+                                      const char* s11, const char* s12, const char* s13) {
+        args::Vector ret(13);
+        ret[0] = s1;
+        ret[1] = s2;
+        ret[2] = s3;
+        ret[3] = s4;
+        ret[4] = s5;
+        ret[5] = s6;
+        ret[6] = s7;
+        ret[7] = s8;
+        ret[8] = s9;
+        ret[9] = s10;
+        ret[10] = s11;
+        ret[11] = s12;
+        ret[12] = s13;
+        return ret;
+    }
+
+    static inline args::Vector vector(const char* s1, const char* s2, const char* s3, const char* s4, const char* s5,
+                                      const char* s6, const char* s7, const char* s8, const char* s9, const char* s10,
+                                      const char* s11, const char* s12, const char* s13, const char* s14) {
+        args::Vector ret(14);
+        ret[0] = s1;
+        ret[1] = s2;
+        ret[2] = s3;
+        ret[3] = s4;
+        ret[4] = s5;
+        ret[5] = s6;
+        ret[6] = s7;
+        ret[7] = s8;
+        ret[8] = s9;
+        ret[9] = s10;
+        ret[10] = s11;
+        ret[11] = s12;
+        ret[12] = s13;
+        ret[13] = s14;
+        return ret;
+    }
+
+    static inline args::Vector vector(const char* s1, const char* s2, const char* s3, const char* s4, const char* s5,
+                                      const char* s6, const char* s7, const char* s8, const char* s9, const char* s10,
+                                      const char* s11, const char* s12, const char* s13, const char* s14,
+                                      const char* s15) {
+        args::Vector ret(15);
+        ret[0] = s1;
+        ret[1] = s2;
+        ret[2] = s3;
+        ret[3] = s4;
+        ret[4] = s5;
+        ret[5] = s6;
+        ret[6] = s7;
+        ret[7] = s8;
+        ret[8] = s9;
+        ret[9] = s10;
+        ret[10] = s11;
+        ret[11] = s12;
+        ret[12] = s13;
+        ret[13] = s14;
+        ret[14] = s15;
+        return ret;
+    }
+
+    static inline args::Vector vector(const char* s1, const char* s2, const char* s3, const char* s4, const char* s5,
+                                      const char* s6, const char* s7, const char* s8, const char* s9, const char* s10,
+                                      const char* s11, const char* s12, const char* s13, const char* s14,
+                                      const char* s15, const char* s16) {
+        args::Vector ret(16);
+        ret[0] = s1;
+        ret[1] = s2;
+        ret[2] = s3;
+        ret[3] = s4;
+        ret[4] = s5;
+        ret[5] = s6;
+        ret[6] = s7;
+        ret[7] = s8;
+        ret[8] = s9;
+        ret[9] = s10;
+        ret[10] = s11;
+        ret[11] = s12;
+        ret[12] = s13;
+        ret[13] = s14;
+        ret[14] = s15;
+        ret[15] = s16;
+        return ret;
+    }
+
+    static inline args::Vector vector(const char* s1, const char* s2, const char* s3, const char* s4, const char* s5,
+                                      const char* s6, const char* s7, const char* s8, const char* s9, const char* s10,
+                                      const char* s11, const char* s12, const char* s13, const char* s14,
+                                      const char* s15, const char* s16, const char* s17) {
+        args::Vector ret(17);
+        ret[0] = s1;
+        ret[1] = s2;
+        ret[2] = s3;
+        ret[3] = s4;
+        ret[4] = s5;
+        ret[5] = s6;
+        ret[6] = s7;
+        ret[7] = s8;
+        ret[8] = s9;
+        ret[9] = s10;
+        ret[10] = s11;
+        ret[11] = s12;
+        ret[12] = s13;
+        ret[13] = s14;
+        ret[14] = s15;
+        ret[15] = s16;
+        ret[16] = s17;
+        return ret;
+    }
+
+    static inline args::Vector vector(const char* s1, const char* s2, const char* s3, const char* s4, const char* s5,
+                                      const char* s6, const char* s7, const char* s8, const char* s9, const char* s10,
+                                      const char* s11, const char* s12, const char* s13, const char* s14,
+                                      const char* s15, const char* s16, const char* s17, const char* s18) {
+        args::Vector ret(18);
+        ret[0] = s1;
+        ret[1] = s2;
+        ret[2] = s3;
+        ret[3] = s4;
+        ret[4] = s5;
+        ret[5] = s6;
+        ret[6] = s7;
+        ret[7] = s8;
+        ret[8] = s9;
+        ret[9] = s10;
+        ret[10] = s11;
+        ret[11] = s12;
+        ret[12] = s13;
+        ret[13] = s14;
+        ret[14] = s15;
+        ret[15] = s16;
+        ret[16] = s17;
+        ret[17] = s18;
+        return ret;
+    }
+
+    static inline args::Vector vector(const char* s1, const char* s2, const char* s3, const char* s4, const char* s5,
+                                      const char* s6, const char* s7, const char* s8, const char* s9, const char* s10,
+                                      const char* s11, const char* s12, const char* s13, const char* s14,
+                                      const char* s15, const char* s16, const char* s17, const char* s18,
+                                      const char* s19) {
+        args::Vector ret(19);
+        ret[0] = s1;
+        ret[1] = s2;
+        ret[2] = s3;
+        ret[3] = s4;
+        ret[4] = s5;
+        ret[5] = s6;
+        ret[6] = s7;
+        ret[7] = s8;
+        ret[8] = s9;
+        ret[9] = s10;
+        ret[10] = s11;
+        ret[11] = s12;
+        ret[12] = s13;
+        ret[13] = s14;
+        ret[14] = s15;
+        ret[15] = s16;
+        ret[16] = s17;
+        ret[17] = s18;
+        ret[18] = s19;
+        return ret;
+    }
+
+    static inline args::Vector vector(const char* s1, const char* s2, const char* s3, const char* s4, const char* s5,
+                                      const char* s6, const char* s7, const char* s8, const char* s9, const char* s10,
+                                      const char* s11, const char* s12, const char* s13, const char* s14,
+                                      const char* s15, const char* s16, const char* s17, const char* s18,
+                                      const char* s19, const char* s20) {
+        args::Vector ret(20);
+        ret[0] = s1;
+        ret[1] = s2;
+        ret[2] = s3;
+        ret[3] = s4;
+        ret[4] = s5;
+        ret[5] = s6;
+        ret[6] = s7;
+        ret[7] = s8;
+        ret[8] = s9;
+        ret[9] = s10;
+        ret[10] = s11;
+        ret[11] = s12;
+        ret[12] = s13;
+        ret[13] = s14;
+        ret[14] = s15;
+        ret[15] = s16;
+        ret[16] = s17;
+        ret[17] = s18;
+        ret[18] = s19;
+        ret[19] = s20;
+        return ret;
+    }
 
   private:
     typedef args::Vector Vector;
@@ -2072,7 +2292,7 @@ class Args : public args::Args, public args::Action {
  * args.cpp
  *
  * Licensed under the MIT License <http://opensource.org/licenses/MIT>.
- * Copyright (c) 2022-2023 BLET Mickael.
+ * Copyright (c) 2022-2024 BLET Mickael.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -2860,10 +3080,10 @@ inline void Args::parsePositionnalArgument_(int argc, char* argv[], int* index, 
 // Start src/argument.cpp
 // ----------------------
 /**
- * args-argument.cpp
+ * argument.cpp
  *
  * Licensed under the MIT License <http://opensource.org/licenses/MIT>.
- * Copyright (c) 2022-2023 BLET Mickael.
+ * Copyright (c) 2022-2024 BLET Mickael.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -3461,10 +3681,10 @@ inline void Argument::clear_() {
 // Start src/exception.cpp
 // -----------------------
 /**
- * args-exception.cpp
+ * exception.cpp
  *
  * Licensed under the MIT License <http://opensource.org/licenses/MIT>.
- * Copyright (c) 2022-2023 BLET Mickael.
+ * Copyright (c) 2022-2024 BLET Mickael.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -3562,6 +3782,31 @@ inline ParseArgumentValidException::~ParseArgumentValidException() throw() {}
 // -------------------
 // Start src/usage.cpp
 // -------------------
+/**
+ * usage.cpp
+ *
+ * Licensed under the MIT License <http://opensource.org/licenses/MIT>.
+ * Copyright (c) 2022-2024 BLET Mickael.
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included
+ * in all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
 // #include "blet/args/usage.h" (already included)
 
 #include <sstream>
@@ -3591,8 +3836,8 @@ inline Usage::Usage(Args& args) :
 
 inline Usage::~Usage() {}
 
-static inline std::vector<std::string> s_multilineWrap(const std::string& str, std::size_t widthMax) {
-    std::vector<std::string> lines;
+static inline std::list<std::string> s_multilineWrap(const std::string& str, std::size_t widthMax) {
+    std::list<std::string> lines;
     std::string line;
     std::istringstream iss(str);
     while (std::getline(iss, line)) {
@@ -3740,10 +3985,10 @@ inline std::string Usage::getUsage() const {
     // description
     if (!description_.empty()) {
         oss << '\n';
-        std::vector<std::string> lines = s_multilineWrap(description_, indexMax);
-        for (std::size_t i = 0; i < lines.size(); ++i) {
+        std::list<std::string> lines = s_multilineWrap(description_, indexMax);
+        for (std::list<std::string>::const_iterator cit = lines.begin(); cit != lines.end(); ++cit) {
             oss << '\n';
-            oss << lines[i];
+            oss << *cit;
         }
     }
     // optionnal
@@ -3781,13 +4026,13 @@ inline std::string Usage::getUsage() const {
                         ossHelp << " (default: " + (*it)->default_ + ")";
                     }
                 }
-                std::vector<std::string> lines = s_multilineWrap(ossHelp.str(), usageHelpWidth_);
-                for (std::size_t i = 0; i < lines.size(); ++i) {
-                    if (i != 0) {
+                std::list<std::string> lines = s_multilineWrap(ossHelp.str(), usageHelpWidth_);
+                for (std::list<std::string>::const_iterator cit = lines.begin(); cit != lines.end(); ++cit) {
+                    if (cit != lines.begin()) {
                         oss << '\n';
                         oss << std::string(usagePadWidth_ + usageArgsWidth_ + usageSepWidth_, ' ');
                     }
-                    oss << lines[i];
+                    oss << *cit;
                 }
             }
         }
@@ -3852,13 +4097,13 @@ inline std::string Usage::getUsage() const {
                         ossHelp << " (default: " + (*it)->default_ + ")";
                     }
                 }
-                std::vector<std::string> lines = s_multilineWrap(ossHelp.str(), usageHelpWidth_);
-                for (std::size_t i = 0; i < lines.size(); ++i) {
-                    if (i != 0) {
+                std::list<std::string> lines = s_multilineWrap(ossHelp.str(), usageHelpWidth_);
+                for (std::list<std::string>::const_iterator cit = lines.begin(); cit != lines.end(); ++cit) {
+                    if (cit != lines.begin()) {
                         oss << '\n';
                         oss << std::string(usagePadWidth_ + usageArgsWidth_ + usageSepWidth_, ' ');
                     }
-                    oss << lines[i];
+                    oss << *cit;
                 }
             }
         }
@@ -3866,10 +4111,10 @@ inline std::string Usage::getUsage() const {
     // epilog
     if (!epilog_.empty()) {
         oss << '\n';
-        std::vector<std::string> lines = s_multilineWrap(epilog_, indexMax);
-        for (std::size_t i = 0; i < lines.size(); ++i) {
+        std::list<std::string> lines = s_multilineWrap(epilog_, indexMax);
+        for (std::list<std::string>::const_iterator cit = lines.begin(); cit != lines.end(); ++cit) {
             oss << '\n';
-            oss << lines[i];
+            oss << *cit;
         }
     }
     return oss.str();
@@ -3889,10 +4134,10 @@ inline std::string Usage::getUsage() const {
 // Start src/valid.cpp
 // -------------------
 /**
- * args-valid.cpp
+ * valid.cpp
  *
  * Licensed under the MIT License <http://opensource.org/licenses/MIT>.
- * Copyright (c) 2022-2023 BLET Mickael.
+ * Copyright (c) 2022-2024 BLET Mickael.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal

@@ -1,3 +1,28 @@
+/**
+ * usage.cpp
+ *
+ * Licensed under the MIT License <http://opensource.org/licenses/MIT>.
+ * Copyright (c) 2022-2024 BLET Mickael.
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included
+ * in all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
 #include "blet/args/usage.h"
 
 #include <sstream>
@@ -27,8 +52,8 @@ Usage::Usage(Args& args) :
 
 Usage::~Usage() {}
 
-static inline std::vector<std::string> s_multilineWrap(const std::string& str, std::size_t widthMax) {
-    std::vector<std::string> lines;
+static inline std::list<std::string> s_multilineWrap(const std::string& str, std::size_t widthMax) {
+    std::list<std::string> lines;
     std::string line;
     std::istringstream iss(str);
     while (std::getline(iss, line)) {
@@ -176,10 +201,10 @@ std::string Usage::getUsage() const {
     // description
     if (!description_.empty()) {
         oss << '\n';
-        std::vector<std::string> lines = s_multilineWrap(description_, indexMax);
-        for (std::size_t i = 0; i < lines.size(); ++i) {
+        std::list<std::string> lines = s_multilineWrap(description_, indexMax);
+        for (std::list<std::string>::const_iterator cit = lines.begin(); cit != lines.end(); ++cit) {
             oss << '\n';
-            oss << lines[i];
+            oss << *cit;
         }
     }
     // optionnal
@@ -217,13 +242,13 @@ std::string Usage::getUsage() const {
                         ossHelp << " (default: " + (*it)->default_ + ")";
                     }
                 }
-                std::vector<std::string> lines = s_multilineWrap(ossHelp.str(), usageHelpWidth_);
-                for (std::size_t i = 0; i < lines.size(); ++i) {
-                    if (i != 0) {
+                std::list<std::string> lines = s_multilineWrap(ossHelp.str(), usageHelpWidth_);
+                for (std::list<std::string>::const_iterator cit = lines.begin(); cit != lines.end(); ++cit) {
+                    if (cit != lines.begin()) {
                         oss << '\n';
                         oss << std::string(usagePadWidth_ + usageArgsWidth_ + usageSepWidth_, ' ');
                     }
-                    oss << lines[i];
+                    oss << *cit;
                 }
             }
         }
@@ -288,13 +313,13 @@ std::string Usage::getUsage() const {
                         ossHelp << " (default: " + (*it)->default_ + ")";
                     }
                 }
-                std::vector<std::string> lines = s_multilineWrap(ossHelp.str(), usageHelpWidth_);
-                for (std::size_t i = 0; i < lines.size(); ++i) {
-                    if (i != 0) {
+                std::list<std::string> lines = s_multilineWrap(ossHelp.str(), usageHelpWidth_);
+                for (std::list<std::string>::const_iterator cit = lines.begin(); cit != lines.end(); ++cit) {
+                    if (cit != lines.begin()) {
                         oss << '\n';
                         oss << std::string(usagePadWidth_ + usageArgsWidth_ + usageSepWidth_, ' ');
                     }
-                    oss << lines[i];
+                    oss << *cit;
                 }
             }
         }
@@ -302,10 +327,10 @@ std::string Usage::getUsage() const {
     // epilog
     if (!epilog_.empty()) {
         oss << '\n';
-        std::vector<std::string> lines = s_multilineWrap(epilog_, indexMax);
-        for (std::size_t i = 0; i < lines.size(); ++i) {
+        std::list<std::string> lines = s_multilineWrap(epilog_, indexMax);
+        for (std::list<std::string>::const_iterator cit = lines.begin(); cit != lines.end(); ++cit) {
             oss << '\n';
-            oss << lines[i];
+            oss << *cit;
         }
     }
     return oss.str();

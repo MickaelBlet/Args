@@ -2,7 +2,7 @@
  * args.cpp
  *
  * Licensed under the MIT License <http://opensource.org/licenses/MIT>.
- * Copyright (c) 2022-2023 BLET Mickael.
+ * Copyright (c) 2022-2024 BLET Mickael.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal

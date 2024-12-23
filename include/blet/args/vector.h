@@ -38,6 +38,9 @@ class Vector : public std::vector<std::string> {
     Vector() :
         std::vector<std::string>() {}
 
+    Vector(int size) :
+        std::vector<std::string>(size) {}
+
     template<std::size_t S>
     Vector(const char* (&v)[S]) :
         std::vector<std::string>() {
