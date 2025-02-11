@@ -88,6 +88,22 @@ class Vector : public std::vector<std::string> {
     Vector(const std::initializer_list<std::string>& l) :
         std::vector<std::string>(l) {}
 #endif
+
+    template<std::size_t S>
+    Vector& operator+(const char (&v)[S]) {
+        std::vector<std::string>::push_back(v);
+        return *this;
+    }
+
+    Vector& operator+(const char*(&v)) {
+        std::vector<std::string>::push_back(v);
+        return *this;
+    }
+
+    Vector& operator+(const std::string& v) {
+        std::vector<std::string>::push_back(v);
+        return *this;
+    }
 };
 
 } // namespace args

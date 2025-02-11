@@ -142,6 +142,7 @@ GTEST_TEST(addArgument, argumentException) {
     EXPECT_THROW(
         {
             try {
+                args.addArgument("-h").action(blet::Args::HELP);
                 args.addArgument("-b").action(blet::Args::HELP);
             }
             catch (const blet::Args::ArgumentException& e) {
@@ -215,7 +216,7 @@ GTEST_TEST(addArgument, argumentException) {
 }
 
 GTEST_TEST(addArgument, helpOption) {
-    blet::Args args(false);
+    blet::Args args;
     args.addArgument(args.vector("-h", "--help", "--help-me-please", "-?")).action(blet::Args::HELP);
     EXPECT_EQ(args["-h"].isExists(), false);
     EXPECT_EQ(args["--help"].isExists(), false);

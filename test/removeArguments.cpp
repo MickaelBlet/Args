@@ -28,6 +28,7 @@ GTEST_TEST(removeArguments, exception) {
             }
         },
         blet::Args::ArgumentException);
+    args.addArgument("--help").flag("-h").action(args.HELP);
     args.removeArguments(args.vector("-h", "--help"));
     EXPECT_EQ(args.argumentExists("-h"), false);
     EXPECT_EQ(args.argumentExists("--help"), false);

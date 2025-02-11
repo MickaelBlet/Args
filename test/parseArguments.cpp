@@ -2,7 +2,7 @@
 #include <sys/stat.h>
 
 #include "blet/args.h"
-#include "mock/mockc.h"
+#include "blet/mockf.h"
 
 GTEST_TEST(parseArguments, parseException) {
     {
@@ -609,6 +609,15 @@ GTEST_TEST(parseArguments, optionRequired) {
         blet::Args::ParseArgumentRequiredException);
 }
 
+GTEST_TEST(parseArguments, noHelper) {
+    const char* argv[] = {"binaryName"};
+    const int argc = sizeof(argv) / sizeof(*argv);
+
+    blet::Args args;
+    args.addArgument("--help").flag("-h").action(blet::Args::STORE_TRUE).required(true);
+    args.parseArguments(argc, const_cast<char**>(argv));
+}
+
 GTEST_TEST(parseArguments, validException) {
     const char* argv[] = {"binaryName", "--option", "foo"};
     const int argc = sizeof(argv) / sizeof(*argv);
@@ -673,7 +682,7 @@ GTEST_TEST(parseArguments, validException) {
     }
 }
 
-MOCKC_ATTRIBUTE_METHOD2(int, stat, (const char* __restrict __file, struct stat* __restrict __buf), throw());
+MOCKF_ATTRIBUTE_FUNCTION2(int, stat, (const char* __restrict __file, struct stat* __restrict __buf), throw());
 ACTION_P(actionStat, st_mode) {
     arg1->st_mode = st_mode;
     return 0;
@@ -782,8 +791,8 @@ GTEST_TEST(parseArguments, standartValid) {
         EXPECT_EQ(args["--option"][1].getString(), std::string("100"));
     }
     {
-        MOCKC_NEW_INSTANCE(stat);
-        MOCKC_EXPECT_CALL(stat, (_, _)).WillOnce(Return(-1));
+        MOCKF_INIT(stat);
+        MOCKF_EXPECT_CALL(stat, (_, _)).WillOnce(Return(-1));
         const char* argv[] = {"binaryName", "--option", "."};
         const int argc = sizeof(argv) / sizeof(*argv);
         blet::Args args;
@@ -791,7 +800,7 @@ GTEST_TEST(parseArguments, standartValid) {
         EXPECT_THROW(
             {
                 try {
-                    MOCKC_GUARD(stat);
+                    MOCKF_GUARD(stat);
                     args.parseArguments(argc, const_cast<char**>(argv));
                 }
                 catch (const blet::Args::ParseArgumentValidException& e) {
@@ -803,8 +812,8 @@ GTEST_TEST(parseArguments, standartValid) {
             blet::Args::ParseArgumentValidException);
     }
     {
-        MOCKC_NEW_INSTANCE(stat);
-        MOCKC_EXPECT_CALL(stat, (_, _)).WillOnce(actionStat(__S_IFREG));
+        MOCKF_INIT(stat);
+        MOCKF_EXPECT_CALL(stat, (_, _)).WillOnce(actionStat(__S_IFREG));
         const char* argv[] = {"binaryName", "--option", "."};
         const int argc = sizeof(argv) / sizeof(*argv);
         blet::Args args;
@@ -812,7 +821,7 @@ GTEST_TEST(parseArguments, standartValid) {
         EXPECT_THROW(
             {
                 try {
-                    MOCKC_GUARD(stat);
+                    MOCKF_GUARD(stat);
                     args.parseArguments(argc, const_cast<char**>(argv));
                 }
                 catch (const blet::Args::ParseArgumentValidException& e) {
@@ -824,8 +833,8 @@ GTEST_TEST(parseArguments, standartValid) {
             blet::Args::ParseArgumentValidException);
     }
     {
-        MOCKC_NEW_INSTANCE(stat);
-        MOCKC_EXPECT_CALL(stat, (_, _)).WillOnce(actionStat(__S_IFDIR));
+        MOCKF_INIT(stat);
+        MOCKF_EXPECT_CALL(stat, (_, _)).WillOnce(actionStat(__S_IFDIR));
         const char* argv[] = {"binaryName", "--option", "."};
         const int argc = sizeof(argv) / sizeof(*argv);
         blet::Args args;
@@ -833,7 +842,7 @@ GTEST_TEST(parseArguments, standartValid) {
         EXPECT_THROW(
             {
                 try {
-                    MOCKC_GUARD(stat);
+                    MOCKF_GUARD(stat);
                     args.parseArguments(argc, const_cast<char**>(argv));
                 }
                 catch (const blet::Args::ParseArgumentValidException& e) {
@@ -845,9 +854,9 @@ GTEST_TEST(parseArguments, standartValid) {
             blet::Args::ParseArgumentValidException);
     }
     {
-        MOCKC_NEW_INSTANCE(stat);
-        MOCKC_GUARD(stat);
-        MOCKC_EXPECT_CALL(stat, (_, _)).WillOnce(actionStat(__S_IFREG));
+        MOCKF_INIT(stat);
+        MOCKF_GUARD(stat);
+        MOCKF_EXPECT_CALL(stat, (_, _)).WillOnce(actionStat(__S_IFREG));
         const char* argv[] = {"binaryName", "--option", "."};
         const int argc = sizeof(argv) / sizeof(*argv);
         blet::Args args;

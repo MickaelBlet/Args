@@ -24,7 +24,7 @@ foreach(file ${test_source_files})
         NO_SYSTEM_FROM_IMPORTED ON
         COMPILE_FLAGS "-pedantic -Wall -Wextra -Werror"
         INCLUDE_DIRECTORIES "${CMAKE_CURRENT_SOURCE_DIR}/include"
-        LINK_LIBRARIES "gmock_main;gmock;gtest;pthread"
+        LINK_LIBRARIES "gmock_main;gmock;gtest;pthread;blet_mockf"
     )
     target_link_libraries("${filenamewe}.${library_project_name}.gtest" PUBLIC "${library_project_name}")
     add_test(NAME "${filenamewe}.${library_project_name}.gtest" COMMAND "$<TARGET_FILE:${filenamewe}.${library_project_name}.gtest>")

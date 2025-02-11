@@ -13,40 +13,62 @@ Documentations available at [documentations](#documentations).
 #include "blet/args.h"
 
 enum eLogLevel {
-    DEBUG,
-    INFO,
-    WARNING,
-    ERROR
+    EMERG_LEVEL = 0,
+    ALERT_LEVEL,
+    CRITICAL_LEVEL,
+    ERROR_LEVEL,
+    WARNING_LEVEL,
+    NOTICE_LEVEL,
+    INFO_LEVEL,
+    DEBUG_LEVEL
 };
 
 void argToLogLevel(eLogLevel& logLevel, bool /*isExists*/, const std::string& argument) {
-    if (argument == "DEBUG") {
-        logLevel = DEBUG;
+    if (argument == "EMERG" || argument == "0") {
+        logLevel = EMERG_LEVEL;
     }
-    else if (argument == "INFO") {
-        logLevel = INFO;
+    else if (argument == "ALERT" || argument == "1") {
+        logLevel = ALERT_LEVEL;
     }
-    else if (argument == "WARNING") {
-        logLevel = WARNING;
+    else if (argument == "CRITICAL" || argument == "2") {
+        logLevel = CRITICAL_LEVEL;
     }
-    else if (argument == "ERROR") {
-        logLevel = ERROR;
+    else if (argument == "ERROR" || argument == "3") {
+        logLevel = ERROR_LEVEL;
+    }
+    else if (argument == "WARNING" || argument == "4") {
+        logLevel = WARNING_LEVEL;
+    }
+    else if (argument == "NOTICE" || argument == "5") {
+        logLevel = NOTICE_LEVEL;
+    }
+    else if (argument == "INFO" || argument == "6") {
+        logLevel = INFO_LEVEL;
+    }
+    else if (argument == "DEBUG" || argument == "7") {
+        logLevel = DEBUG_LEVEL;
     }
 }
 
 int main(int argc, char* argv[]) {
-    eLogLevel logLevel = INFO;
+    eLogLevel logLevel = INFO_LEVEL;
 
     blet::Args args;
+    // set message printed at version action option
     args.setVersion("Version: 0.0.0");
-    args.addArgument("ARGUMENT").help("help of argument").required(true);
-    args.addArgument("-v").flag("--version").help("help of version option").action(args.VERSION);
+    // add required positional ARGUMENT
+    args.addArgument("ARGUMENT").help("help of positional argument").required();
+    // add version option (-v, --version)
+    args.addArgument("-v").flag("--version").help("print version").action(args.VERSION);
+    // add multiargument option (-o, --option)
     args.addArgument(args.vector("-o", "--option")).help("help of option").nargs(2).metavar("OPT1 OPT2");
+    // add choise option (-l, --log-level) with "dest" function
     args.addArgument("--log-level")
         .flag("-l")
         .help("help of log-level")
         .metavar("LEVEL")
-        .valid(new blet::Args::ValidChoise(args.vector("DEBUG", "INFO", "WARNING", "ERROR")))
+        .valid(new blet::Args::ValidChoise(args.vector("0", "1", "2", "3", "4", "5", "6", "7", "EMERG", "ALERT",
+                                                       "CRITICAL", "ERROR", "WARNING", "NOTICE", "INFO", "DEBUG")))
         .defaults("INFO")
         .dest(logLevel, &argToLogLevel); // fill logLevel using argToLogLevel
 
@@ -55,7 +77,7 @@ int main(int argc, char* argv[]) {
             .setAlternative()      // accept simple '-' with a long flag
             .setHelpException()    // except when help flag is called
             .setVersionException() // except when version flag is called
-            .parseArguments(argc, argv);
+            .parseArguments(argc, argv); // add help option automatically
     }
     catch (const blet::Args::VersionException& e) {
         std::cout << e.what() << std::endl;
@@ -78,17 +100,29 @@ int main(int argc, char* argv[]) {
     }
     std::cout << "--log-level: ";
     switch (logLevel) {
-        case DEBUG:
-            std::cout << "DEBUG";
+        case EMERG_LEVEL:
+            std::cout << "EMERG";
             break;
-        case INFO:
-            std::cout << "INFO";
+        case ALERT_LEVEL:
+            std::cout << "ALERT";
             break;
-        case WARNING:
+        case CRITICAL_LEVEL:
+            std::cout << "CRITICAL";
+            break;
+        case ERROR_LEVEL:
+            std::cout << "ERROR";
+            break;
+        case WARNING_LEVEL:
             std::cout << "WARNING";
             break;
-        case ERROR:
-            std::cout << "ERROR";
+        case NOTICE_LEVEL:
+            std::cout << "NOTICE";
+            break;
+        case INFO_LEVEL:
+            std::cout << "INFO";
+            break;
+        case DEBUG_LEVEL:
+            std::cout << "DEBUG";
             break;
     }
     std::cout << std::endl;
@@ -104,7 +138,7 @@ $ ./a.out -h
 usage: a.out [-h] [-l LEVEL] [-o OPT1 OPT2] [-v] -- ARGUMENT
 
 positional arguments:
-  ARGUMENT              help of argument (required)
+  ARGUMENT              help of positional argument (required)
 
 optional arguments:
   -h, --help            show this help message and exit
@@ -112,17 +146,17 @@ optional arguments:
                         help of log-level (default: INFO)
   -o, --option OPT1 OPT2
                         help of option
-  -v, --version         help of version option
+  -v, --version         print version
 $ ./a.out
 ./a.out: argument is required -- 'ARGUMENT'
 $ ./a.out 42 -log-level Foo
-./a.out: "Foo" is not a valid choise ("DEBUG", "INFO", "WARNING", "ERROR") -- '-l'
+./a.out: "Foo" is not a valid choise ("0", "1", "2", "3", "4", "5", "6", "7", "EMERG", "ALERT", "CRITICAL", "ERROR", "WARNING", "NOTICE", "INFO", "DEBUG") -- '-l'
 $ ./a.out 42
 ARGUMENT: 42
 --log-level: INFO
 $ ./a.out 42 --log-level=DEBUG --option Foo
 ./a.out: bad number of argument -- 'option'
-$ ./a.out 42 -lDEBUG -o Foo Bar
+$ ./a.out 42 -l7 -o Foo Bar
 ARGUMENT: 42
 --option: Foo, Bar
 --log-level: DEBUG
@@ -151,7 +185,7 @@ mkdir build; pushd build; cmake -DBUILD_EXAMPLE=1 .. && make -j; popd
 mkdir build; pushd build; cmake -DBUILD_SINGLE_INCLUDE=1 -DBUILD_TESTING=1 .. && make -j; popd
 
 # Tests + Coverage
-mkdir build; pushd build; cmake -DBUILD_SHARED_LIBS=0 -DCMAKE_BUILD_TYPE=Debug -DBUILD_TESTING=1 -DBUILD_COVERAGE=1 -DCMAKE_CXX_STANDARD=98 .. && make -j && make test -j; popd
+mkdir build; pushd build; cmake -DBUILD_SHARED_LIBS=0 -DCMAKE_BUILD_TYPE=Debug -DBUILD_TESTING=1 -DBUILD_COVERAGE=1 -DCMAKE_CXX_STANDARD=11 .. && make -j && make test -j; popd
 ```
 
 ## Option format
@@ -188,7 +222,7 @@ args.addArgument({"-E", "--example"}) // Either a name or a list of option strin
     .flag("--new-example")            // Add option strings e.g. -f, --foo
     .action(args.INFINITE)            // The basic type of action to be taken when this argument is encountered at the command line
     .help("help message")             // A brief description of what the argument does
-    .required(true)                   // Whether or not the command-line option may be omitted(optionals only)
+    .required(true)                   // Whether or not the command-line option may be omitted (optionals only)
     .metavar("ARGUMENT")              // A name for the argument in usage messages
     .nargs(1)                         // The number of command-line arguments that should be consumed
     .defaults({"0"})                  // A list of default string argument values
@@ -198,11 +232,17 @@ args.addArgument({"-E", "--example"}) // Either a name or a list of option strin
 
 #### Definitions
 
-|Methods|||
-|---|---|---|
-| [flag](docs/argument.md#flag) | [action](docs/argument.md#action) | [help](docs/argument.md#help-1) |
-| [required](docs/argument.md#required) | [metavar](docs/argument.md#metavar) | [nargs](docs/argument.md#nargs) |
-| [defaults](docs/argument.md#defaults) | [valid](docs/argument.md#valid) | [dest](docs/argument.md#dest) |
+|Method|Description|
+|---|---|
+|[action](docs/argument.md#action)|The basic type of action to be taken when this argument is encountered at the command line.|
+|[defaults](docs/argument.md#defaults)|A list of default string argument values.|
+|[dest](docs/argument.md#dest)|Fill argument in destination.|
+|[flag](docs/argument.md#flag)|Add option strings e.g. -f, --foo|
+|[help](docs/argument.md#help-1)|A brief description of what the argument does.|
+|[metavar](docs/argument.md#metavar)|A name for the argument in usage messages.|
+|[nargs](docs/argument.md#nargs)|The number of command-line arguments that should be consumed.|
+|[required](docs/argument.md#required)|Whether or not the command-line option may be omitted (optionals only).|
+|[valid](docs/argument.md#valid)|Validate argument from IValid interface.|
 
 ### parseArguments
 
@@ -239,65 +279,96 @@ args.addArgument((const char*[]){"-s", "--simple"}); // C++98
 
 ### Args Basic Methods
 
-|||
+|Method|Description|
 |---|---|
-|[addArgument](docs/args.md#addargument)|[parseArguments](docs/args.md#parsearguments)|
+|[addArgument](docs/args.md#addargument)|Define how a single command-line argument should be parsed.|
+|[parseArguments](docs/args.md#parsearguments)|Convert argument strings to objects and assign them as attributes of the args map.<br/>Previous calls to [addArgument](docs/args.md#addargument) determine exactly what objects are created and how they are assigned.<br/>If called without help action, define '-h' and '--help' if not used.|
 
 ### Custom Usage
 
-|||
+|Method|Description|
 |---|---|
-|[getDescription](docs/usage.md#getdescription)|[setDescription](docs/usage.md#setdescription)|
-|[getEpilog](docs/usage.md#getepilog)|[setEpilog](docs/usage.md#setepilog)|
-|[getUsage](docs/usage.md#getusage)|[setUsage](docs/usage.md#setusage)|
-||[setUsageWidth](docs/usage.md#setusagewidth)|
+|[getDescription](docs/usage.md#getdescription)|Get the description message.|
+|[getEpilog](docs/usage.md#getepilog)|Get the epilog message.|
+|[getUsage](docs/usage.md#getusage)|Get the usage message.|
+|[setDescription](docs/usage.md#setdescription)|Set the description in usage message.|
+|[setEpilog](docs/usage.md#setepilog)|Set the epilog in usage message.|
+|[setUsage](docs/usage.md#setusage)|Set the usage message.|
+|[setUsageWidth](docs/usage.md#setusagewidth)|Set the Usage Widths.|
+
 
 ### Args Methods
 
-|||
+|Method|Description|
 |---|---|
-|[argumentExists](docs/args.md#argumentexists)|
-|[clear](docs/args.md#clear)|
-|[getAdditionalArguments](docs/args.md#getadditionalarguments)|
-|[getArgument](docs/args.md#getargument)|
-|[getBinaryName](docs/args.md#getbinaryname)|[setBinaryName](docs/args.md#setbinaryname)|
-|[getVersion](docs/args.md#getversion)|[setVersion](docs/args.md#setversion)|
-|[isAlternative](docs/args.md#isalternative)|[setAlternative](docs/args.md#setalternative)|
-|[isHelpException](docs/args.md#ishelpexception)|[setHelpException](docs/args.md#sethelpexception)|
-|[isStrict](docs/args.md#isstrict)|[setStrict](docs/args.md#setstrict)|
-|[isVersionException](docs/args.md#isversionexception)|[setVersionException](docs/args.md#setversionexception)|
-|[removeArguments](docs/args.md#removearguments)|
-|[updateArgument](docs/args.md#updateargument)|
+|[argumentExists](docs/args.md#argumentexists)|Check if argument exist.|
+|[clear](docs/args.md#clear)|Clear and reset with defaults values.|
+|[getAdditionalArguments](docs/args.md#getadditionalarguments)|Get the vector of additional argument.|
+|[getArgument](docs/args.md#getargument)|Get the argument object.|
+|[getBinaryName](docs/args.md#getbinaryname)|Get the binary name.|
+|[getVersion](docs/args.md#getversion)|Get the version message.|
+|[isAlternative](docs/args.md#isalternative)|Get the status of alternative.|
+|[isHelpException](docs/args.md#ishelpexception)|Get the status of helpException.|
+|[isStrict](docs/args.md#isstrict)|Get the status of strict.|
+|[isVersionException](docs/args.md#isversionexception)|Get the status of versionException.|
+|[removeArguments](docs/args.md#removearguments)|Remove previously arguments.|
+|[setAlternative](docs/args.md#setalternative)|Activate parsing to accept long option with only one '-' character.|
+|[setBinaryName](docs/args.md#setbinaryname)|Set the binary name.|
+|[setHelpException](docs/args.md#sethelpexception)|Throw a HelpException when help action is present in arguments; otherwise, exit(0) after outputting usage to stdout.|
+|[setStrict](docs/args.md#setstrict)|Activate exception if not all arguments are used; otherwise, you can take additional arguments with getAdditionalArguments method.|
+|[setVersion](docs/args.md#setversion)|Set the version message.|
+|[setVersionException](docs/args.md#setversionexception)|Throw a VersionException when version action is present in arguments; otherwise, exit(0) after outputting version to stdout.|
+|[updateArgument](docs/args.md#updateargument)|Get the ref. of argument from name or flag.|
 
 ### Args::Argument Construct Methods
 
-||||
-|---|---|---|
-|[action](docs/argument.md#action)|[dest](docs/argument.md#dest)|[flag](docs/argument.md#flag)|
-|[help](docs/argument.md#help-1)|[metavar](docs/argument.md#metavar)|[nargs](docs/argument.md#nargs)|
-|[required](docs/argument.md#required)|[valid](docs/argument.md#valid)|[defaults](docs/argument.md#defaults)|
+|Method|Description|
+|---|---|
+|[action](docs/argument.md#action)|Add a action when this argument is encountered at the command line.|
+|[defaults](docs/argument.md#defaults)|Define the defaults string values.|
+|[dest](docs/argument.md#dest)|Define a reference of object for insert the value after [parseArguments](docs/args.md#parsearguments) method.|
+|[flag](docs/argument.md#flag)|Add flag in argument object.|
+|[help](docs/argument.md#help-1)|Set the help description massge for this argument.|
+|[metavar](docs/argument.md#metavar)|A name for the argument in usage messages.|
+|[nargs](docs/argument.md#nargs)|The number of command-line arguments that should be consumed by this object.|
+|[required](docs/argument.md#required)|Whether or not the command-line argument may be omitted.|
+|[valid](docs/argument.md#valid)|You can check format of argument with IValid interface.|
 
 ### Args::Argument::Action Types
 
-||||
-|---|---|---|
-|[APPEND](docs/argument.md#append)|[NONE](docs/argument.md#none)|[EXTEND](docs/argument.md#extend)|
-|[HELP](docs/argument.md#help)|[INFINITE](docs/argument.md#infinite)|[STORE_FALSE](docs/argument.md#store_false)|
-|[STORE_TRUE](docs/argument.md#store_true)|[VERSION](docs/argument.md#version)|
+|Enum|Description|
+|---|---|
+|[APPEND](docs/argument.md#append)|This stores a list, and appends each argument value to the list.</br>It is useful to allow an option to be specified multiple times.|
+|[EXTEND](docs/argument.md#extend)|This stores a list, and extends each argument value to the list.|
+|[HELP](docs/argument.md#help)|This case used for create the help flag.|
+|[INFINITE](docs/argument.md#infinite)|This stores a list.|
+|[NONE](docs/argument.md#none)|This just stores the argument’s value. **This is the default action**.|
+|[STORE_FALSE](docs/argument.md#store_false)|This case used for storing the values `false` respectively.|
+|[STORE_TRUE](docs/argument.md#store_true)|This case used for storing the values `true` respectively.|
+|[VERSION](docs/argument.md#version)|This case used for define the version flag.|
 
 ### Args::Argument Access Methods
 
-|||
+|Method|Description|
 |---|---|
-|[count](docs/argument.md#count)|[getAction](docs/argument.md#getaction)|
-|[getDefault](docs/argument.md#getdefault)|[getDefaults](docs/argument.md#getdefaults)|
-|[getHelp](docs/argument.md#gethelp)|[getMetavar](docs/argument.md#getmetavar)|
-|[getNameOrFlags](docs/argument.md#getnameorflags)|[getNargs](docs/argument.md#getnargs)|
-|[getNumber](docs/argument.md#getnumber)|[getString](docs/argument.md#getstring)|
-|[isExists](docs/argument.md#isexists)|[isNumber](docs/argument.md#isnumber)|
-|[isRequired](docs/argument.md#isrequired)|[operator bool()](docs/argument.md#operator-bool)|
-|[operator std::string()](docs/argument.md#operator-stdstring)|[operator std::vector\<std::string\>()](docs/argument.md#operator-stdvectorstdstring)|
-|[operator T()](docs/argument.md#operator-t)|[operator std::vector\<std::vector\<std::string\> \>()](docs/argument.md#operator-stdvectorstdvectorstdstring)|
+|[count](docs/argument.md#count)|After [parseArguments](docs/args.md#parsearguments) method check if number of this argument in argv.|
+|[getAction](docs/argument.md#getaction)|Get [action](#argsargumentaction-types) option.|
+|[getDefault](docs/argument.md#getdefault)|Get the default value of argument.|
+|[getDefaults](docs/argument.md#getdefaults)|Get the default(s) value(s) of this argument.|
+|[getHelp](docs/argument.md#gethelp)|Get [help](docs/argument.md#help-1) option.|
+|[getMetavar](docs/argument.md#getmetavar)|Get [metavar](docs/argument.md#metavar) option.|
+|[getNameOrFlags](docs/argument.md#getnameorflags)|Get the name or flag(s) of this argument.|
+|[getNargs](docs/argument.md#getnargs)|Get [nargs](docs/argument.md#nargs) option.|
+|[getNumber](docs/argument.md#getnumber)|Get Number if [isNumber](docs/argument.md#isnumber).|
+|[getString](docs/argument.md#getstring)|Get the string format of this argument.|
+|[isExists](docs/argument.md#isexists)|After [parseArguments](docs/args.md#parsearguments) method check if this argument is present in *argv*.|
+|[isNumber](docs/argument.md#isnumber)|Check if this argument is a number ("1234aaa" is true with 1234 like number).|
+|[isRequired](docs/argument.md#isrequired)|Get [required](docs/argument.md#required) option.|
+|[operator bool()](docs/argument.md#operator-bool)|Check if argument object [isExists](docs/argument.md#isexists).|
+|[operator std::string()](docs/argument.md#operator-stdstring)|Call [getString](docs/argument.md#getstring) method.|
+|[operator std::vector\<std::string>()](docs/argument.md#operator-stdvectorstdstring)|If the argument object contains a lot of one argument, you can get a std::vector of std::string.|
+|[operator std::vector\<std::vector\<std::string> >()](docs/argument.md#operator-stdvectorstdvectorstdstring-)|If the argument object contains a lot of one argument with number of argument ([nargs](docs/argument.md#nargs)) bigger than one, you can get a std::vector of std::vector of std::string.|
+|[operator T()](docs/argument.md#operator-t)|Call the [getNumber](docs/argument.md#getnumber) method with your custom type.|
 
 ### Examples
 

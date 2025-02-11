@@ -50,15 +50,6 @@ Example at [examples.md/extend](examples.md#extend).
 ### HELP
 
 This case used for create the help flag.  
-⚠ Can only use this action after constructor with false parameter or remove the last help flags.  
-
-```cpp
-blet::Args args(false);
-// or
-// blet::Args args;
-// args.removeArgument(args.vector("-h", "--help"));
-```
-
 Example at [examples.md/help](examples.md#help).
 
 ### INFINITE
@@ -320,7 +311,7 @@ Example:
 std::string option = args["--option"];
 ```
 
-## operator std::vector\<std::string\>()
+## operator std::vector\<std::string>()
 
 ```cpp
 operator std::vector<std::string>() const;
@@ -334,7 +325,7 @@ Example:
 std::vector<std::string> options = args["--options"];
 ```
 
-## operator std::vector\<std::vector\<std::string\> \>()
+## operator std::vector\<std::vector\<std::string> >()
 
 ```cpp
 operator std::vector<std::vector<std::string> >() const;

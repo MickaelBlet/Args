@@ -40,7 +40,7 @@ namespace blet {
 
 namespace args {
 
-Args::Args(bool addHelp) :
+Args::Args() :
     Usage(*this),
     binaryName_(),
     arguments_(),
@@ -51,12 +51,7 @@ Args::Args(bool addHelp) :
     isStrict_(false),
     isHelpException_(false),
     isVersionException_(false),
-    additionalArguments_() {
-    if (addHelp) {
-        // define helpOption_
-        addArgument("-h").flag("--help").action(Action::HELP).help("show this help message and exit");
-    }
-}
+    additionalArguments_() {}
 
 Args::~Args() {
     // delete all new element
@@ -69,6 +64,23 @@ void Args::parseArguments(int argc, char* argv[]) {
     // clear the arguments
     for (std::list<Argument*>::iterator it = arguments_.begin(); it != arguments_.end(); ++it) {
         (*it)->clear_();
+    }
+    // check help option exists
+    if (helpOption_ == NULL) {
+        const std::map<std::string, blet::args::Argument**>::const_iterator cith = argumentFromName_.find("-h");
+        const std::map<std::string, blet::args::Argument**>::const_iterator cithelp = argumentFromName_.find("--help");
+        if (cith != argumentFromName_.end() && cithelp != argumentFromName_.end()) {
+            // the flags are already used
+            return;
+        }
+        Vector flags;
+        if (cith == argumentFromName_.end()) {
+            flags.push_back("-h");
+        }
+        if (cithelp == argumentFromName_.end()) {
+            flags.push_back("--help");
+        }
+        addArgument(flags).action(Action::HELP).help("show this help message and exit");
     }
     // get argv[0] if filename is empty
     if (binaryName_.empty()) {
@@ -236,7 +248,7 @@ Argument& Args::addArgument(const Vector& nameOrFlags) {
         }
 
         argument = new Argument(*this);
-        argument->nameOrFlags_ = nameOrFlags;
+        argument->nameOrFlags_ = newFlags;
         argument->sortNameOrFlags_();
     }
 
@@ -393,14 +405,16 @@ void Args::parseArgument_(int maxIndex, char* argv[], int* index, bool hasArg, c
                           Argument* argument) {
     if (hasArg) {
         switch (argument->type_) {
-            case Argument::SIMPLE_OPTION:
+            case Argument::SIMPLE_OPTION: {
                 argument->argument_ = arg;
                 break;
+            }
             case Argument::NUMBER_OPTION:
             case Argument::MULTI_NUMBER_OPTION:
-            case Argument::MULTI_NUMBER_INFINITE_OPTION:
+            case Argument::MULTI_NUMBER_INFINITE_OPTION: {
                 throw ParseArgumentException(option, "option cannot use with only 1 argument");
                 break;
+            }
             case Argument::INFINITE_OPTION: {
                 argument->clear();
                 argument->push_back(arg);
@@ -414,9 +428,10 @@ void Args::parseArgument_(int maxIndex, char* argv[], int* index, bool hasArg, c
                 argument->push_back(arg);
                 break;
             }
-            default:
+            default: {
                 throw ParseArgumentException(option, "option cannot use with argument");
                 break;
+            }
         }
     }
     else {

@@ -1,6 +1,7 @@
 # Examples
 
 ## All Type
+
 ```cpp
 #include <iostream>
 
@@ -42,7 +43,7 @@ int main(int argc, char* argv[]) {
     options.b = false;
     options.c = false;
 
-    Args args(false); // disable automatic help option
+    Args args;
     args.setVersion("Version: 0.0.0");
     args.setDescription("custom description message");
     args.setEpilog("custom epilog message");
@@ -214,6 +215,7 @@ int main(int argc, char* argv[]) {
     return 0;
 }
 ```
+
 ```
 $ ./a.out
 ./a.out: option is required -- '-n'
@@ -295,7 +297,9 @@ custom epilog message
 ```
 
 ## Append
+
 With nargs == 1
+
 ```cpp
 #include <iostream>
 
@@ -327,13 +331,16 @@ int main(int argc, char* argv[]) {
     return 0;
 }
 ```
+
 ```
 $ ./a.out -a1 --append=2 -a=3
 1
 2
 3
 ```
+
 With nargs == 3
+
 ```cpp
 #include <iostream>
 
@@ -372,6 +379,7 @@ int main(int argc, char* argv[]) {
     return 0;
 }
 ```
+
 ```
 $ ./a.out -a 1 2 3 --append 4 5 6
 1, 2, 3
@@ -379,7 +387,9 @@ $ ./a.out -a 1 2 3 --append 4 5 6
 ```
 
 ## Argument
+
 With nargs == 1
+
 ```cpp
 #include <iostream>
 
@@ -418,6 +428,7 @@ int main(int argc, char* argv[]) {
     return 0;
 }
 ```
+
 ```
 $ ./a.out
 $ ./a.out 42
@@ -431,7 +442,9 @@ Additional argument(s):
 2
 3
 ```
+
 With nargs == 1 and action == INFINITE
+
 ```cpp
 #include <iostream>
 
@@ -471,6 +484,7 @@ int main(int argc, char* argv[]) {
     return 0;
 }
 ```
+
 ```
 $ ./a.out
 $ ./a.out 42
@@ -480,7 +494,9 @@ $ ./a.out -- 42
 $ ./a.out 42 1 2 3
 42, 1, 2, 3
 ```
+
 With nargs == 3
+
 ```cpp
 #include <iostream>
 
@@ -519,6 +535,7 @@ int main(int argc, char* argv[]) {
     return 0;
 }
 ```
+
 ```
 $ ./a.out
 $ ./a.out 1 2 3
@@ -530,7 +547,9 @@ $ ./a.out -- 1 2 3 42
 Additional argument(s):
 42
 ```
+
 With nargs == 3 and action == INFINITE
+
 ```cpp
 #include <iostream>
 
@@ -569,6 +588,7 @@ int main(int argc, char* argv[]) {
     return 0;
 }
 ```
+
 ```
 $ ./a.out
 $ ./a.out 1 2 3
@@ -582,7 +602,9 @@ Additional argument(s):
 ```
 
 ## Extend
+
 With nargs == 1
+
 ```cpp
 #include <iostream>
 
@@ -615,6 +637,7 @@ int main(int argc, char* argv[]) {
     return 0;
 }
 ```
+
 ```
 $ ./a.out -e1 --extend=2 -e=3 --extend 4 5 6
 1
@@ -624,7 +647,9 @@ $ ./a.out -e1 --extend=2 -e=3 --extend 4 5 6
 5
 6
 ```
+
 With nargs == 3
+
 ```cpp
 #include <iostream>
 
@@ -663,6 +688,7 @@ int main(int argc, char* argv[]) {
     return 0;
 }
 ```
+
 ```
 $ ./a.out -e 1 2 3 4 5 6 --extend 7 8 9
 1, 2, 3
@@ -671,6 +697,7 @@ $ ./a.out -e 1 2 3 4 5 6 --extend 7 8 9
 ```
 
 ## Help
+
 ```cpp
 #include <iostream>
 
@@ -678,7 +705,6 @@ $ ./a.out -e 1 2 3 4 5 6 --extend 7 8 9
 
 int main(int argc, char* argv[]) {
     blet::Args args;
-    args.removeArguments(args.vector("-h", "--help"));
     args.addArgument(args.vector("-h", "--help")).action(args.HELP).help("custom help option message");
 
     try {
@@ -695,6 +721,7 @@ int main(int argc, char* argv[]) {
     return 0;
 }
 ```
+
 ```
 $ ./a.out
 do nothing
@@ -706,6 +733,7 @@ optional arguments:
 ```
 
 ## Infinite
+
 ```cpp
 #include <iostream>
 
@@ -740,6 +768,7 @@ int main(int argc, char* argv[]) {
     return 0;
 }
 ```
+
 ```
 $ ./a.out -i 1 2 3
 1
@@ -753,7 +782,9 @@ $ ./a.out -i1 --infinite=2 -i=3 --infinite 4 5 6
 ```
 
 ## None
+
 With nargs == 1
+
 ```cpp
 #include <iostream>
 
@@ -780,13 +811,16 @@ int main(int argc, char* argv[]) {
     return 0;
 }
 ```
+
 ```
 $ ./a.out -n 1
 1
 $ ./a.out -n 1 --none 2
 2
 ```
+
 With nargs == 3
+
 ```cpp
 #include <iostream>
 
@@ -815,6 +849,7 @@ int main(int argc, char* argv[]) {
     return 0;
 }
 ```
+
 ```
 $ ./a.out -n 1 2 3
 1
@@ -827,6 +862,7 @@ $ ./a.out -n 1 2 3 --none 4 5 6
 ```
 
 ## StoreFalse
+
 ```cpp
 #include <iostream>
 
@@ -858,6 +894,7 @@ int main(int argc, char* argv[]) {
     return 0;
 }
 ```
+
 ```
 $ ./a.out
 true
@@ -866,6 +903,7 @@ false
 ```
 
 ## StoreTrue
+
 ```cpp
 #include <iostream>
 
@@ -898,6 +936,7 @@ int main(int argc, char* argv[]) {
     return 0;
 }
 ```
+
 ```
 $ ./a.out
 false
@@ -913,6 +952,7 @@ count: 4
 ```
 
 ## Version
+
 ```cpp
 #include <iostream>
 
@@ -940,6 +980,7 @@ int main(int argc, char* argv[]) {
     return 0;
 }
 ```
+
 ```
 $ ./a.out
 do nothing
@@ -949,6 +990,7 @@ Version: 0.0.0
 ```
 
 ## Default value
+
 ```cpp
 #include <iostream>
 
@@ -981,6 +1023,7 @@ int main(int argc, char* argv[]) {
     return 0;
 }
 ```
+
 ```
 $ ./a.out
 default value
@@ -1004,6 +1047,7 @@ optional arguments:
 ```
 
 ## Default valid
+
 ```cpp
 #include <iostream>
 
@@ -1036,6 +1080,7 @@ int main(int argc, char* argv[]) {
     return 0;
 }
 ```
+
 ```
 $ ./a.out
 ./a.out: option is required -- '--option'
@@ -1052,6 +1097,7 @@ optional arguments:
 ```
 
 ## Custom valid transform
+
 ```cpp
 #include <iostream>
 #include <sstream>
@@ -1107,6 +1153,7 @@ int main(int argc, char* argv[]) {
     return 0;
 }
 ```
+
 ```
 $ ./a.out
 ./a.out: option is required -- '--option'

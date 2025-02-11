@@ -38,8 +38,8 @@ int main(int argc, char* argv[]) {
     options.b = false;
     options.c = false;
 
-    Args args(false); // disable automatic help option
-    args.setVersion("Version: 0.0.0");
+    Args args;
+    args.setVersion(std::string(argv[0]) + ":\nVersion: 0.0.0");
     args.setDescription("custom description message");
     args.setEpilog("custom epilog message");
     args.addArgument("-h").flag("--help").action(args.HELP).help("custom help option message");
@@ -54,7 +54,7 @@ int main(int argc, char* argv[]) {
     args.addArgument("-c").action(args.STORE_FALSE).help("help of count option").dest(options.c);
     args.addArgument("-s")
         .flag("--simple")
-        .help("help of simple option")
+        .help("help of simple option\n(choise: 0, 100, 200)")
         .required(true)
         .metavar("argSimple")
         .nargs(1)

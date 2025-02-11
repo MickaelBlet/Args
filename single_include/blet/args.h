@@ -9,7 +9,7 @@
  * args.h
  *
  * Licensed under the MIT License <http://opensource.org/licenses/MIT>.
- * Copyright (c) 2022-2023 BLET Mickael.
+ * Copyright (c) 2022-2025 BLET Mickael.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -101,7 +101,7 @@ struct Action {
  * args/args.h
  *
  * Licensed under the MIT License <http://opensource.org/licenses/MIT>.
- * Copyright (c) 2022-2023 BLET Mickael.
+ * Copyright (c) 2022-2025 BLET Mickael.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -555,6 +555,22 @@ class Vector : public std::vector<std::string> {
     inline Vector(const std::initializer_list<std::string>& l) :
         std::vector<std::string>(l) {}
 #endif
+
+    template<std::size_t S>
+    inline Vector& operator+(const char (&v)[S]) {
+        std::vector<std::string>::push_back(v);
+        return *this;
+    }
+
+    inline Vector& operator+(const char*(&v)) {
+        std::vector<std::string>::push_back(v);
+        return *this;
+    }
+
+    inline Vector& operator+(const std::string& v) {
+        std::vector<std::string>::push_back(v);
+        return *this;
+    }
 };
 
 } // namespace args
@@ -1590,7 +1606,7 @@ class Args : public Usage {
     /**
      * @brief Construct a new Args object
      */
-    Args(bool addHelp);
+    Args();
 
     /**
      * @brief Destroy the Args object
@@ -1600,7 +1616,7 @@ class Args : public Usage {
     /**
      * @brief Set the version message
      *
-     * @param version
+     * @param version A version message
      */
     inline void setVersion(const std::string& version) {
         version_ = version;
@@ -1904,11 +1920,13 @@ class Args : public Usage {
 
 namespace blet {
 
-// simply use args
+/**
+ * @brief Parse and use argument
+ */
 class Args : public args::Args, public args::Action {
   public:
-    inline Args(bool addHelp = true) :
-        args::Args(addHelp) {}
+    inline Args() :
+        args::Args() {}
     inline ~Args() {}
 
     typedef args::Exception Exception;
@@ -1926,16 +1944,31 @@ class Args : public args::Args, public args::Action {
     typedef args::ValidMinMax ValidMinMax;
     typedef args::ValidPath ValidPath;
 
+    /**
+     * @brief Create a empty string vector
+     *
+     * @return args::Vector A empty vector
+     */
     static inline args::Vector vector() {
         return args::Vector();
     }
 
+    /**
+     * @brief Create a string vector
+     *
+     * @return args::Vector A vector
+     */
     static inline args::Vector vector(const char* s1) {
         args::Vector ret(1);
         ret[0] = s1;
         return ret;
     }
 
+    /**
+     * @brief Create a string vector
+     *
+     * @return args::Vector A vector
+     */
     static inline args::Vector vector(const char* s1, const char* s2) {
         args::Vector ret(2);
         ret[0] = s1;
@@ -1943,6 +1976,11 @@ class Args : public args::Args, public args::Action {
         return ret;
     }
 
+    /**
+     * @brief Create a string vector
+     *
+     * @return args::Vector A vector
+     */
     static inline args::Vector vector(const char* s1, const char* s2, const char* s3) {
         args::Vector ret(3);
         ret[0] = s1;
@@ -1951,6 +1989,11 @@ class Args : public args::Args, public args::Action {
         return ret;
     }
 
+    /**
+     * @brief Create a string vector
+     *
+     * @return args::Vector A vector
+     */
     static inline args::Vector vector(const char* s1, const char* s2, const char* s3, const char* s4) {
         args::Vector ret(4);
         ret[0] = s1;
@@ -1960,6 +2003,11 @@ class Args : public args::Args, public args::Action {
         return ret;
     }
 
+    /**
+     * @brief Create a string vector
+     *
+     * @return args::Vector A vector
+     */
     static inline args::Vector vector(const char* s1, const char* s2, const char* s3, const char* s4, const char* s5) {
         args::Vector ret(5);
         ret[0] = s1;
@@ -1970,6 +2018,11 @@ class Args : public args::Args, public args::Action {
         return ret;
     }
 
+    /**
+     * @brief Create a string vector
+     *
+     * @return args::Vector A vector
+     */
     static inline args::Vector vector(const char* s1, const char* s2, const char* s3, const char* s4, const char* s5,
                                       const char* s6) {
         args::Vector ret(6);
@@ -1982,6 +2035,11 @@ class Args : public args::Args, public args::Action {
         return ret;
     }
 
+    /**
+     * @brief Create a string vector
+     *
+     * @return args::Vector A vector
+     */
     static inline args::Vector vector(const char* s1, const char* s2, const char* s3, const char* s4, const char* s5,
                                       const char* s6, const char* s7) {
         args::Vector ret(7);
@@ -1995,6 +2053,11 @@ class Args : public args::Args, public args::Action {
         return ret;
     }
 
+    /**
+     * @brief Create a string vector
+     *
+     * @return args::Vector A vector
+     */
     static inline args::Vector vector(const char* s1, const char* s2, const char* s3, const char* s4, const char* s5,
                                       const char* s6, const char* s7, const char* s8) {
         args::Vector ret(8);
@@ -2009,6 +2072,11 @@ class Args : public args::Args, public args::Action {
         return ret;
     }
 
+    /**
+     * @brief Create a string vector
+     *
+     * @return args::Vector A vector
+     */
     static inline args::Vector vector(const char* s1, const char* s2, const char* s3, const char* s4, const char* s5,
                                       const char* s6, const char* s7, const char* s8, const char* s9) {
         args::Vector ret(9);
@@ -2024,6 +2092,11 @@ class Args : public args::Args, public args::Action {
         return ret;
     }
 
+    /**
+     * @brief Create a string vector
+     *
+     * @return args::Vector A vector
+     */
     static inline args::Vector vector(const char* s1, const char* s2, const char* s3, const char* s4, const char* s5,
                                       const char* s6, const char* s7, const char* s8, const char* s9, const char* s10) {
         args::Vector ret(10);
@@ -2040,6 +2113,11 @@ class Args : public args::Args, public args::Action {
         return ret;
     }
 
+    /**
+     * @brief Create a string vector
+     *
+     * @return args::Vector A vector
+     */
     static inline args::Vector vector(const char* s1, const char* s2, const char* s3, const char* s4, const char* s5,
                                       const char* s6, const char* s7, const char* s8, const char* s9, const char* s10,
                                       const char* s11) {
@@ -2058,6 +2136,11 @@ class Args : public args::Args, public args::Action {
         return ret;
     }
 
+    /**
+     * @brief Create a string vector
+     *
+     * @return args::Vector A vector
+     */
     static inline args::Vector vector(const char* s1, const char* s2, const char* s3, const char* s4, const char* s5,
                                       const char* s6, const char* s7, const char* s8, const char* s9, const char* s10,
                                       const char* s11, const char* s12) {
@@ -2077,6 +2160,11 @@ class Args : public args::Args, public args::Action {
         return ret;
     }
 
+    /**
+     * @brief Create a string vector
+     *
+     * @return args::Vector A vector
+     */
     static inline args::Vector vector(const char* s1, const char* s2, const char* s3, const char* s4, const char* s5,
                                       const char* s6, const char* s7, const char* s8, const char* s9, const char* s10,
                                       const char* s11, const char* s12, const char* s13) {
@@ -2097,6 +2185,11 @@ class Args : public args::Args, public args::Action {
         return ret;
     }
 
+    /**
+     * @brief Create a string vector
+     *
+     * @return args::Vector A vector
+     */
     static inline args::Vector vector(const char* s1, const char* s2, const char* s3, const char* s4, const char* s5,
                                       const char* s6, const char* s7, const char* s8, const char* s9, const char* s10,
                                       const char* s11, const char* s12, const char* s13, const char* s14) {
@@ -2118,6 +2211,11 @@ class Args : public args::Args, public args::Action {
         return ret;
     }
 
+    /**
+     * @brief Create a string vector
+     *
+     * @return args::Vector A vector
+     */
     static inline args::Vector vector(const char* s1, const char* s2, const char* s3, const char* s4, const char* s5,
                                       const char* s6, const char* s7, const char* s8, const char* s9, const char* s10,
                                       const char* s11, const char* s12, const char* s13, const char* s14,
@@ -2141,6 +2239,11 @@ class Args : public args::Args, public args::Action {
         return ret;
     }
 
+    /**
+     * @brief Create a string vector
+     *
+     * @return args::Vector A vector
+     */
     static inline args::Vector vector(const char* s1, const char* s2, const char* s3, const char* s4, const char* s5,
                                       const char* s6, const char* s7, const char* s8, const char* s9, const char* s10,
                                       const char* s11, const char* s12, const char* s13, const char* s14,
@@ -2165,6 +2268,11 @@ class Args : public args::Args, public args::Action {
         return ret;
     }
 
+    /**
+     * @brief Create a string vector
+     *
+     * @return args::Vector A vector
+     */
     static inline args::Vector vector(const char* s1, const char* s2, const char* s3, const char* s4, const char* s5,
                                       const char* s6, const char* s7, const char* s8, const char* s9, const char* s10,
                                       const char* s11, const char* s12, const char* s13, const char* s14,
@@ -2190,6 +2298,11 @@ class Args : public args::Args, public args::Action {
         return ret;
     }
 
+    /**
+     * @brief Create a string vector
+     *
+     * @return args::Vector A vector
+     */
     static inline args::Vector vector(const char* s1, const char* s2, const char* s3, const char* s4, const char* s5,
                                       const char* s6, const char* s7, const char* s8, const char* s9, const char* s10,
                                       const char* s11, const char* s12, const char* s13, const char* s14,
@@ -2216,6 +2329,11 @@ class Args : public args::Args, public args::Action {
         return ret;
     }
 
+    /**
+     * @brief Create a string vector
+     *
+     * @return args::Vector A vector
+     */
     static inline args::Vector vector(const char* s1, const char* s2, const char* s3, const char* s4, const char* s5,
                                       const char* s6, const char* s7, const char* s8, const char* s9, const char* s10,
                                       const char* s11, const char* s12, const char* s13, const char* s14,
@@ -2244,6 +2362,11 @@ class Args : public args::Args, public args::Action {
         return ret;
     }
 
+    /**
+     * @brief Create a string vector
+     *
+     * @return args::Vector A vector
+     */
     static inline args::Vector vector(const char* s1, const char* s2, const char* s3, const char* s4, const char* s5,
                                       const char* s6, const char* s7, const char* s8, const char* s9, const char* s10,
                                       const char* s11, const char* s12, const char* s13, const char* s14,
@@ -2471,7 +2594,7 @@ namespace blet {
 
 namespace args {
 
-inline Args::Args(bool addHelp) :
+inline Args::Args() :
     Usage(*this),
     binaryName_(),
     arguments_(),
@@ -2482,12 +2605,7 @@ inline Args::Args(bool addHelp) :
     isStrict_(false),
     isHelpException_(false),
     isVersionException_(false),
-    additionalArguments_() {
-    if (addHelp) {
-        // define helpOption_
-        addArgument("-h").flag("--help").action(Action::HELP).help("show this help message and exit");
-    }
-}
+    additionalArguments_() {}
 
 inline Args::~Args() {
     // delete all new element
@@ -2500,6 +2618,23 @@ inline void Args::parseArguments(int argc, char* argv[]) {
     // clear the arguments
     for (std::list<Argument*>::iterator it = arguments_.begin(); it != arguments_.end(); ++it) {
         (*it)->clear_();
+    }
+    // check help option exists
+    if (helpOption_ == NULL) {
+        const std::map<std::string, blet::args::Argument**>::const_iterator cith = argumentFromName_.find("-h");
+        const std::map<std::string, blet::args::Argument**>::const_iterator cithelp = argumentFromName_.find("--help");
+        if (cith != argumentFromName_.end() && cithelp != argumentFromName_.end()) {
+            // the flags are already used
+            return;
+        }
+        Vector flags;
+        if (cith == argumentFromName_.end()) {
+            flags.push_back("-h");
+        }
+        if (cithelp == argumentFromName_.end()) {
+            flags.push_back("--help");
+        }
+        addArgument(flags).action(Action::HELP).help("show this help message and exit");
     }
     // get argv[0] if filename is empty
     if (binaryName_.empty()) {
@@ -2667,7 +2802,7 @@ inline Argument& Args::addArgument(const Vector& nameOrFlags) {
         }
 
         argument = new Argument(*this);
-        argument->nameOrFlags_ = nameOrFlags;
+        argument->nameOrFlags_ = newFlags;
         argument->sortNameOrFlags_();
     }
 
@@ -2824,14 +2959,16 @@ inline void Args::parseArgument_(int maxIndex, char* argv[], int* index, bool ha
                                  const char* arg, Argument* argument) {
     if (hasArg) {
         switch (argument->type_) {
-            case Argument::SIMPLE_OPTION:
+            case Argument::SIMPLE_OPTION: {
                 argument->argument_ = arg;
                 break;
+            }
             case Argument::NUMBER_OPTION:
             case Argument::MULTI_NUMBER_OPTION:
-            case Argument::MULTI_NUMBER_INFINITE_OPTION:
+            case Argument::MULTI_NUMBER_INFINITE_OPTION: {
                 throw ParseArgumentException(option, "option cannot use with only 1 argument");
                 break;
+            }
             case Argument::INFINITE_OPTION: {
                 argument->clear();
                 argument->push_back(arg);
@@ -2845,9 +2982,10 @@ inline void Args::parseArgument_(int maxIndex, char* argv[], int* index, bool ha
                 argument->push_back(arg);
                 break;
             }
-            default:
+            default: {
                 throw ParseArgumentException(option, "option cannot use with argument");
                 break;
+            }
         }
     }
     else {

@@ -1,21 +1,5 @@
 # Args
 
-## Constructor
-
-```cpp
-Args(bool addHelp = true);
-```
-
-If `addhelp` is true generate a action help argument with the flags -h and --help.
-
-## Destructor
-
-```cpp
-virtual ~Args();
-```
-
-Delete all new object.
-
 ## setVersion
 
 ```cpp

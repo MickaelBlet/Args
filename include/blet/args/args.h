@@ -2,7 +2,7 @@
  * args/args.h
  *
  * Licensed under the MIT License <http://opensource.org/licenses/MIT>.
- * Copyright (c) 2022-2023 BLET Mickael.
+ * Copyright (c) 2022-2025 BLET Mickael.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -55,7 +55,7 @@ class Args : public Usage {
     /**
      * @brief Construct a new Args object
      */
-    Args(bool addHelp);
+    Args();
 
     /**
      * @brief Destroy the Args object
@@ -65,7 +65,7 @@ class Args : public Usage {
     /**
      * @brief Set the version message
      *
-     * @param version
+     * @param version A version message
      */
     void setVersion(const std::string& version) {
         version_ = version;

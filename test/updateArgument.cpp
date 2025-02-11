@@ -20,14 +20,16 @@ GTEST_TEST(updateArgument, exception) {
 
 GTEST_TEST(updateArgument, help) {
     blet::Args args;
+    args.addArgument("-h").action(args.HELP).help("print this message");
     args.updateArgument("-h").help("custom message of help");
-    EXPECT_EQ(args["--help"].getHelp(), std::string("custom message of help"));
+    EXPECT_EQ(args["-h"].getHelp(), std::string("custom message of help"));
 }
 
 GTEST_TEST(updateArgument, undo_help_and_version) {
     blet::Args args;
+    args.addArgument("-h").action(args.HELP).help("print this message");
     args.updateArgument("-h").action(args.NONE);
-    EXPECT_EQ(args["--help"].getAction(), args.NONE);
+    EXPECT_EQ(args["-h"].getAction(), args.NONE);
     args.addArgument("-v").action(args.VERSION);
     args.updateArgument("-v").action(args.NONE);
     EXPECT_EQ(args["-v"].getAction(), args.NONE);

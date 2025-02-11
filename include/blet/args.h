@@ -2,7 +2,7 @@
  * args.h
  *
  * Licensed under the MIT License <http://opensource.org/licenses/MIT>.
- * Copyright (c) 2022-2023 BLET Mickael.
+ * Copyright (c) 2022-2025 BLET Mickael.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -34,11 +34,13 @@
 
 namespace blet {
 
-// simply use args
+/**
+ * @brief Parse and use argument
+ */
 class Args : public args::Args, public args::Action {
   public:
-    Args(bool addHelp = true) :
-        args::Args(addHelp) {}
+    Args() :
+        args::Args() {}
     ~Args() {}
 
     typedef args::Exception Exception;
@@ -56,16 +58,31 @@ class Args : public args::Args, public args::Action {
     typedef args::ValidMinMax ValidMinMax;
     typedef args::ValidPath ValidPath;
 
+    /**
+     * @brief Create a empty string vector
+     *
+     * @return args::Vector A empty vector
+     */
     static args::Vector vector() {
         return args::Vector();
     }
 
+    /**
+     * @brief Create a string vector
+     *
+     * @return args::Vector A vector
+     */
     static args::Vector vector(const char* s1) {
         args::Vector ret(1);
         ret[0] = s1;
         return ret;
     }
 
+    /**
+     * @brief Create a string vector
+     *
+     * @return args::Vector A vector
+     */
     static args::Vector vector(const char* s1, const char* s2) {
         args::Vector ret(2);
         ret[0] = s1;
@@ -73,6 +90,11 @@ class Args : public args::Args, public args::Action {
         return ret;
     }
 
+    /**
+     * @brief Create a string vector
+     *
+     * @return args::Vector A vector
+     */
     static args::Vector vector(const char* s1, const char* s2, const char* s3) {
         args::Vector ret(3);
         ret[0] = s1;
@@ -81,6 +103,11 @@ class Args : public args::Args, public args::Action {
         return ret;
     }
 
+    /**
+     * @brief Create a string vector
+     *
+     * @return args::Vector A vector
+     */
     static args::Vector vector(const char* s1, const char* s2, const char* s3, const char* s4) {
         args::Vector ret(4);
         ret[0] = s1;
@@ -90,6 +117,11 @@ class Args : public args::Args, public args::Action {
         return ret;
     }
 
+    /**
+     * @brief Create a string vector
+     *
+     * @return args::Vector A vector
+     */
     static args::Vector vector(const char* s1, const char* s2, const char* s3, const char* s4, const char* s5) {
         args::Vector ret(5);
         ret[0] = s1;
@@ -100,6 +132,11 @@ class Args : public args::Args, public args::Action {
         return ret;
     }
 
+    /**
+     * @brief Create a string vector
+     *
+     * @return args::Vector A vector
+     */
     static args::Vector vector(const char* s1, const char* s2, const char* s3, const char* s4, const char* s5,
                                const char* s6) {
         args::Vector ret(6);
@@ -112,6 +149,11 @@ class Args : public args::Args, public args::Action {
         return ret;
     }
 
+    /**
+     * @brief Create a string vector
+     *
+     * @return args::Vector A vector
+     */
     static args::Vector vector(const char* s1, const char* s2, const char* s3, const char* s4, const char* s5,
                                const char* s6, const char* s7) {
         args::Vector ret(7);
@@ -125,6 +167,11 @@ class Args : public args::Args, public args::Action {
         return ret;
     }
 
+    /**
+     * @brief Create a string vector
+     *
+     * @return args::Vector A vector
+     */
     static args::Vector vector(const char* s1, const char* s2, const char* s3, const char* s4, const char* s5,
                                const char* s6, const char* s7, const char* s8) {
         args::Vector ret(8);
@@ -139,6 +186,11 @@ class Args : public args::Args, public args::Action {
         return ret;
     }
 
+    /**
+     * @brief Create a string vector
+     *
+     * @return args::Vector A vector
+     */
     static args::Vector vector(const char* s1, const char* s2, const char* s3, const char* s4, const char* s5,
                                const char* s6, const char* s7, const char* s8, const char* s9) {
         args::Vector ret(9);
@@ -154,6 +206,11 @@ class Args : public args::Args, public args::Action {
         return ret;
     }
 
+    /**
+     * @brief Create a string vector
+     *
+     * @return args::Vector A vector
+     */
     static args::Vector vector(const char* s1, const char* s2, const char* s3, const char* s4, const char* s5,
                                const char* s6, const char* s7, const char* s8, const char* s9, const char* s10) {
         args::Vector ret(10);
@@ -170,6 +227,11 @@ class Args : public args::Args, public args::Action {
         return ret;
     }
 
+    /**
+     * @brief Create a string vector
+     *
+     * @return args::Vector A vector
+     */
     static args::Vector vector(const char* s1, const char* s2, const char* s3, const char* s4, const char* s5,
                                const char* s6, const char* s7, const char* s8, const char* s9, const char* s10,
                                const char* s11) {
@@ -188,6 +250,11 @@ class Args : public args::Args, public args::Action {
         return ret;
     }
 
+    /**
+     * @brief Create a string vector
+     *
+     * @return args::Vector A vector
+     */
     static args::Vector vector(const char* s1, const char* s2, const char* s3, const char* s4, const char* s5,
                                const char* s6, const char* s7, const char* s8, const char* s9, const char* s10,
                                const char* s11, const char* s12) {
@@ -207,6 +274,11 @@ class Args : public args::Args, public args::Action {
         return ret;
     }
 
+    /**
+     * @brief Create a string vector
+     *
+     * @return args::Vector A vector
+     */
     static args::Vector vector(const char* s1, const char* s2, const char* s3, const char* s4, const char* s5,
                                const char* s6, const char* s7, const char* s8, const char* s9, const char* s10,
                                const char* s11, const char* s12, const char* s13) {
@@ -227,6 +299,11 @@ class Args : public args::Args, public args::Action {
         return ret;
     }
 
+    /**
+     * @brief Create a string vector
+     *
+     * @return args::Vector A vector
+     */
     static args::Vector vector(const char* s1, const char* s2, const char* s3, const char* s4, const char* s5,
                                const char* s6, const char* s7, const char* s8, const char* s9, const char* s10,
                                const char* s11, const char* s12, const char* s13, const char* s14) {
@@ -248,6 +325,11 @@ class Args : public args::Args, public args::Action {
         return ret;
     }
 
+    /**
+     * @brief Create a string vector
+     *
+     * @return args::Vector A vector
+     */
     static args::Vector vector(const char* s1, const char* s2, const char* s3, const char* s4, const char* s5,
                                const char* s6, const char* s7, const char* s8, const char* s9, const char* s10,
                                const char* s11, const char* s12, const char* s13, const char* s14, const char* s15) {
@@ -270,6 +352,11 @@ class Args : public args::Args, public args::Action {
         return ret;
     }
 
+    /**
+     * @brief Create a string vector
+     *
+     * @return args::Vector A vector
+     */
     static args::Vector vector(const char* s1, const char* s2, const char* s3, const char* s4, const char* s5,
                                const char* s6, const char* s7, const char* s8, const char* s9, const char* s10,
                                const char* s11, const char* s12, const char* s13, const char* s14, const char* s15,
@@ -294,6 +381,11 @@ class Args : public args::Args, public args::Action {
         return ret;
     }
 
+    /**
+     * @brief Create a string vector
+     *
+     * @return args::Vector A vector
+     */
     static args::Vector vector(const char* s1, const char* s2, const char* s3, const char* s4, const char* s5,
                                const char* s6, const char* s7, const char* s8, const char* s9, const char* s10,
                                const char* s11, const char* s12, const char* s13, const char* s14, const char* s15,
@@ -319,6 +411,11 @@ class Args : public args::Args, public args::Action {
         return ret;
     }
 
+    /**
+     * @brief Create a string vector
+     *
+     * @return args::Vector A vector
+     */
     static args::Vector vector(const char* s1, const char* s2, const char* s3, const char* s4, const char* s5,
                                const char* s6, const char* s7, const char* s8, const char* s9, const char* s10,
                                const char* s11, const char* s12, const char* s13, const char* s14, const char* s15,
@@ -345,6 +442,11 @@ class Args : public args::Args, public args::Action {
         return ret;
     }
 
+    /**
+     * @brief Create a string vector
+     *
+     * @return args::Vector A vector
+     */
     static args::Vector vector(const char* s1, const char* s2, const char* s3, const char* s4, const char* s5,
                                const char* s6, const char* s7, const char* s8, const char* s9, const char* s10,
                                const char* s11, const char* s12, const char* s13, const char* s14, const char* s15,
@@ -372,6 +474,11 @@ class Args : public args::Args, public args::Action {
         return ret;
     }
 
+    /**
+     * @brief Create a string vector
+     *
+     * @return args::Vector A vector
+     */
     static args::Vector vector(const char* s1, const char* s2, const char* s3, const char* s4, const char* s5,
                                const char* s6, const char* s7, const char* s8, const char* s9, const char* s10,
                                const char* s11, const char* s12, const char* s13, const char* s14, const char* s15,

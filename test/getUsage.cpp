@@ -9,7 +9,7 @@ GTEST_TEST(getUsage, custom) {
 }
 
 GTEST_TEST(getUsage, compareOption_) {
-    blet::Args args(false);
+    blet::Args args;
     args.addArgument(args.vector("-h", "--help")).action(blet::Args::HELP).help("custom help option message");
     args.addArgument("NOTREQUIRED1").help("help of positional argument");
     args.addArgument("REQUIRED1").help("help of required1 positional argument").required(true);
@@ -65,6 +65,7 @@ GTEST_TEST(getUsage, widthUsage) {
     blet::Args args;
     args.setUsageWidth(0, 10, 2, 10);
     args.setDescription("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX");
+    args.addArgument(args.vector("-h", "--help")).action(blet::Args::HELP).help("show this help message and exit");
     args.addArgument("XXXXXXXXXXX").help("XXXX XXXX XXXX XXXX XXXX XXXX XXXX XXXX XXXX XXXX XXXX XXXX XXXX XX");
     std::ostringstream oss("");
     oss << "usage:  [-h] --\n"
@@ -124,6 +125,7 @@ GTEST_TEST(getUsage, allTypeArgument) {
     args.setDescription("custom description message");
     args.setEpilog("custom epilog message");
     // POSITIONNAL
+    args.addArgument(args.vector("-h", "--help")).action(blet::Args::HELP).help("show this help message and exit");
     args.addArgument("REQUIRED").help("help of required positional argument").required(true);
     args.addArgument("NUMBER").help("help of positional number argument").nargs(2);
     args.addArgument("INFINITE").help("help of infinite positional argument").action(args.INFINITE);

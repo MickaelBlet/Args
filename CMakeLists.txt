@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.5)
 
-project(blet_args VERSION 5.0.2 LANGUAGES CXX)
+project(blet_args VERSION 5.1.0 LANGUAGES CXX)
 
 # OPTIONS
 option(BUILD_EXAMPLE "Build example binaries" OFF)
@@ -21,11 +21,11 @@ if(NOT CMAKE_INSTALL_INCLUDEDIR)
 endif()
 
 add_library("${PROJECT_NAME}"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/args.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/argument.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/exception.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/usage.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/valid.cpp"
+    "src/args.cpp"
+    "src/argument.cpp"
+    "src/exception.cpp"
+    "src/usage.cpp"
+    "src/valid.cpp"
 )
 
 set_target_properties("${PROJECT_NAME}"
@@ -85,4 +85,5 @@ if(library_type STREQUAL "STATIC_LIBRARY" AND
         target_link_libraries("${PROJECT_NAME}" gcov)
     endif()
     add_subdirectory(test)
+    add_subdirectory(third/mockf)
 endif()
