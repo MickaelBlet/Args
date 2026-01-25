@@ -160,6 +160,25 @@ class Args : public Usage {
     }
 
     /**
+     * @brief Activate parsing to accept abbreviated long options (e.g., --ver matches --version)
+     *
+     * @param abbrev
+     */
+    Args& setAbbrev(bool abbrev = true) {
+        isAbbrev_ = abbrev;
+        return *this;
+    }
+
+    /**
+     * @brief Get the status of abbrev
+     *
+     * @return [true] if abbreviated options are enabled
+     */
+    bool isAbbrev() const {
+        return isAbbrev_;
+    }
+
+    /**
      * @brief Set the binary name
      *
      * @param binaryName
@@ -332,6 +351,15 @@ class Args : public Usage {
      */
     bool endOfInfiniteArgument_(const char* argument);
 
+    /**
+     * @brief Find an argument by abbreviated option name (prefix match)
+     *
+     * @param option The abbreviated option (e.g., "--ver")
+     * @return Iterator to the matching argument, or end() if not found or ambiguous
+     * @throw ParseArgumentException if the abbreviation is ambiguous
+     */
+    std::map<std::string, Argument**>::iterator findAbbreviatedOption_(const std::string& option);
+
     std::string binaryName_;
 
     std::list<Argument*> arguments_;
@@ -346,6 +374,7 @@ class Args : public Usage {
     bool isStrict_;
     bool isHelpException_;
     bool isVersionException_;
+    bool isAbbrev_;
     std::vector<std::string> additionalArguments_;
 };
 

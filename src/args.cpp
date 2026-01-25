@@ -51,6 +51,7 @@ Args::Args() :
     isStrict_(false),
     isHelpException_(false),
     isVersionException_(false),
+    isAbbrev_(false),
     additionalArguments_() {}
 
 Args::~Args() {
@@ -324,6 +325,7 @@ void Args::clear() {
     isStrict_ = false;
     isHelpException_ = false;
     isVersionException_ = false;
+    isAbbrev_ = false;
     additionalArguments_.clear();
     // usage
     description_ = "";
@@ -395,7 +397,12 @@ void Args::parseLongArgument_(int maxIndex, char* argv[], int* index) {
     bool hasArg = takeArg(argv[*index], &option, &arg);
     it = argumentFromName_.find(option);
     if (it == argumentFromName_.end()) {
-        throw ParseArgumentException(option.c_str() + ARGS_PREFIX_SIZEOF_LONG_OPTION_, "invalid option");
+        if (isAbbrev_) {
+            it = findAbbreviatedOption_(option);
+        }
+        if (it == argumentFromName_.end()) {
+            throw ParseArgumentException(option.c_str() + ARGS_PREFIX_SIZEOF_LONG_OPTION_, "invalid option");
+        }
     }
     parseArgument_(maxIndex, argv, index, hasArg, option.c_str() + ARGS_PREFIX_SIZEOF_LONG_OPTION_, arg.c_str(),
                    *(it->second));
@@ -576,6 +583,23 @@ bool Args::endOfInfiniteArgument_(const char* argument) {
     else if (isLongOption(argument)) {
         takeArg(argument, &option, &arg);
         it = argumentFromName_.find(option);
+        if (it == argumentFromName_.end() && isAbbrev_) {
+            // Try abbreviated match (without throwing on ambiguity for end detection)
+            std::size_t matchCount = 0;
+            for (std::map<std::string, Argument**>::iterator searchIt = argumentFromName_.begin();
+                 searchIt != argumentFromName_.end(); ++searchIt) {
+                const std::string& key = searchIt->first;
+                if (key.size() >= 2 && key[0] == '-' && key[1] == '-') {
+                    if (key.size() >= option.size() && key.compare(0, option.size(), option) == 0) {
+                        it = searchIt;
+                        ++matchCount;
+                    }
+                }
+            }
+            if (matchCount != 1) {
+                it = argumentFromName_.end();
+            }
+        }
     }
     else {
         return false;
@@ -647,6 +671,36 @@ void Args::parsePositionnalArgument_(int argc, char* argv[], int* index, bool ha
             additionalArguments_.push_back(argv[*index]);
         }
     }
+}
+
+std::map<std::string, Argument**>::iterator Args::findAbbreviatedOption_(const std::string& option) {
+    std::map<std::string, Argument**>::iterator found = argumentFromName_.end();
+    std::size_t matchCount = 0;
+    std::string ambiguousOptions;
+
+    for (std::map<std::string, Argument**>::iterator it = argumentFromName_.begin(); it != argumentFromName_.end();
+         ++it) {
+        const std::string& key = it->first;
+        // Only match long options (starting with --)
+        if (key.size() >= 2 && key[0] == '-' && key[1] == '-') {
+            // Check if option is a prefix of this key
+            if (key.size() >= option.size() && key.compare(0, option.size(), option) == 0) {
+                if (matchCount > 0) {
+                    ambiguousOptions += ", ";
+                }
+                ambiguousOptions += key;
+                found = it;
+                ++matchCount;
+            }
+        }
+    }
+
+    if (matchCount > 1) {
+        throw ParseArgumentException((option.c_str() + ARGS_PREFIX_SIZEOF_LONG_OPTION_),
+                                     ("ambiguous option, could be: " + ambiguousOptions).c_str());
+    }
+
+    return found;
 }
 
 } // namespace args
