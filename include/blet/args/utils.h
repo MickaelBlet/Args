@@ -107,12 +107,10 @@ inline int endOptionIndex(int argc, char** argv) {
  * @return false
  */
 inline bool takeArg(const char* arg, std::string* retOptionName, std::string* retArgument) {
-    char* equal = ::strchr(const_cast<char*>(arg), '=');
+    const char* equal = ::strchr(arg, '=');
     if (equal) {
-        std::string firstPart(arg, 0, equal - arg);
-        *retOptionName = firstPart;
-        std::string secondPart(arg, equal - arg + 1, std::string::npos);
-        *retArgument = secondPart;
+        retOptionName->assign(arg, equal - arg);
+        retArgument->assign(equal + 1);
         return true;
     }
     else {
