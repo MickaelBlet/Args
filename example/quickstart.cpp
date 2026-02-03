@@ -65,6 +65,7 @@ int main(int argc, char* argv[]) {
     try {
         args.setStrict()                 // except with additional argument
             .setAlternative()            // accept simple '-' with a long flag
+            .setAbbreviate()             // accept abbreviated long options (e.g., --ver for --version)
             .setHelpException()          // except when help flag is called
             .setVersionException()       // except when version flag is called
             .parseArguments(argc, argv); // add help option automatically

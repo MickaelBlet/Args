@@ -85,5 +85,6 @@ if(library_type STREQUAL "STATIC_LIBRARY" AND
         target_link_libraries("${PROJECT_NAME}" gcov)
     endif()
     add_subdirectory(test)
+    set(BUILD_TESTING OFF) # Disable testing for third-party libraries
     add_subdirectory(third/mockf)
 endif()

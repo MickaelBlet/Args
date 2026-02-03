@@ -1,6 +1,6 @@
 [submodule "third/amalgamate"]
 	path = third/amalgamate
-	url = https://github.com/MickaelBlet/amalgamate.git
+	url = ../amalgamate.git
 [submodule "third/mockf"]
 	path = third/mockf
-	url = https://github.com/MickaelBlet/mockf.git
+	url = ../mockf.git

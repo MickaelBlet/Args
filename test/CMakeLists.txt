@@ -1,6 +1,7 @@
 set(library_project_name "${PROJECT_NAME}")
 
 set(test_source_files
+    "${CMAKE_CURRENT_SOURCE_DIR}/abbreviatedOptions.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/accessDenied.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/addArgument.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/getUsage.cpp"

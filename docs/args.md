@@ -22,7 +22,7 @@ Get the version message.
 Args& setAlternative(bool alternivative = true);
 ```
 
-Active parsing for accept long option with only one '-' character.
+Enable parsing to accept long options with only one '-' character.
 
 ## isAlternative
 
@@ -32,13 +32,43 @@ bool isAlternative() const;
 
 Get the status of alternative.
 
+## setAbbreviate
+
+```cpp
+Args& setAbbreviate(bool abbreviate = true);
+```
+
+Enable parsing to accept abbreviated long options (e.g., `--ver` matches `--version`).
+
+When enabled, long options (starting with `--`) can be specified using any unambiguous prefix. If the abbreviation matches multiple options, a `ParseArgumentException` is thrown with details about the ambiguous matches. Exact matches always take precedence over abbreviations.
+
+Example:
+```cpp
+Args args;
+args.addArgument("--version");
+args.addArgument("--verbose");
+args.setAbbreviate();
+
+// --vers matches --version (unambiguous)
+// --verb matches --verbose (unambiguous)
+// --ver throws exception (ambiguous: matches both --version and --verbose)
+```
+
+## isAbbreviate
+
+```cpp
+bool isAbbreviate() const;
+```
+
+Get the status of abbreviated options.
+
 ## setStrict
 
 ```cpp
 Args& setStrict(bool strict = true);
 ```
 
-Active exception if not all argument is used else you can take additionals arguments with [getAdditionalArguments](#getadditionalarguments) method.
+Throw exception if not all arguments are used; otherwise, you can take additional arguments with [getAdditionalArguments](#getadditionalarguments) method.
 
 ## isStrict
 
@@ -54,7 +84,7 @@ Get the status of strict.
 Args& setHelpException(bool helpException = true);
 ```
 
-Throw a HelpException when help action is present in arguments else exit(0) the your program after output usage at stdout.
+Throw a HelpException when help action is present in arguments; otherwise, exit(0) after outputting usage to stdout.
 
 ## isHelpException
 
@@ -70,7 +100,7 @@ Get the status of helpException.
 Args& setVersionException(bool versionException = true);
 ```
 
-Throw a VersionException when version action is present in arguments else exit(0) the your program after output usage at stdout.
+Throw a VersionException when version action is present in arguments; otherwise, exit(0) after outputting usage to stdout.
 
 ## isVersionException
 
@@ -128,7 +158,7 @@ Get the const argument from name or flag.
 const std::vector<std::string>& getAdditionalArguments() const;
 ```
 
-Get the additional arguments after [parseArguments](#parsearguments) method if not strict mode activated.
+Get the additional arguments after [parseArguments](#parsearguments) method if strict mode is not activated.
 
 ## parseArguments
 
@@ -144,7 +174,8 @@ Previous calls to [addArgument](#addargument) determine exactly what objects are
 |Methods||
 |---|---|
 | [setStrict](#setstrict) | [setAlternative](#setalternative) |
-| [setHelpException](#sethelpexception) | [setVersionException](#setversionexception) |
+| [setAbbreviate](#setabbreviate) | [setHelpException](#sethelpexception) |
+| [setVersionException](#setversionexception) | |
 
 ## addArgument
 
@@ -185,7 +216,7 @@ Get the ref. of argument from name or flag.
 void removeArguments(const Vector& nameOrFlags);
 ```
 
-Remove previously arguments.
+Remove previously added arguments.
 
 ## clear
 
@@ -193,4 +224,4 @@ Remove previously arguments.
 void clear();
 ```
 
-Clear and reset with defaults values.
+Clear and reset with default values.

@@ -1651,6 +1651,25 @@ class Args : public Usage {
     }
 
     /**
+     * @brief Activate parsing to accept abbreviated long options (e.g., --ver matches --version)
+     *
+     * @param abbreviate
+     */
+    inline Args& setAbbreviate(bool abbreviate = true) {
+        isAbbreviate_ = abbreviate;
+        return *this;
+    }
+
+    /**
+     * @brief Get the status of abbreviate
+     *
+     * @return [true] if abbreviated options are enabled
+     */
+    inline bool isAbbreviate() const {
+        return isAbbreviate_;
+    }
+
+    /**
      * @brief Activate exception if not all arguments are used; otherwise, you can take additional arguments with
      * getAdditionalArguments method
      *
@@ -1883,6 +1902,15 @@ class Args : public Usage {
      */
     bool endOfInfiniteArgument_(const char* argument);
 
+    /**
+     * @brief Find an argument by abbreviated option name (prefix match)
+     *
+     * @param option The abbreviated option (e.g., "--ver")
+     * @return Iterator to the matching argument, or end() if not found or ambiguous
+     * @throw ParseArgumentException if the abbreviation is ambiguous
+     */
+    std::map<std::string, Argument**>::const_iterator findAbbreviatedOption_(const std::string& option) const;
+
     std::string binaryName_;
 
     std::list<Argument*> arguments_;
@@ -1895,6 +1923,7 @@ class Args : public Usage {
 
     bool isAlternative_;
     bool isStrict_;
+    bool isAbbreviate_;
     bool isHelpException_;
     bool isVersionException_;
     std::vector<std::string> additionalArguments_;
@@ -2557,12 +2586,10 @@ inline int endOptionIndex(int argc, char** argv) {
  * @return false
  */
 inline bool takeArg(const char* arg, std::string* retOptionName, std::string* retArgument) {
-    char* equal = ::strchr(const_cast<char*>(arg), '=');
+    const char* equal = ::strchr(arg, '=');
     if (equal) {
-        std::string firstPart(arg, 0, equal - arg);
-        *retOptionName = firstPart;
-        std::string secondPart(arg, equal - arg + 1, std::string::npos);
-        *retArgument = secondPart;
+        retOptionName->assign(arg, equal - arg);
+        retArgument->assign(equal + 1);
         return true;
     }
     else {
@@ -2603,6 +2630,7 @@ inline Args::Args() :
     versionOption_(NULL),
     isAlternative_(false),
     isStrict_(false),
+    isAbbreviate_(false),
     isHelpException_(false),
     isVersionException_(false),
     additionalArguments_() {}
@@ -2790,11 +2818,12 @@ inline Argument& Args::addArgument(const Vector& nameOrFlags) {
     }
     else {
         std::vector<std::string> newFlags;
+        newFlags.reserve(nameOrFlags.size());
 
         for (std::size_t i = 0; i < nameOrFlags.size(); ++i) {
             Argument::validFormatFlag_(nameOrFlags[i].c_str());
-            if (argumentFromName_.find(nameOrFlags.front()) != argumentFromName_.end()) {
-                throw ArgumentException(nameOrFlags.front().c_str(), "invalid flag already exist");
+            if (argumentFromName_.find(nameOrFlags[i]) != argumentFromName_.end()) {
+                throw ArgumentException(nameOrFlags[i].c_str(), "invalid flag already exist");
             }
             if (std::find(newFlags.begin(), newFlags.end(), nameOrFlags[i]) == newFlags.end()) {
                 newFlags.push_back(nameOrFlags[i]);
@@ -2802,7 +2831,7 @@ inline Argument& Args::addArgument(const Vector& nameOrFlags) {
         }
 
         argument = new Argument(*this);
-        argument->nameOrFlags_ = newFlags;
+        argument->nameOrFlags_.swap(newFlags);
         argument->sortNameOrFlags_();
     }
 
@@ -2870,19 +2899,20 @@ inline void Args::clear() {
     }
     arguments_.clear();
     argumentFromName_.clear();
-    binaryName_ = "";
+    binaryName_.clear();
     helpOption_ = NULL;
     versionOption_ = NULL;
-    version_ = "";
+    version_.clear();
     isAlternative_ = false;
     isStrict_ = false;
     isHelpException_ = false;
     isVersionException_ = false;
+    isAbbreviate_ = false;
     additionalArguments_.clear();
     // usage
-    description_ = "";
-    epilog_ = "";
-    usage_ = "";
+    description_.clear();
+    epilog_.clear();
+    usage_.clear();
     usagePadWidth_ = 2;
     usageArgsWidth_ = 20;
     usageSepWidth_ = 2;
@@ -2895,23 +2925,40 @@ inline void Args::clear() {
 inline void Args::parseShortArgument_(int maxIndex, char* argv[], int* index) {
     std::string options;
     std::string arg;
-    std::map<std::string, Argument**>::iterator it;
+    std::map<std::string, Argument**>::const_iterator it;
     bool hasArg = takeArg(argv[*index], &options, &arg);
     if (isAlternative_) {
         // try to find long option
-        it = argumentFromName_.find("-" + options);
+        std::string altOption("-");
+        altOption += options;
+        it = argumentFromName_.find(altOption);
         if (it != argumentFromName_.end()) {
-            parseArgument_(maxIndex, argv, index, hasArg, options.c_str() + ARGS_PREFIX_SIZEOF_SHORT_OPTION_,
+            parseArgument_(maxIndex, argv, index, hasArg, it->first.c_str() + ARGS_PREFIX_SIZEOF_LONG_OPTION_,
                            arg.c_str(), *(it->second));
             return;
         }
+        else {
+            if (isAbbreviate_) {
+                it = findAbbreviatedOption_(altOption);
+                if (it != argumentFromName_.end()) {
+                    parseArgument_(maxIndex, argv, index, hasArg, it->first.c_str() + ARGS_PREFIX_SIZEOF_LONG_OPTION_,
+                                   arg.c_str(), *(it->second));
+                    return;
+                }
+            }
+        }
     }
+    // Pre-allocate short option key buffer: "-X"
+    std::string shortKey("-");
+    shortKey.reserve(2);
     // get firsts option
     for (std::size_t i = 1; i < options.size() - 1; ++i) {
-        std::string charOption(options, i, 1);
-        it = argumentFromName_.find("-" + charOption);
+        shortKey.resize(1);
+        shortKey += options[i];
+        it = argumentFromName_.find(shortKey);
         if (it == argumentFromName_.end()) {
-            throw ParseArgumentException(charOption.c_str(), "invalid option");
+            const char optChar[2] = {options[i], '\0'};
+            throw ParseArgumentException(optChar, "invalid option");
         }
         else if (!hasArg && ((*(it->second))->type_ == Argument::SIMPLE_OPTION ||
                              (*(it->second))->type_ == Argument::NUMBER_OPTION ||
@@ -2920,38 +2967,48 @@ inline void Args::parseShortArgument_(int maxIndex, char* argv[], int* index) {
                              (*(it->second))->type_ == Argument::MULTI_INFINITE_OPTION ||
                              (*(it->second))->type_ == Argument::MULTI_NUMBER_OPTION)) {
             hasArg = true;
-            arg = options.substr(i + 1, options.size() - i);
+            arg.assign(options, i + 1, std::string::npos);
             (*(it->second))->isExist_ = true;
             ++(*(it->second))->count_;
-            parseArgument_(maxIndex, argv, index, hasArg, charOption.c_str(), arg.c_str(), *(it->second));
+            const char optChar[2] = {options[i], '\0'};
+            parseArgument_(maxIndex, argv, index, hasArg, optChar, arg.c_str(), *(it->second));
             return;
         }
         else if ((*(it->second))->type_ != Argument::BOOLEAN_OPTION &&
                  (*(it->second))->type_ != Argument::REVERSE_BOOLEAN_OPTION) {
-            throw ParseArgumentException(charOption.c_str(), "only last option can be use a parameter");
+            const char optChar[2] = {options[i], '\0'};
+            throw ParseArgumentException(optChar, "only last option can be use a parameter");
         }
         (*(it->second))->isExist_ = true;
         ++(*(it->second))->count_;
     }
     // get last option
-    std::string charOption(options, options.size() - 1, 1);
-    it = argumentFromName_.find("-" + charOption);
+    shortKey.resize(1);
+    shortKey += options[options.size() - 1];
+    it = argumentFromName_.find(shortKey);
     if (it == argumentFromName_.end()) {
-        throw ParseArgumentException(charOption.c_str(), "invalid option");
+        const char optChar[2] = {options[options.size() - 1], '\0'};
+        throw ParseArgumentException(optChar, "invalid option");
     }
-    parseArgument_(maxIndex, argv, index, hasArg, charOption.c_str(), arg.c_str(), *(it->second));
+    const char lastOptChar[2] = {options[options.size() - 1], '\0'};
+    parseArgument_(maxIndex, argv, index, hasArg, lastOptChar, arg.c_str(), *(it->second));
 }
 
 inline void Args::parseLongArgument_(int maxIndex, char* argv[], int* index) {
     std::string option;
     std::string arg;
-    std::map<std::string, Argument**>::iterator it;
+    std::map<std::string, Argument**>::const_iterator it;
     bool hasArg = takeArg(argv[*index], &option, &arg);
     it = argumentFromName_.find(option);
     if (it == argumentFromName_.end()) {
-        throw ParseArgumentException(option.c_str() + ARGS_PREFIX_SIZEOF_LONG_OPTION_, "invalid option");
+        if (isAbbreviate_) {
+            it = findAbbreviatedOption_(option);
+        }
+        if (it == argumentFromName_.end()) {
+            throw ParseArgumentException(option.c_str() + ARGS_PREFIX_SIZEOF_LONG_OPTION_, "invalid option");
+        }
     }
-    parseArgument_(maxIndex, argv, index, hasArg, option.c_str() + ARGS_PREFIX_SIZEOF_LONG_OPTION_, arg.c_str(),
+    parseArgument_(maxIndex, argv, index, hasArg, it->first.c_str() + ARGS_PREFIX_SIZEOF_LONG_OPTION_, arg.c_str(),
                    *(it->second));
 }
 
@@ -3098,15 +3155,21 @@ inline bool Args::endOfInfiniteArgument_(const char* argument) {
     if (isShortOption(argument)) {
         bool hasArg = takeArg(argument, &option, &arg);
         if (isAlternative_) {
-            it = argumentFromName_.find("-" + option);
+            std::string altOption("-");
+            altOption += option;
+            it = argumentFromName_.find(altOption);
             if (it != argumentFromName_.end()) {
                 return true;
             }
         }
+        // Pre-allocate short option key buffer: "-X"
+        std::string shortKey("-");
+        shortKey.reserve(2);
         // get firsts option
         for (std::size_t i = 1; i < option.size() - 1; ++i) {
-            std::string charOption(option, i, 1);
-            it = argumentFromName_.find("-" + charOption);
+            shortKey.resize(1);
+            shortKey += option[i];
+            it = argumentFromName_.find(shortKey);
             if (it == argumentFromName_.end()) {
                 return false;
             }
@@ -3124,20 +3187,35 @@ inline bool Args::endOfInfiniteArgument_(const char* argument) {
             }
         }
         // get last option
-        std::string charOption(option, option.size() - 1, 1);
-        it = argumentFromName_.find("-" + charOption);
+        shortKey.resize(1);
+        shortKey += option[option.size() - 1];
+        it = argumentFromName_.find(shortKey);
     }
     else if (isLongOption(argument)) {
         takeArg(argument, &option, &arg);
         it = argumentFromName_.find(option);
+        if (it == argumentFromName_.end() && isAbbreviate_) {
+            // Try abbreviated match (without throwing on ambiguity for end detection)
+            std::size_t matchCount = 0;
+            for (std::map<std::string, Argument**>::iterator searchIt = argumentFromName_.begin();
+                 searchIt != argumentFromName_.end(); ++searchIt) {
+                const std::string& key = searchIt->first;
+                if (key.size() > 2 && key[0] == '-' && key[1] == '-') {
+                    if (key.size() >= option.size() && key.compare(0, option.size(), option) == 0) {
+                        it = searchIt;
+                        ++matchCount;
+                    }
+                }
+            }
+            if (matchCount != 1) {
+                it = argumentFromName_.end();
+            }
+        }
     }
     else {
         return false;
     }
-    if (it == argumentFromName_.end()) {
-        return false;
-    }
-    return true;
+    return it != argumentFromName_.end();
 }
 
 inline void Args::parsePositionnalArgument_(int argc, char* argv[], int* index, bool hasEndOption) {
@@ -3201,6 +3279,46 @@ inline void Args::parsePositionnalArgument_(int argc, char* argv[], int* index, 
             additionalArguments_.push_back(argv[*index]);
         }
     }
+}
+
+inline std::map<std::string, Argument**>::const_iterator Args::findAbbreviatedOption_(const std::string& option) const {
+    std::map<std::string, Argument**>::const_iterator found = argumentFromName_.end();
+    std::size_t matchCount = 0;
+
+    // First pass: count matches and find the last one
+    for (std::map<std::string, Argument**>::const_iterator it = argumentFromName_.begin();
+         it != argumentFromName_.end(); ++it) {
+        const std::string& key = it->first;
+        // Only match long options (starting with --)
+        if (key.size() > 2 && key[0] == '-' && key[1] == '-') {
+            // Check if option is a prefix of this key
+            if (key.size() >= option.size() && key.compare(0, option.size(), option) == 0) {
+                found = it;
+                ++matchCount;
+            }
+        }
+    }
+
+    // Only build error message if ambiguous
+    if (matchCount > 1) {
+        std::string ambiguousOptions;
+        for (std::map<std::string, Argument**>::const_iterator it = argumentFromName_.begin();
+             it != argumentFromName_.end(); ++it) {
+            const std::string& key = it->first;
+            if (key.size() > 2 && key[0] == '-' && key[1] == '-') {
+                if (key.size() >= option.size() && key.compare(0, option.size(), option) == 0) {
+                    if (!ambiguousOptions.empty()) {
+                        ambiguousOptions += ", ";
+                    }
+                    ambiguousOptions += key;
+                }
+            }
+        }
+        throw ParseArgumentException((option.c_str() + ARGS_PREFIX_SIZEOF_LONG_OPTION_),
+                                     ("ambiguous option, could be: " + ambiguousOptions).c_str());
+    }
+
+    return found;
 }
 
 } // namespace args
