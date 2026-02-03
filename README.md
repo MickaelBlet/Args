@@ -1,9 +1,9 @@
 # Args
 
-Parse and store options from `argc` and `argv`.  
-Inspired by the Python library [argparse](https://python.readthedocs.io/en/latest/library/argparse.html).  
-Header-only library available at [single_include/blet/args.h](single_include/blet/args.h).  
-Documentations available at [documentations](#documentations).
+Parse and store options from `argc` and `argv`.
+Inspired by the Python library [argparse](https://python.readthedocs.io/en/latest/library/argparse.html).
+Header-only library available at [single_include/blet/args.h](single_include/blet/args.h).
+Documentation available at [documentation](#documentation).
 
 ## Quick Start
 
@@ -73,10 +73,11 @@ int main(int argc, char* argv[]) {
         .dest(logLevel, &argToLogLevel); // fill logLevel using argToLogLevel
 
     try {
-        args.setStrict()           // except with additional argument
+        args.setStrict()           // throw exception with additional arguments
             .setAlternative()      // accept simple '-' with a long flag
-            .setHelpException()    // except when help flag is called
-            .setVersionException() // except when version flag is called
+            .setAbbreviate()       // accept abbreviated long options (e.g., --ver for --version)
+            .setHelpException()    // throw exception when help flag is called
+            .setVersionException() // throw exception when version flag is called
             .parseArguments(argc, argv); // add help option automatically
     }
     catch (const blet::Args::VersionException& e) {
@@ -165,14 +166,14 @@ ARGUMENT: 42
 ## Build
 
 ```bash
-# Static Release
+# Static Release with install
 mkdir build; pushd build; cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=0 .. && make -j && make install; popd
-# Dynamic Release
+# Dynamic Release with install
 mkdir build; pushd build; cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=1 .. && make -j && make install; popd
 
-# Static Release C++98
+# Static Release C++98 with install
 mkdir build; pushd build; cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_STANDARD=98 -DBUILD_SHARED_LIBS=0 .. && make -j && make install; popd
-# Dynamic Release C++98
+# Dynamic Release C++98 with install
 mkdir build; pushd build; cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_STANDARD=98 -DBUILD_SHARED_LIBS=1 .. && make -j && make install; popd
 
 # Install with custom directory
@@ -207,6 +208,7 @@ Long format
 "--simple=Simple"   # [simple] == Simple
 "-simple" "Simple"  # (alternative) [simple] == Simple
 "-simple=Simple"    # (alternative) [simple] == Simple
+"--ver"             # (abbreviated) [version] == true (if setAbbreviate is enabled)
 ```
 
 ## Methods
@@ -256,11 +258,36 @@ void parseArguments(int argc, char* argv[]);
 #### Parse Options
 
 ```cpp
-blet::Args& setStrict(); // Activate exception if not all arguments are used; otherwise, you can take additional arguments with getAdditionalArguments method
-blet::Args& setAlternative(); // Activate parsing to accept long option with only one '-' character
+blet::Args& setStrict(); // Throw exception if not all arguments are used; otherwise, you can take additional arguments with getAdditionalArguments method
+blet::Args& setAlternative(); // Enable parsing to accept long options with only one '-' character
+blet::Args& setAbbreviate(); // Enable parsing to accept abbreviated long options (e.g., --ver matches --version); throws on ambiguity
 blet::Args& setHelpException(); // Throw a HelpException when help action is present in arguments; otherwise, exit(0) after outputting usage to stdout
-blet::Args& setVersionException(); // Throw a VersionException when version action is present in arguments; otherwise, exit(0) after outputting version to stdout
+blet::Args& setVersionException(); // Throw a VersionException when version action is present in arguments; otherwise, exit(0) after outputting usage to stdout
 ```
+
+## Abbreviated Options
+
+When `setAbbreviate()` is enabled, long options can be specified by any unambiguous prefix:
+
+```cpp
+blet::Args args;
+args.addArgument("--version").action(args.STORE_TRUE);
+args.addArgument("--verbose").action(args.STORE_TRUE);
+args.setAbbreviate();
+```
+
+```bash
+./program --vers   # matches --version (unambiguous)
+./program --verb   # matches --verbose (unambiguous)
+./program --ver    # ERROR: ambiguous (matches both --version and --verbose)
+./program --versio # matches --version (unambiguous)
+```
+
+**Important notes:**
+- Only works with long options (starting with `--`)
+- Exact matches always take precedence over abbreviations
+- Throws `ParseArgumentException` if abbreviation is ambiguous
+- Can be combined with `setAlternative()` and other parsing options
 
 ## Vector
 
@@ -275,14 +302,14 @@ args.addArgument(args.vector("-s", "--simple"));     // C++98
 args.addArgument((const char*[]){"-s", "--simple"}); // C++98
 ```
 
-## Documentations
+## Documentation
 
 ### Args Basic Methods
 
 |Method|Description|
 |---|---|
 |[addArgument](docs/args.md#addargument)|Define how a single command-line argument should be parsed.|
-|[parseArguments](docs/args.md#parsearguments)|Convert argument strings to objects and assign them as attributes of the args map.<br/>Previous calls to [addArgument](docs/args.md#addargument) determine exactly what objects are created and how they are assigned.<br/>If called without help action, define '-h' and '--help' if not used.|
+|[parseArguments](docs/args.md#parsearguments)|Convert argument strings to objects and assign them as attributes of the args map.<br/>Previous calls to [addArgument](docs/args.md#addargument) determine exactly what objects are created and how they are assigned.<br/>If called without help action, defines '-h' and '--help' if not used.|
 
 ### Custom Usage
 
@@ -301,21 +328,23 @@ args.addArgument((const char*[]){"-s", "--simple"}); // C++98
 
 |Method|Description|
 |---|---|
-|[argumentExists](docs/args.md#argumentexists)|Check if argument exist.|
-|[clear](docs/args.md#clear)|Clear and reset with defaults values.|
-|[getAdditionalArguments](docs/args.md#getadditionalarguments)|Get the vector of additional argument.|
+|[argumentExists](docs/args.md#argumentexists)|Check if argument exists.|
+|[clear](docs/args.md#clear)|Clear and reset with default values.|
+|[getAdditionalArguments](docs/args.md#getadditionalarguments)|Get the vector of additional arguments.|
 |[getArgument](docs/args.md#getargument)|Get the argument object.|
 |[getBinaryName](docs/args.md#getbinaryname)|Get the binary name.|
 |[getVersion](docs/args.md#getversion)|Get the version message.|
+|[isAbbreviate](docs/args.md#isabbreviate)|Get the status of abbreviated options.|
 |[isAlternative](docs/args.md#isalternative)|Get the status of alternative.|
 |[isHelpException](docs/args.md#ishelpexception)|Get the status of helpException.|
 |[isStrict](docs/args.md#isstrict)|Get the status of strict.|
 |[isVersionException](docs/args.md#isversionexception)|Get the status of versionException.|
-|[removeArguments](docs/args.md#removearguments)|Remove previously arguments.|
-|[setAlternative](docs/args.md#setalternative)|Activate parsing to accept long option with only one '-' character.|
+|[removeArguments](docs/args.md#removearguments)|Remove previously added arguments.|
+|[setAbbreviate](docs/args.md#setabbreviate)|Enable parsing to accept abbreviated long options (e.g., --ver matches --version).|
+|[setAlternative](docs/args.md#setalternative)|Enable parsing to accept long options with only one '-' character.|
 |[setBinaryName](docs/args.md#setbinaryname)|Set the binary name.|
 |[setHelpException](docs/args.md#sethelpexception)|Throw a HelpException when help action is present in arguments; otherwise, exit(0) after outputting usage to stdout.|
-|[setStrict](docs/args.md#setstrict)|Activate exception if not all arguments are used; otherwise, you can take additional arguments with getAdditionalArguments method.|
+|[setStrict](docs/args.md#setstrict)|Throw exception if not all arguments are used; otherwise, you can take additional arguments with getAdditionalArguments method.|
 |[setVersion](docs/args.md#setversion)|Set the version message.|
 |[setVersionException](docs/args.md#setversionexception)|Throw a VersionException when version action is present in arguments; otherwise, exit(0) after outputting version to stdout.|
 |[updateArgument](docs/args.md#updateargument)|Get the ref. of argument from name or flag.|
@@ -324,11 +353,11 @@ args.addArgument((const char*[]){"-s", "--simple"}); // C++98
 
 |Method|Description|
 |---|---|
-|[action](docs/argument.md#action)|Add a action when this argument is encountered at the command line.|
-|[defaults](docs/argument.md#defaults)|Define the defaults string values.|
-|[dest](docs/argument.md#dest)|Define a reference of object for insert the value after [parseArguments](docs/args.md#parsearguments) method.|
-|[flag](docs/argument.md#flag)|Add flag in argument object.|
-|[help](docs/argument.md#help-1)|Set the help description massge for this argument.|
+|[action](docs/argument.md#action)|Add an action when this argument is encountered at the command line.|
+|[defaults](docs/argument.md#defaults)|Define the default string values.|
+|[dest](docs/argument.md#dest)|Define a reference to an object to insert the value after [parseArguments](docs/args.md#parsearguments) method.|
+|[flag](docs/argument.md#flag)|Add flag to argument object.|
+|[help](docs/argument.md#help-1)|Set the help description message for this argument.|
 |[metavar](docs/argument.md#metavar)|A name for the argument in usage messages.|
 |[nargs](docs/argument.md#nargs)|The number of command-line arguments that should be consumed by this object.|
 |[required](docs/argument.md#required)|Whether or not the command-line argument may be omitted.|
@@ -338,14 +367,14 @@ args.addArgument((const char*[]){"-s", "--simple"}); // C++98
 
 |Enum|Description|
 |---|---|
-|[APPEND](docs/argument.md#append)|This stores a list, and appends each argument value to the list.</br>It is useful to allow an option to be specified multiple times.|
+|[APPEND](docs/argument.md#append)|This stores a list, and appends each argument value to the list.<br/>It is useful to allow an option to be specified multiple times.|
 |[EXTEND](docs/argument.md#extend)|This stores a list, and extends each argument value to the list.|
-|[HELP](docs/argument.md#help)|This case used for create the help flag.|
+|[HELP](docs/argument.md#help)|This is used to create the help flag.|
 |[INFINITE](docs/argument.md#infinite)|This stores a list.|
-|[NONE](docs/argument.md#none)|This just stores the argument’s value. **This is the default action**.|
-|[STORE_FALSE](docs/argument.md#store_false)|This case used for storing the values `false` respectively.|
-|[STORE_TRUE](docs/argument.md#store_true)|This case used for storing the values `true` respectively.|
-|[VERSION](docs/argument.md#version)|This case used for define the version flag.|
+|[NONE](docs/argument.md#none)|This just stores the argument's value. **This is the default action**.|
+|[STORE_FALSE](docs/argument.md#store_false)|This is used to store the value `false`.|
+|[STORE_TRUE](docs/argument.md#store_true)|This is used to store the value `true`.|
+|[VERSION](docs/argument.md#version)|This is used to define the version flag.|
 
 ### Args::Argument Access Methods
 

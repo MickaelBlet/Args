@@ -6,7 +6,7 @@
 Argument& flag(const char* flag__);
 ```
 
-Add flag in argument object.
+Add flag to argument object.
 
 Example:
 ```cpp
@@ -20,7 +20,7 @@ args.addArgument("-f").flag("--foo");
 Argument& action(enum Action::eAction action__);
 ```
 
-Add a action when this argument is encountered at the command line.
+Add an action when this argument is encountered at the command line.
 
 Action list:
 - [NONE](#none)
@@ -49,7 +49,7 @@ Example at [examples.md/extend](examples.md#extend).
 
 ### HELP
 
-This case used for create the help flag.  
+This is used to create the help flag.
 Example at [examples.md/help](examples.md#help).
 
 ### INFINITE
@@ -59,17 +59,17 @@ Example at [examples.md/infinite](examples.md#infinite).
 
 ### STORE_FALSE
 
-This case used for storing the values `false` respectively.  
+This is used to store the value `false`.
 Example at [examples.md/storefalse](examples.md#storefalse).
 
 ### STORE_TRUE
 
-This case used for storing the values `true` respectively.  
+This is used to store the value `true`.
 Example at [examples.md/storetrue](examples.md#storetrue).
 
 ### VERSION
 
-This case used for define the version flag.  
+This is used to define the version flag.
 Example at [examples.md/version](examples.md#version).
 
 ## help
@@ -78,7 +78,7 @@ Example at [examples.md/version](examples.md#version).
 Argument& help(const char* help__);
 ```
 
-Set the help description massge for this argument.
+Set the help description message for this argument.
 
 ## required
 

@@ -100,6 +100,25 @@ class Args : public Usage {
     }
 
     /**
+     * @brief Activate parsing to accept abbreviated long options (e.g., --ver matches --version)
+     *
+     * @param abbreviate
+     */
+    Args& setAbbreviate(bool abbreviate = true) {
+        isAbbreviate_ = abbreviate;
+        return *this;
+    }
+
+    /**
+     * @brief Get the status of abbreviate
+     *
+     * @return [true] if abbreviated options are enabled
+     */
+    bool isAbbreviate() const {
+        return isAbbreviate_;
+    }
+
+    /**
      * @brief Activate exception if not all arguments are used; otherwise, you can take additional arguments with
      * getAdditionalArguments method
      *
@@ -157,25 +176,6 @@ class Args : public Usage {
      */
     bool isVersionException() const {
         return isVersionException_;
-    }
-
-    /**
-     * @brief Activate parsing to accept abbreviated long options (e.g., --ver matches --version)
-     *
-     * @param abbrev
-     */
-    Args& setAbbrev(bool abbrev = true) {
-        isAbbrev_ = abbrev;
-        return *this;
-    }
-
-    /**
-     * @brief Get the status of abbrev
-     *
-     * @return [true] if abbreviated options are enabled
-     */
-    bool isAbbrev() const {
-        return isAbbrev_;
     }
 
     /**
@@ -358,7 +358,7 @@ class Args : public Usage {
      * @return Iterator to the matching argument, or end() if not found or ambiguous
      * @throw ParseArgumentException if the abbreviation is ambiguous
      */
-    std::map<std::string, Argument**>::iterator findAbbreviatedOption_(const std::string& option);
+    std::map<std::string, Argument**>::const_iterator findAbbreviatedOption_(const std::string& option) const;
 
     std::string binaryName_;
 
@@ -372,9 +372,9 @@ class Args : public Usage {
 
     bool isAlternative_;
     bool isStrict_;
+    bool isAbbreviate_;
     bool isHelpException_;
     bool isVersionException_;
-    bool isAbbrev_;
     std::vector<std::string> additionalArguments_;
 };
 

@@ -54,7 +54,7 @@ Get the epilog message.
 void setUsageWidth(std::size_t padWidth, std::size_t argsWidth, std::size_t sepWidth, std::size_t helpWidth);
 ```
 
-Set the usage witdhs.
+Set the usage widths.
 
 <img src="images/headerUsageWidth.drawio.png" />
 
