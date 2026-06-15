@@ -78,10 +78,10 @@ ValidMinMax::~ValidMinMax() {}
 
 bool ValidMinMax::isValid(std::vector<std::string>& args) {
     for (std::size_t i = 0; i < args.size(); ++i) {
-        std::stringstream ssArg("");
-        ssArg << args[i];
-        double number;
-        if (!(ssArg >> number)) {
+        const char* nptr = args[i].c_str();
+        char* endptr = NULL;
+        double number = ::strtod(nptr, &endptr);
+        if (endptr == nptr) {
             std::ostringstream oss("");
             oss << "\"" << args[i] << "\" is not a number";
             throw ParseArgumentValidException(oss.str().c_str());

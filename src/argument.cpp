@@ -26,6 +26,7 @@
 #include "blet/args/argument.h"
 
 #include <algorithm>
+#include <cstdlib> // strtod
 #include <sstream>
 
 #include "blet/args/action.h"
@@ -38,6 +39,16 @@
 namespace blet {
 
 namespace args {
+
+// Parse a leading number from str without constructing a stream.
+// Matches the semantics of `stream >> double` (succeeds if at least one
+// character is consumed), but avoids the per-value std::stringstream cost.
+static inline bool s_toNumber(const std::string& str, double& out) {
+    const char* nptr = str.c_str();
+    char* endptr = NULL;
+    out = ::strtod(nptr, &endptr);
+    return endptr != nptr;
+}
 
 static inline bool compareFlag(const std::string& first, const std::string& second) {
     if (isShortOption(first.c_str()) && isShortOption(second.c_str())) {
@@ -145,41 +156,37 @@ Argument::~Argument() {
 }
 
 std::string Argument::getString() const {
-    std::string ret("");
     if (type_ == BOOLEAN_OPTION) {
-        ret = (isExist_) ? "true" : "false";
+        return std::string((isExist_) ? "true" : "false");
     }
-    else if (type_ == REVERSE_BOOLEAN_OPTION) {
-        ret = (isExist_) ? "false" : "true";
+    if (type_ == REVERSE_BOOLEAN_OPTION) {
+        return std::string((isExist_) ? "false" : "true");
     }
-    else {
-        std::ostringstream oss("");
-        if (!empty()) {
-            for (std::size_t i = 0; i < size(); ++i) {
-                if (i > 0) {
+    // fast path: single value, no composite formatting and no stream needed
+    if (empty()) {
+        return argument_;
+    }
+    std::ostringstream oss("");
+    for (std::size_t i = 0; i < size(); ++i) {
+        if (i > 0) {
+            oss << ", ";
+        }
+        const ArgumentElement& element = at(i);
+        if (!element.empty()) {
+            oss << "(";
+            for (std::size_t j = 0; j < element.size(); ++j) {
+                if (j > 0) {
                     oss << ", ";
                 }
-                if (!at(i).empty()) {
-                    oss << "(";
-                    for (std::size_t j = 0; j < at(i).size(); ++j) {
-                        if (j > 0) {
-                            oss << ", ";
-                        }
-                        oss << at(i).at(j).argument_;
-                    }
-                    oss << ")";
-                }
-                else {
-                    oss << at(i).argument_;
-                }
+                oss << element.at(j).argument_;
             }
+            oss << ")";
         }
         else {
-            oss << argument_;
+            oss << element.argument_;
         }
-        ret = oss.str();
     }
-    return ret;
+    return oss.str();
 }
 
 Argument::operator std::vector<std::string>() const {
@@ -364,28 +371,20 @@ void Argument::toNumber_() {
     if (type_ == BOOLEAN_OPTION || type_ == REVERSE_BOOLEAN_OPTION) {
         return;
     }
-    else {
-        // reuse a single stream instead of constructing one per value
-        std::stringstream ss;
-        if (!empty()) {
-            for (std::size_t i = 0; i < size(); ++i) {
-                if (!at(i).empty()) {
-                    for (std::size_t j = 0; j < at(i).size(); ++j) {
-                        ss.clear();
-                        ss.str(at(i).at(j).argument_);
-                        at(i).at(j).isNumber_ = static_cast<bool>(ss >> at(i).at(j).number_);
-                    }
-                }
-                else {
-                    ss.clear();
-                    ss.str(at(i).argument_);
-                    at(i).isNumber_ = static_cast<bool>(ss >> at(i).number_);
-                }
-            }
+    if (empty()) {
+        isNumber_ = s_toNumber(argument_, number_);
+        return;
+    }
+    for (std::size_t i = 0; i < size(); ++i) {
+        ArgumentElement& element = at(i);
+        if (element.empty()) {
+            element.isNumber_ = s_toNumber(element.argument_, element.number_);
         }
         else {
-            ss.str(argument_);
-            isNumber_ = static_cast<bool>(ss >> number_);
+            for (std::size_t j = 0; j < element.size(); ++j) {
+                ArgumentElement& sub = element.at(j);
+                sub.isNumber_ = s_toNumber(sub.argument_, sub.number_);
+            }
         }
     }
 }
