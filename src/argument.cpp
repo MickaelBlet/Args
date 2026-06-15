@@ -89,6 +89,7 @@ ArgumentElement::~ArgumentElement() {}
 ArgumentElement::operator std::vector<std::string>() const {
     if (!empty() && front().empty()) {
         std::vector<std::string> ret;
+        ret.reserve(size());
         for (std::size_t i = 0; i < size(); ++i) {
             ret.push_back(at(i).argument_);
         }
@@ -194,6 +195,7 @@ Argument::operator std::vector<std::string>() const {
         case MULTI_OPTION:
         case INFINITE_OPTION:
         case MULTI_INFINITE_OPTION:
+            ret.reserve(size());
             for (std::size_t i = 0; i < size(); ++i) {
                 ret.push_back(at(i).argument_);
             }
@@ -363,22 +365,26 @@ void Argument::toNumber_() {
         return;
     }
     else {
+        // reuse a single stream instead of constructing one per value
+        std::stringstream ss;
         if (!empty()) {
             for (std::size_t i = 0; i < size(); ++i) {
                 if (!at(i).empty()) {
                     for (std::size_t j = 0; j < at(i).size(); ++j) {
-                        std::stringstream ss(at(i).at(j).argument_);
+                        ss.clear();
+                        ss.str(at(i).at(j).argument_);
                         at(i).at(j).isNumber_ = static_cast<bool>(ss >> at(i).at(j).number_);
                     }
                 }
                 else {
-                    std::stringstream ss(at(i).argument_);
+                    ss.clear();
+                    ss.str(at(i).argument_);
                     at(i).isNumber_ = static_cast<bool>(ss >> at(i).number_);
                 }
             }
         }
         else {
-            std::stringstream ss(argument_);
+            ss.str(argument_);
             isNumber_ = static_cast<bool>(ss >> number_);
         }
     }
