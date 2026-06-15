@@ -2937,6 +2937,16 @@ inline void Args::parseShortArgument_(int maxIndex, char* argv[], int* index) {
                            arg.c_str(), *(it->second));
             return;
         }
+        else {
+            if (isAbbreviate_) {
+                it = findAbbreviatedOption_(altOption);
+                if (it != argumentFromName_.end()) {
+                    parseArgument_(maxIndex, argv, index, hasArg, it->first.c_str() + ARGS_PREFIX_SIZEOF_LONG_OPTION_,
+                                   arg.c_str(), *(it->second));
+                    return;
+                }
+            }
+        }
     }
     // Pre-allocate short option key buffer: "-X"
     std::string shortKey("-");

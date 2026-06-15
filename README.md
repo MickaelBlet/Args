@@ -209,6 +209,7 @@ Long format
 "-simple" "Simple"  # (alternative) [simple] == Simple
 "-simple=Simple"    # (alternative) [simple] == Simple
 "--ver"             # (abbreviated) [version] == true (if setAbbreviate is enabled)
+"-ver"              # (alternative + abbreviated) [version] == true (if setAlternative and setAbbreviate are enabled)
 ```
 
 ## Methods
@@ -274,6 +275,7 @@ blet::Args args;
 args.addArgument("--version").action(args.STORE_TRUE);
 args.addArgument("--verbose").action(args.STORE_TRUE);
 args.setAbbreviate();
+args.setAlternative(); // optional: also accept single-dash long options
 ```
 
 ```bash
@@ -281,10 +283,11 @@ args.setAbbreviate();
 ./program --verb   # matches --verbose (unambiguous)
 ./program --ver    # ERROR: ambiguous (matches both --version and --verbose)
 ./program --versio # matches --version (unambiguous)
+./program -vers    # matches --version (single-dash, requires setAlternative)
 ```
 
 **Important notes:**
-- Only works with long options (starting with `--`)
+- Works with long options (`--option`) and, when `setAlternative()` is enabled, with the single-dash form (`-option`)
 - Exact matches always take precedence over abbreviations
 - Throws `ParseArgumentException` if abbreviation is ambiguous
 - Can be combined with `setAlternative()` and other parsing options
